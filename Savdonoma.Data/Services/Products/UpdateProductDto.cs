@@ -4,6 +4,7 @@ namespace Savdonoma.Data.Services.Products
 {
     public class UpdateProductDto
     {
+        public int Id { get; set; }
         public Unit? Unit { get; set; }
         public long? Price { get; set; }
         public bool? IsActive { get; set; }

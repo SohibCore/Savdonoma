@@ -7,6 +7,6 @@
         Task<ProductDto> GetAsync(int Id);
         Task<ProductDto> CreateAsync(CreateProductDto dto);
         Task<ProductDto> UpdateAsync(int Id, UpdateProductDto dto);
-        Task DeleteAsync(int Id);
+        Task DeactivateAsync(int Id);
     }
 }
