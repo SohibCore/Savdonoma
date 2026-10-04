@@ -1,8 +1,6 @@
-﻿
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens.Experimental;
+﻿using Savdonoma.Core.Logic;
 using Savdonoma.Core.Entity;
-using Savdonoma.Core.Logic;
+using Microsoft.EntityFrameworkCore;
 
 namespace Savdonoma.Data.Services.Products
 {
@@ -21,6 +19,7 @@ namespace Savdonoma.Data.Services.Products
                 .Where(x => x.IsActive != false);
 
             return await products
+                .OrderBy(x => x.Name)
                 .Select(x => new ProductDto
                 {
                     Id = x.Id,
@@ -51,8 +50,8 @@ namespace Savdonoma.Data.Services.Products
                 .AsNoTracking()
                 .Where(x => x.IsActive);
 
-            var key = NameNormalizer.Normalize(text!);
-            var barcode = text!.Trim();
+            var key = NameNormalizer.Normalize(text);
+            var barcode = text?.Trim();
 
             if (key != "")
                 product = product.Where(x => x.NameSearch.Contains(key) || x.Barcode == barcode);
@@ -111,11 +110,12 @@ namespace Savdonoma.Data.Services.Products
             var barcode = CleanBarcode(dto.Barcode);
 
             if (dto.Name != null)
+            {
                 product.Name = dto.Name.Trim();
+                product.NameSearch = NameNormalizer.Normalize(dto.Name);
+            }
             if (dto.Barcode != null)
                 product.Barcode = barcode;
-            if (dto.NameSearch != null)
-                product.NameSearch = dto.NameSearch;
             if (dto.Unit.HasValue)
                 product.Unit = dto.Unit.Value;
             if (dto.Price.HasValue)
@@ -130,7 +130,8 @@ namespace Savdonoma.Data.Services.Products
             return ReturnDto(product);
         }
 
-        public static void ValidateCreating(CreateProductDto dto)
+        // Yordamichi funksiyalar
+        private static void ValidateCreating(CreateProductDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Name))
             {
@@ -144,6 +145,7 @@ namespace Savdonoma.Data.Services.Products
             {
                 throw new ArgumentException("Mahsulot uchun kategoriya tanlash shart", nameof(dto.CategoryId));
             }
+            ValidateBarcode(dto.Barcode);
         }
         private static ProductDto ReturnDto(Product p)
         {
@@ -170,18 +172,24 @@ namespace Savdonoma.Data.Services.Products
         }
         private static void ValidateUpdating(UpdateProductDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Name))
+            if (dto.Name != null && string.IsNullOrWhiteSpace(dto.Name))
             {
                 throw new ArgumentException("Mahsulot nomi bo'sh bo'lmasligi kerak", nameof(dto.Name));
             }
-            if (dto.Price <= 0)
+            if (dto.Price.HasValue && dto.Price <= 0)
             {
                 throw new ArgumentException("Mahsulot narxi 0 dan katta bo'lishi kerak", nameof(dto.Price));
             }
-            if (dto.CategoryId <= 0)
+            if (dto.CategoryId.HasValue && dto.CategoryId <= 0)
             {
                 throw new ArgumentException("Mahsulot uchun kategoriya tanlash shart", nameof(dto.CategoryId));
             }
+            ValidateBarcode(dto.Barcode);
+        }
+        private static void ValidateBarcode(string? barcode)
+        {
+            if (!string.IsNullOrWhiteSpace(barcode) && !barcode.Trim().All(char.IsDigit))
+                throw new ArgumentException("Barcode faqat raqamdan iborat bo'lishi kerak", nameof(barcode));
         }
     }
 }
