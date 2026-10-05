@@ -8,7 +8,7 @@ namespace Savdonoma.Data.Services.Products
         public Unit Unit { get; set; }
         public long Price { get; set; }
         public bool IsActive { get; set; }
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }    
         public string? Barcode { get; set; }
         public string Name { get; set; } = null!;
         public string NameSearch { get; set; } = null!;

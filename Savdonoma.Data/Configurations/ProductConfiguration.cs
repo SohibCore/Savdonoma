@@ -40,7 +40,8 @@ namespace Savdonoma.Data.Configurations
             builder.Property(x => x.CategoryId)
                 .HasColumnType("integer")
                 .HasColumnName("CATEGORY_ID")
-                .HasColumnOrder(4);
+                .HasColumnOrder(4)
+                .IsRequired(false);
 
             builder.Property(x => x.Barcode)
                 .HasColumnType("text")

@@ -1,0 +1,80 @@
+﻿<UserControl x:Class="Savdonoma.Views.ProductsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="1000">
+    <Grid Margin="16">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="360" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Chap: qidirish va ro'yxat -->
+        <Grid Grid.Column="0" Margin="0,0,16,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <ui:TextBox Grid.Row="0"
+                        PlaceholderText="Nom yoki shtrix-kod bo'yicha qidirish"
+                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                        FontSize="16" MinHeight="44" Margin="0,0,0,12" />
+
+            <DataGrid Grid.Row="1"
+                      ItemsSource="{Binding Products}"
+                      SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      SelectionMode="Single"
+                      HeadersVisibility="Column"
+                      GridLinesVisibility="Horizontal"
+                      RowHeight="44"
+                      FontSize="15">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Nomi" Binding="{Binding Name}" Width="*" />
+                    <DataGridTextColumn Header="Narx" Binding="{Binding Price, StringFormat={}{0:N0}}" Width="110" />
+                    <DataGridTextColumn Header="Birlik" Binding="{Binding Unit}" Width="80" />
+                    <DataGridTextColumn Header="Shtrix-kod" Binding="{Binding Barcode}" Width="150" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <!-- O'ng: forma -->
+        <StackPanel Grid.Column="1">
+            <TextBlock Text="{Binding FormTitle}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
+
+            <TextBlock Text="Nomi" Margin="0,0,0,4" />
+            <ui:TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                        FontSize="16" MinHeight="44" Margin="0,0,0,12" />
+
+            <TextBlock Text="Narx (so'm)" Margin="0,0,0,4" />
+            <ui:TextBox Text="{Binding PriceText, UpdateSourceTrigger=PropertyChanged}"
+                        FontSize="16" MinHeight="44" Margin="0,0,0,12" />
+
+            <TextBlock Text="Birlik" Margin="0,0,0,4" />
+            <ComboBox ItemsSource="{Binding Units}"
+                      SelectedItem="{Binding SelectedUnit}"
+                      FontSize="16" MinHeight="44" Margin="0,0,0,12"
+                      HorizontalAlignment="Stretch" />
+
+            <TextBlock Text="Shtrix-kod (ixtiyoriy)" Margin="0,0,0,4" />
+            <ui:TextBox Text="{Binding Barcode, UpdateSourceTrigger=PropertyChanged}"
+                        FontSize="16" MinHeight="44" Margin="0,0,0,12" />
+
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="#C42B1C"
+                       TextWrapping="Wrap" Margin="0,0,0,12" />
+
+            <ui:Button Content="Saqlash" Command="{Binding SaveCommand}"
+                       Appearance="Primary" HorizontalAlignment="Stretch"
+                       MinHeight="48" Margin="0,0,0,8" />
+            <ui:Button Content="Yangi mahsulot" Command="{Binding NewProductCommand}"
+                       HorizontalAlignment="Stretch" MinHeight="44" Margin="0,0,0,8" />
+            <ui:Button Content="Ro'yxatdan olib tashlash" Command="{Binding DeactivateCommand}"
+                       HorizontalAlignment="Stretch" MinHeight="44" />
+        </StackPanel>
+    </Grid>
+</UserControl>

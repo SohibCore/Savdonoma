@@ -1,9 +1,25 @@
 ﻿<Application x:Class="Savdonoma.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Savdonoma"
-             StartupUri="MainWindow.xaml">
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:Savdonoma.ViewModels"
+             xmlns:views="clr-namespace:Savdonoma.Views">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ThemesDictionary Theme="Dark" />
+                <ui:ControlsDictionary />
+            </ResourceDictionary.MergedDictionaries>
+
+            <DataTemplate DataType="{x:Type vm:SaleViewModel}">
+                <views:SaleView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:ProductsViewModel}">
+                <views:ProductsView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:ReportsViewModel}">
+                <views:ReportsView />
+            </DataTemplate>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

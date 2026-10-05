@@ -141,10 +141,10 @@ namespace Savdonoma.Data.Services.Products
             {
                 throw new ArgumentException("Mahsulot narxi 0 dan katta bo'lishi kerak", nameof(dto.Price));
             }
-            if (dto.CategoryId <= 0)
+            /*if (dto.CategoryId <= 0)
             {
                 throw new ArgumentException("Mahsulot uchun kategoriya tanlash shart", nameof(dto.CategoryId));
-            }
+            }*/
             ValidateBarcode(dto.Barcode);
         }
         private static ProductDto ReturnDto(Product p)
@@ -180,10 +180,10 @@ namespace Savdonoma.Data.Services.Products
             {
                 throw new ArgumentException("Mahsulot narxi 0 dan katta bo'lishi kerak", nameof(dto.Price));
             }
-            if (dto.CategoryId.HasValue && dto.CategoryId <= 0)
+            /*if (dto.CategoryId.HasValue && dto.CategoryId <= 0)
             {
                 throw new ArgumentException("Mahsulot uchun kategoriya tanlash shart", nameof(dto.CategoryId));
-            }
+            }*/
             ValidateBarcode(dto.Barcode);
         }
         private static void ValidateBarcode(string? barcode)
