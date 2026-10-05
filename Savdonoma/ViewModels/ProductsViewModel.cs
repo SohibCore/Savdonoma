@@ -67,7 +67,7 @@ namespace Savdonoma.ViewModels
             catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                ErrorMessage = ex.Message;
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
             }
         }
 
@@ -124,6 +124,12 @@ namespace Savdonoma.ViewModels
             }
             catch (Exception ex)
             {
+                MessageBox.Show(
+                    ex.ToString(),
+                    "Xatolik",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+
                 ErrorMessage = ex.Message;
             }
         }
@@ -145,7 +151,7 @@ namespace Savdonoma.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorMessage = ex.Message;
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
             }
         }
     }

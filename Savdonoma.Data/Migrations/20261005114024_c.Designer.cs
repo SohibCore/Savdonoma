@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Savdonoma.Data;
 
@@ -10,9 +11,11 @@ using Savdonoma.Data;
 namespace Savdonoma.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261005114024_c")]
+    partial class c
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.31");
@@ -148,8 +151,11 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("PAYMENT_METHOD")
                         .HasColumnOrder(3);
 
-                    b.Property<int>("SaleStatus")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("STATUS")
+                        .HasColumnOrder(4);
 
                     b.Property<long>("TotalAmount")
                         .HasColumnType("bigint")

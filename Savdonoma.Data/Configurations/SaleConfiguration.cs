@@ -38,13 +38,6 @@ namespace Savdonoma.Data.Configurations
                 .HasConversion<string>()
                 .IsRequired();
 
-            builder.Property(x => x.Status)
-                .HasColumnType("text")
-                .HasColumnOrder(4)
-                .HasColumnName("STATUS")
-                .HasConversion<string>()
-                .IsRequired();
-
             builder.Property(x => x.CancelReason)
                 .HasColumnType("varchar(500)")
                 .HasColumnOrder(7)

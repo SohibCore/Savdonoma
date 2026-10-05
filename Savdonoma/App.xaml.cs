@@ -1,10 +1,11 @@
-﻿using System.IO;
-using System.Windows;
-using Savdonoma.Data;
-using Savdonoma.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using Savdonoma.Data.Services.Products;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Savdonoma.Data;
+using Savdonoma.Data.Services.Products;
+using Savdonoma.Data.Services.Sales;
+using Savdonoma.ViewModels;
+using System.IO;
+using System.Windows;
 
 namespace Savdonoma
 {
@@ -26,6 +27,7 @@ namespace Savdonoma
 
             // Servislar
             sc.AddTransient<IProductService, ProductService>();
+            sc.AddTransient<ISaleService, SaleService>();
 
             // ViewModel'lar
             sc.AddSingleton<MainViewModel>();

@@ -77,7 +77,7 @@ namespace Savdonoma.Data.Services.Products
                 NameSearch = NameNormalizer.Normalize(dto.Name),
                 Unit = dto.Unit,
                 Price = dto.Price,
-                CategoryId = dto.CategoryId,
+                CategoryId = null,//dto.CategoryId,
                 Barcode = barcode,
                 IsActive = true,
                 CreatedAt = now,

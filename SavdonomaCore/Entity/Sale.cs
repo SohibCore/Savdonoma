@@ -1,5 +1,4 @@
 ﻿using Savdonoma.Core.Enums;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Savdonoma.Core.Entity
 {
@@ -9,7 +8,7 @@ namespace Savdonoma.Core.Entity
         public string Number { get; set; } = null!;
         public long TotalAmount { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
-        public Status Status { get; set; }
+        public SaleStatus SaleStatus { get; set; }
         public string? CancelReason { get; set; }
         public DateTime? CancelledAt { get; set; }
         public DateTime? CreatedAt { get; set; }
