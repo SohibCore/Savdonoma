@@ -2,10 +2,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Savdonoma.Data;
 using Savdonoma.Data.Services.Products;
+using Savdonoma.Data.Services.Reports;
 using Savdonoma.Data.Services.Sales;
 using Savdonoma.ViewModels;
 using System.IO;
 using System.Windows;
+using System.Windows.Markup;
 
 namespace Savdonoma
 {
@@ -16,6 +18,10 @@ namespace Savdonoma
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            FrameworkElement.LanguageProperty.OverrideMetadata(
+                typeof(FrameworkElement),
+                new FrameworkPropertyMetadata(XmlLanguage.GetLanguage("ru-RU"))); //tilni o'gartirish
 
             Directory.CreateDirectory(AppPaths.DataFolder);
 
@@ -28,6 +34,7 @@ namespace Savdonoma
             // Servislar
             sc.AddTransient<IProductService, ProductService>();
             sc.AddTransient<ISaleService, SaleService>();
+            sc.AddTransient<IReportService, ReportService>();
 
             // ViewModel'lar
             sc.AddSingleton<MainViewModel>();

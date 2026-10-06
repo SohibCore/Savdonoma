@@ -20,5 +20,12 @@ namespace Savdonoma.ViewModels
         [RelayCommand] private void ShowSale() => CurrentPage = _sp.GetRequiredService<SaleViewModel>();
         [RelayCommand] private void ShowProducts() => CurrentPage = _sp.GetRequiredService<ProductsViewModel>();
         [RelayCommand] private void ShowReports() => CurrentPage = _sp.GetRequiredService<ReportsViewModel>();
+        /*[RelayCommand]
+        private void ShowReports()
+        {
+            var vm = _sp.GetRequiredService<ReportsViewModel>();
+            CurrentPage = vm;
+            _ = vm.LoadAsync();
+        }*/
     }
 }

@@ -9,7 +9,7 @@ namespace Savdonoma.Core.Entity
         public int ProductId { get; set; }
         public string ProductName { get; set; } = null!;
         public long UnitPrice { get; set; }
-        public decimal Quantity { get; set; }
+        public int Quantity { get; set; }
         public long LineTotal { get; set; }
         public long TotalAmount { get; set; }
         public DateTime? CreatedAt { get; set; }

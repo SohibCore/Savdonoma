@@ -1,12 +1,156 @@
 ﻿<UserControl x:Class="Savdonoma.Views.ReportsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Savdonoma.Views"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock Text="Hisobot" FontSize="24" Margin="16" />
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:Savdonoma.Converters"
+             mc:Ignorable="d"
+             d:DesignHeight="650" d:DesignWidth="1100">
+
+    <UserControl.Resources>
+        <conv:MoneyConverter x:Key="Money" />
+
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="Margin" Value="0,0,12,0" />
+        </Style>
+        <Style x:Key="SectionBorder" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="16" />
+        </Style>
+        <Style x:Key="CardLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+        </Style>
+        <Style x:Key="CardValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="CancelledAwareText" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                    <Setter Property="Foreground" Value="Gray" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- 1. Sana oralig'i -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
+            <TextBlock Text="Dan" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <DatePicker SelectedDate="{Binding FromDate}" SelectedDateFormat="Short"
+                        MinHeight="40" Margin="0,0,16,0" />
+            <TextBlock Text="Gacha" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <DatePicker SelectedDate="{Binding ToDate}" SelectedDateFormat="Short"
+                        MinHeight="40" Margin="0,0,24,0" />
+
+            <ui:Button Content="Bugun" Command="{Binding ShowTodayCommand}" MinHeight="40" Margin="0,0,8,0" />
+            <ui:Button Content="Hafta" Command="{Binding ShowWeekCommand}" MinHeight="40" Margin="0,0,8,0" />
+            <ui:Button Content="Oy" Command="{Binding ShowMonthCommand}" MinHeight="40" Margin="0,0,8,0" />
+            <ui:Button Content="Yangilash" Command="{Binding RefreshCommand}" MinHeight="40" />
+        </StackPanel>
+
+        <!-- 2. Kartochkalar -->
+        <UniformGrid Grid.Row="1" Columns="5" Margin="0,0,0,16">
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel>
+                    <TextBlock Text="Jami savdo (so'm)" Style="{StaticResource CardLabel}" />
+                    <TextBlock Text="{Binding TotalAmount, Converter={StaticResource Money}}" Style="{StaticResource CardValue}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel>
+                    <TextBlock Text="Cheklar soni" Style="{StaticResource CardLabel}" />
+                    <TextBlock Text="{Binding SalesCount}" Style="{StaticResource CardValue}" />
+                    <TextBlock Style="{StaticResource CardLabel}">
+                        <Run Text="Bekor qilingan: " /><Run Text="{Binding CancelledCount, Mode=OneWay}" />
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel>
+                    <TextBlock Text="Naqd" Style="{StaticResource CardLabel}" />
+                    <TextBlock Text="{Binding CashAmount, Converter={StaticResource Money}}" Style="{StaticResource CardValue}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel>
+                    <TextBlock Text="Karta" Style="{StaticResource CardLabel}" />
+                    <TextBlock Text="{Binding CardAmount, Converter={StaticResource Money}}" Style="{StaticResource CardValue}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardBorder}" Margin="0">
+                <StackPanel>
+                    <TextBlock Text="O'rtacha chek" Style="{StaticResource CardLabel}" />
+                    <TextBlock Text="{Binding AverageCheck, Converter={StaticResource Money}}" Style="{StaticResource CardValue}" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- 3. Cheklar bo'limi (butun kenglikda) -->
+        <Border Grid.Row="2" Style="{StaticResource SectionBorder}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Bo'lim sarlavhasi va tugma -->
+                <Grid Grid.Row="0" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="Cheklar" FontSize="20" FontWeight="SemiBold"
+                               VerticalAlignment="Center" />
+                    <ui:Button Grid.Column="1" Content="Tanlangan chekni bekor qilish"
+                               Command="{Binding CancelSaleCommand}" MinHeight="44" />
+                </Grid>
+
+                <!-- Umumiy jadval -->
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding Sales}"
+                          SelectedItem="{Binding SelectedSale, Mode=TwoWay}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          Background="Transparent"
+                          RowHeight="44"
+                          FontSize="15">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Chek raqami" Binding="{Binding Number}" Width="180"
+                                            ElementStyle="{StaticResource CancelledAwareText}" />
+                        <DataGridTextColumn Header="Sana va vaqt" Binding="{Binding Time, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Width="170"
+                                            ElementStyle="{StaticResource CancelledAwareText}" />
+                        <DataGridTextColumn Header="To'lov turi" Binding="{Binding PaymentMethod}" Width="130"
+                                            ElementStyle="{StaticResource CancelledAwareText}" />
+                        <DataGridTextColumn Header="Summa (so'm)" Binding="{Binding TotalAmount, Converter={StaticResource Money}}" Width="*"
+                                            ElementStyle="{StaticResource CancelledAwareText}" />
+                        <DataGridTextColumn Header="Holat" Binding="{Binding Status}" Width="150"
+                                            ElementStyle="{StaticResource CancelledAwareText}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- 4. Xato xabari -->
+        <TextBlock Grid.Row="3" Text="{Binding ErrorMessage}" Foreground="#C42B1C"
+                   TextWrapping="Wrap" Margin="0,8,0,0" />
     </Grid>
 </UserControl>

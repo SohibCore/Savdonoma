@@ -34,7 +34,7 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnOrder(3)
                 .HasColumnName("QUANTITY")
                 .HasColumnType("integer")
-                .HasConversion(v => (long)(v * 1000m), v => v / 1000m)
+                //.HasConversion(v => (long)(v * 1000m), v => v / 1000m)
                 .IsRequired();
 
             builder.Property(x => x.UnitPrice)
