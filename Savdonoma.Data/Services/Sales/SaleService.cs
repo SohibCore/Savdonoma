@@ -56,6 +56,7 @@ namespace Savdonoma.Data.Services.Sales
             {
                 Number = await NextNumberAsync(db, cancellation),
                 PaymentMethod = dto.PaymentMethod,
+                SaleStatus = SaleStatus.Completed,
                 TotalAmount = SaleCalculator.TotolSale(items.Select(x => x.LineTotal)),
                 CreatedAt = now,
                 SaleItems = items

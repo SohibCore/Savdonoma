@@ -14,7 +14,7 @@ namespace Savdonoma.ViewModels
         private readonly ISaleService _sales;
         private CancellationTokenSource? _cts;
 
-        public ObservableCollection<SaleRowDto> Sales { get; } = new();
+        [ObservableProperty] private ObservableCollection<SaleRowDto> sales = new();
 
         [ObservableProperty] private DateTime? fromDate = DateTime.Today;
         [ObservableProperty] private DateTime? toDate = DateTime.Today;
@@ -61,8 +61,11 @@ namespace Savdonoma.ViewModels
                 SalesCount = summary.SalesCount;
                 CancelledCount = summary.CancelledCount;
 
-                Sales.Clear();
-                foreach (var r in rows) Sales.Add(r);
+                var selectedSaleId = SelectedSale?.Id;
+                SelectedSale = null;
+                Sales = new ObservableCollection<SaleRowDto>(rows);
+                if (selectedSaleId.HasValue)
+                    SelectedSale = Sales.FirstOrDefault(x => x.Id == selectedSaleId.Value);
 
                 ErrorMessage = "";
             }

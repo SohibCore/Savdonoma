@@ -63,7 +63,7 @@
         <!-- ============================= -->
 
         <Style x:Key="TableHeaderStyle"
-               TargetType="DataGridColumnHeader">
+               TargetType="GridViewColumnHeader">
 
             <Setter Property="FontSize"
                     Value="12"/>
@@ -198,46 +198,22 @@
 
                 <!-- PRODUCTS TABLE -->
 
-                <DataGrid Grid.Row="2"
+                <ListView Grid.Row="2"
                           ItemsSource="{Binding Products}"
                           SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
-                          AutoGenerateColumns="False"
-                          IsReadOnly="True"
                           SelectionMode="Single"
-                          HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal"
-                          RowHeight="48"
                           FontSize="14"
-                          ColumnHeaderStyle="{StaticResource TableHeaderStyle}"
                           BorderThickness="0"
-                          Background="Transparent"
-                          AlternatingRowBackground="#FAFAFA">
-
-                    <DataGrid.Columns>
-
-                        <DataGridTextColumn
-                            Header="MAHSULOT"
-                            Binding="{Binding Name}"
-                            Width="*"/>
-
-                        <DataGridTextColumn
-                            Header="NARX"
-                            Binding="{Binding Price, StringFormat={}{0:N0}}"
-                            Width="130"/>
-
-                        <DataGridTextColumn
-                            Header="BIRLIK"
-                            Binding="{Binding Unit}"
-                            Width="90"/>
-
-                        <DataGridTextColumn
-                            Header="SHtrix-kod"
-                            Binding="{Binding Barcode}"
-                            Width="160"/>
-
-                    </DataGrid.Columns>
-
-                </DataGrid>
+                          Background="Transparent">
+                    <ListView.View>
+                        <GridView ColumnHeaderContainerStyle="{StaticResource TableHeaderStyle}">
+                            <GridViewColumn Header="MAHSULOT" DisplayMemberBinding="{Binding Name}" Width="250"/>
+                            <GridViewColumn Header="NARX" DisplayMemberBinding="{Binding Price, StringFormat={}{0:N0}}" Width="130"/>
+                            <GridViewColumn Header="BIRLIK" DisplayMemberBinding="{Binding Unit}" Width="90"/>
+                            <GridViewColumn Header="SHtrix-kod" DisplayMemberBinding="{Binding Barcode}" Width="150"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
 
             </Grid>
 
@@ -297,82 +273,38 @@
 
                 <!-- CART TABLE -->
 
-                <DataGrid Grid.Row="1"
+                <ListView Grid.Row="1"
                           ItemsSource="{Binding CartItems}"
-                          AutoGenerateColumns="False"
-                          IsReadOnly="True"
-                          HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal"
-                          RowHeight="54"
                           FontSize="14"
-                          ColumnHeaderStyle="{StaticResource TableHeaderStyle}"
                           BorderThickness="0"
-                          Background="Transparent"
-                          AlternatingRowBackground="#FAFAFA">
-
-                    <DataGrid.Columns>
-
-                        <DataGridTextColumn
-                            Header="MAHSULOT"
-                            Binding="{Binding ProductName}"
-                            Width="*"/>
-
-
-                        <DataGridTextColumn
-                            Header="MIQDOR"
-                            Binding="{Binding Quantity}"
-                            Width="65"/>
-
-
-                        <DataGridTextColumn
-                            Header="SUMMA"
-                            Binding="{Binding LineTotal, StringFormat={}{0:N0}}"
-                            Width="100"/>
-
-
-                        <!-- +/- -->
-
-                        <DataGridTemplateColumn
-                            Header=""
-                            Width="72">
-
-                            <DataGridTemplateColumn.CellTemplate>
-
-                                <DataTemplate>
-
-                                    <StackPanel
-                                        Orientation="Horizontal"
-                                        HorizontalAlignment="Center">
-
-                                        <Button
-                                            Content="−"
-                                            Command="{Binding DataContext.DecreaseQuantityCommand,
-                                                RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            CommandParameter="{Binding}"
-                                            Width="28"
-                                            Height="28"/>
-
-
-                                        <Button
-                                            Content="+"
-                                            Command="{Binding DataContext.IncreaseQuantityCommand,
-                                                RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            CommandParameter="{Binding}"
-                                            Width="28"
-                                            Height="28"
-                                            Margin="4,0,0,0"/>
-
-                                    </StackPanel>
-
-                                </DataTemplate>
-
-                            </DataGridTemplateColumn.CellTemplate>
-
-                        </DataGridTemplateColumn>
-
-                    </DataGrid.Columns>
-
-                </DataGrid>
+                          Background="Transparent">
+                    <ListView.View>
+                        <GridView ColumnHeaderContainerStyle="{StaticResource TableHeaderStyle}">
+                            <GridViewColumn Header="MAHSULOT" DisplayMemberBinding="{Binding ProductName}" Width="150"/>
+                            <GridViewColumn Header="MIQDOR" DisplayMemberBinding="{Binding Quantity}" Width="60"/>
+                            <GridViewColumn Header="SUMMA" DisplayMemberBinding="{Binding LineTotal, StringFormat={}{0:N0}}" Width="90"/>
+                            <GridViewColumn Header="">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Button Content="−"
+                                                    Command="{Binding DataContext.DecreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                    CommandParameter="{Binding}"
+                                                    Width="28"
+                                                    Height="28"/>
+                                            <Button Content="+"
+                                                    Command="{Binding DataContext.IncreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                    CommandParameter="{Binding}"
+                                                    Width="28"
+                                                    Height="28"
+                                                    Margin="4,0,0,0"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
 
 
                 <!-- ================================================== -->

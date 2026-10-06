@@ -19,6 +19,7 @@ namespace Savdonoma.Data.Services.Categories
                 .Where(x => x.IsActive)
                 .Select(x => new CategroyDto
                 {
+                    Id = x.Id,
                     Name = x.Name,
                     IsActive = x.IsActive,
                 }).ToListAsync(cancellation);
@@ -34,6 +35,7 @@ namespace Savdonoma.Data.Services.Categories
                 .Where(x => x.Id == Id && x.IsActive)
                 .Select(x => new CategroyDto
                 {
+                    Id = x.Id,
                     Name = x.Name,
                     IsActive = x.IsActive,
                 }).FirstOrDefaultAsync(cancellation);
@@ -62,6 +64,7 @@ namespace Savdonoma.Data.Services.Categories
 
             return new CategroyDto
             {
+                Id = category.Id,
                 Name = category.Name,
                 IsActive = category.IsActive,
             };
@@ -81,6 +84,7 @@ namespace Savdonoma.Data.Services.Categories
 
             return new CategroyDto
             {
+                Id = category.Id,
                 Name = category.Name,
                 IsActive = category.IsActive,
             };

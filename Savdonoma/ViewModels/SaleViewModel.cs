@@ -15,7 +15,8 @@ namespace Savdonoma.ViewModels
 
         private CancellationTokenSource? _searchCts;
 
-        public ObservableCollection<ProductDto> Products { get; } = new();
+        [ObservableProperty]
+        private ObservableCollection<ProductDto> products = new();
         public ObservableCollection<SaleCartItem> CartItems { get; } = new();
 
         public Array PaymentMethods { get; } =
@@ -75,11 +76,13 @@ namespace Savdonoma.ViewModels
                     SearchText ?? "",
                     cts.Token,
                     take: 100);
+                cts.Token.ThrowIfCancellationRequested();
 
-                Products.Clear();
-
-                foreach (var product in products)
-                    Products.Add(product);
+                var selectedProductId = SelectedProduct?.Id;
+                SelectedProduct = null;
+                Products = new ObservableCollection<ProductDto>(products);
+                if (selectedProductId.HasValue)
+                    SelectedProduct = Products.FirstOrDefault(x => x.Id == selectedProductId.Value);
             }
             catch (OperationCanceledException)
             {

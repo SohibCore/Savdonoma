@@ -42,7 +42,7 @@
         </Style>
 
         <!-- Table header -->
-        <Style x:Key="TableHeaderStyle" TargetType="DataGridColumnHeader">
+        <Style x:Key="TableHeaderStyle" TargetType="GridViewColumnHeader">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource SecondaryText}"/>
@@ -114,42 +114,22 @@
 
                 <!-- Products table -->
 
-                <DataGrid Grid.Row="2"
+                <ListView Grid.Row="2"
                           ItemsSource="{Binding Products}"
                           SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
-                          AutoGenerateColumns="False"
-                          IsReadOnly="True"
                           SelectionMode="Single"
-                          HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal"
-                          RowHeight="48"
                           FontSize="14"
-                          ColumnHeaderStyle="{StaticResource TableHeaderStyle}"
                           BorderThickness="0"
-                          Background="Transparent"
-                          AlternatingRowBackground="#FAFAFA">
-
-                    <DataGrid.Columns>
-
-                        <DataGridTextColumn Header="MAHSULOT"
-                                            Binding="{Binding Name}"
-                                            Width="*"/>
-
-                        <DataGridTextColumn Header="NARX"
-                                            Binding="{Binding Price, StringFormat={}{0:N0}}"
-                                            Width="130"/>
-
-                        <DataGridTextColumn Header="BIRLIK"
-                                            Binding="{Binding Unit}"
-                                            Width="90"/>
-
-                        <DataGridTextColumn Header="SHtrix-kod"
-                                            Binding="{Binding Barcode}"
-                                            Width="170"/>
-
-                    </DataGrid.Columns>
-
-                </DataGrid>
+                          Background="Transparent">
+                    <ListView.View>
+                        <GridView ColumnHeaderContainerStyle="{StaticResource TableHeaderStyle}">
+                            <GridViewColumn Header="MAHSULOT" DisplayMemberBinding="{Binding Name}" Width="250"/>
+                            <GridViewColumn Header="NARX" DisplayMemberBinding="{Binding Price, StringFormat={}{0:N0}}" Width="130"/>
+                            <GridViewColumn Header="BIRLIK" DisplayMemberBinding="{Binding Unit}" Width="90"/>
+                            <GridViewColumn Header="SHtrix-kod" DisplayMemberBinding="{Binding Barcode}" Width="150"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
 
             </Grid>
 
@@ -229,6 +209,15 @@
                                   Margin="0,0,0,14"
                                   HorizontalAlignment="Stretch"/>
 
+                        <TextBlock Text="Kategoriya"
+                                   Style="{StaticResource FieldLabelStyle}"/>
+
+                        <ComboBox ItemsSource="{Binding Categories}"
+                                  SelectedItem="{Binding SelectedCategory}"
+                                  DisplayMemberPath="Name"
+                                  MinHeight="44"
+                                  FontSize="15"
+                                  Margin="0,0,0,14"/>
 
                         <!-- Barcode -->
 

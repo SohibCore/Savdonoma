@@ -1,18 +1,21 @@
-﻿using System.Windows;
-using Savdonoma.Core.Enums;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Collections.ObjectModel;
+using Savdonoma.Core.Enums;
+using Savdonoma.Data.Services.Categories;
 using Savdonoma.Data.Services.Products;
-using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace Savdonoma.ViewModels
 {
     public partial class ProductsViewModel : ObservableObject // UI ga qandaydir o'zgarishlar bo'lsa, xabar beradi
     {
         private readonly IProductService _service;
+        private readonly ICategoryService _categoryService;
         private CancellationTokenSource? _searchCts;
 
-        public ObservableCollection<ProductDto> Products { get; } = new();
+        [ObservableProperty] private ObservableCollection<ProductDto> products = new();
+        public ObservableCollection<CategroyDto> Categories { get; } = new();
         public Array Units { get; } = Enum.GetValues(typeof(Unit));
 
         [ObservableProperty] private string searchText = "";
@@ -26,11 +29,14 @@ namespace Savdonoma.ViewModels
         [ObservableProperty] private string barcode = "";
         [ObservableProperty] private string formTitle = "Yangi mahsulot";
         [ObservableProperty] private string errorMessage = "";
+        [ObservableProperty] private CategroyDto? selectedCategory;
 
-        public ProductsViewModel(IProductService service)
+        public ProductsViewModel(IProductService service, ICategoryService categoryService)
         {
             _service = service;
+            _categoryService = categoryService;
             _ = LoadAsync();
+            _ = LoadCategoriesAsync();
         }
 
         // Qidirish matni o'zgarganda ro'yxat yangilanadi
@@ -46,6 +52,10 @@ namespace Savdonoma.ViewModels
             PriceText = value.Price.ToString();
             SelectedUnit = value.Unit;
             Barcode = value.Barcode ?? "";
+
+            SelectedCategory = Categories
+                .FirstOrDefault(x => x.Id == value.CategoryId);
+
             FormTitle = "Tahrirlash";
             ErrorMessage = "";
         }
@@ -59,10 +69,13 @@ namespace Savdonoma.ViewModels
             {
                 await Task.Delay(200, cts.Token);   // har harfda emas, yozish to'xtagach qidiradi
                 var items = await _service.SearchAsync(SearchText ?? "", cts.Token, take: 1000);
+                cts.Token.ThrowIfCancellationRequested();
 
-                Products.Clear();
-                foreach (var p in items)
-                    Products.Add(p);
+                var selectedProductId = SelectedProduct?.Id;
+                SelectedProduct = null;
+                Products = new ObservableCollection<ProductDto>(items);
+                if (selectedProductId.HasValue)
+                    SelectedProduct = Products.FirstOrDefault(x => x.Id == selectedProductId.Value);
             }
             catch (OperationCanceledException) { }
             catch (Exception ex)
@@ -76,9 +89,13 @@ namespace Savdonoma.ViewModels
         {
             SelectedProduct = null;
             EditingId = null;
+
             Name = "";
             PriceText = "";
             Barcode = "";
+
+            SelectedCategory = null;
+
             FormTitle = "Yangi mahsulot";
             ErrorMessage = "";
         }
@@ -99,12 +116,20 @@ namespace Savdonoma.ViewModels
             {
                 if (EditingId == null)
                 {
+                    var category = SelectedCategory;
+                    if (category is null || category.Id <= 0)
+                    {
+                        ErrorMessage = "Kategoriya tanlang";
+                        return;
+                    }
+
                     await _service.CreateAsync(new CreateProductDto
                     {
                         Name = Name,
                         Unit = SelectedUnit,
                         Price = price,
-                        Barcode = Barcode
+                        Barcode = Barcode,
+                        CategoryId = category.Id
                     }, CancellationToken.None);
                 }
                 else
@@ -148,6 +173,25 @@ namespace Savdonoma.ViewModels
                 await _service.DeactivateAsync(EditingId.Value, CancellationToken.None);
                 NewProduct();
                 await LoadAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
+            }
+        }
+        private async Task LoadCategoriesAsync()
+        {
+            try
+            {
+                var categories = await _categoryService.GetListAsync(
+                    CancellationToken.None);
+
+                Categories.Clear();
+
+                foreach (var category in categories)
+                {
+                    Categories.Add(category);
+                }
             }
             catch (Exception ex)
             {

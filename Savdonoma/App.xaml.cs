@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Savdonoma.Data;
+using Savdonoma.Data.Services.Categories;
 using Savdonoma.Data.Services.Products;
 using Savdonoma.Data.Services.Reports;
 using Savdonoma.Data.Services.Sales;
@@ -15,7 +16,7 @@ namespace Savdonoma
     {
         public static IServiceProvider Services { get; private set; } = null!;
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
@@ -35,6 +36,7 @@ namespace Savdonoma
             sc.AddTransient<IProductService, ProductService>();
             sc.AddTransient<ISaleService, SaleService>();
             sc.AddTransient<IReportService, ReportService>();
+            sc.AddTransient<ICategoryService, CategoryService>();
 
             // ViewModel'lar
             sc.AddSingleton<MainViewModel>();
@@ -53,16 +55,17 @@ namespace Savdonoma
                     .GetRequiredService<IDbContextFactory<AppDbContext>>()
                     .CreateDbContext();
                 db.Database.Migrate();
+                await DbSeeder.SeedAsync(db);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Bazani yaratishda xato:\n" + ex.Message,
-                    "Savdonoma", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.ToString(), "Bazani yaratishda xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
+
                 Shutdown();
                 return;
             }
-
             Services.GetRequiredService<MainWindow>().Show();
+            //MessageBox.Show(AppPaths.DbPath);
         }
     }
 }

@@ -29,17 +29,17 @@ namespace Savdonoma.Data.Services.Reports
                     s.TotalAmount
                 }).ToListAsync(cancellation);
 
-            var done = rows.Where(r => r.SaleStatus == SaleStatus.Completed).ToList();
-            var total = done.Sum(r => r.TotalAmount);
+            //var done = rows.Where(r => r.SaleStatus == SaleStatus.Completed).ToList();
+            var total = rows.Sum(r => r.TotalAmount);
 
             return new SalesSummaryDto
             {
                 TotalAmount = total,
-                SalesCount = done.Count,
-                CashAmount = done.Where(r => r.PaymentMethod == PaymentMethod.Naqd).Sum(r => r.TotalAmount),
-                CardAmount = done.Where(r => r.PaymentMethod == PaymentMethod.Karta).Sum(r => r.TotalAmount),
-                AverageCheck = done.Count == 0 ? 0 : total / done.Count,
-                CancelledCount = rows.Count - done.Count
+                SalesCount = rows.Count,
+                CashAmount = rows.Where(r => r.PaymentMethod == PaymentMethod.Naqd).Sum(r => r.TotalAmount),
+                CardAmount = rows.Where(r => r.PaymentMethod == PaymentMethod.Karta).Sum(r => r.TotalAmount),
+                AverageCheck = rows.Count == 0 ? 0 : total / rows.Count,
+                CancelledCount = rows.Count - rows.Count(r => r.SaleStatus == SaleStatus.Completed)
             };
         }
 
@@ -51,7 +51,14 @@ namespace Savdonoma.Data.Services.Reports
             var rows = await db.Sales.AsNoTracking()
                 .Where(s => s.CreatedAt >= fromUtc && s.CreatedAt < toUtc)
                 .OrderByDescending(s => s.CreatedAt)
-                .Select(s => new { s.Id, s.Number, s.CreatedAt, s.PaymentMethod, s.TotalAmount, s.SaleStatus })
+                .Select(s => new 
+                { 
+                    s.Id, 
+                    s.Number, 
+                    s.CreatedAt, 
+                    s.PaymentMethod, 
+                    s.TotalAmount, 
+                    s.SaleStatus })
                 .ToListAsync(cancellation);
 
             return rows.Select(r => new SaleRowDto
