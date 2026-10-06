@@ -5,76 +5,294 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="1000">
-    <Grid Margin="16">
+             d:DesignHeight="700"
+             d:DesignWidth="1200">
+
+    <UserControl.Resources>
+
+        <!-- Colors -->
+        <SolidColorBrush x:Key="CardBackground" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#E5E7EB"/>
+        <SolidColorBrush x:Key="PrimaryText" Color="#111827"/>
+        <SolidColorBrush x:Key="SecondaryText" Color="#6B7280"/>
+        <SolidColorBrush x:Key="DangerText" Color="#DC2626"/>
+
+        <!-- Card -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="18"/>
+        </Style>
+
+        <!-- Field label -->
+        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource SecondaryText}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+
+        <!-- Table text -->
+        <Style x:Key="TableTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryText}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Table header -->
+        <Style x:Key="TableHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource SecondaryText}"/>
+            <Setter Property="Background" Value="#F9FAFB"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="360" />
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="370"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Chap: qidirish va ro'yxat -->
-        <Grid Grid.Column="0" Margin="0,0,16,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <!-- ====================================================== -->
+        <!-- LEFT: PRODUCTS LIST                                   -->
+        <!-- ====================================================== -->
 
-            <ui:TextBox Grid.Row="0"
-                        PlaceholderText="Nom yoki shtrix-kod bo'yicha qidirish"
-                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                        FontSize="16" MinHeight="44" Margin="0,0,0,12" />
+        <Border Grid.Column="0"
+                Style="{StaticResource CardStyle}"
+                Margin="0,0,16,0">
 
-            <DataGrid Grid.Row="1"
-                      ItemsSource="{Binding Products}"
-                      SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
-                      AutoGenerateColumns="False"
-                      IsReadOnly="True"
-                      SelectionMode="Single"
-                      HeadersVisibility="Column"
-                      GridLinesVisibility="Horizontal"
-                      RowHeight="44"
-                      FontSize="15">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Nomi" Binding="{Binding Name}" Width="*" />
-                    <DataGridTextColumn Header="Narx" Binding="{Binding Price, StringFormat={}{0:N0}}" Width="110" />
-                    <DataGridTextColumn Header="Birlik" Binding="{Binding Unit}" Width="80" />
-                    <DataGridTextColumn Header="Shtrix-kod" Binding="{Binding Barcode}" Width="150" />
-                </DataGrid.Columns>
-            </DataGrid>
-        </Grid>
+            <Grid>
 
-        <!-- O'ng: forma -->
-        <StackPanel Grid.Column="1">
-            <TextBlock Text="{Binding FormTitle}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16" />
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <TextBlock Text="Nomi" Margin="0,0,0,4" />
-            <ui:TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                        FontSize="16" MinHeight="44" Margin="0,0,0,12" />
+                <!-- Header -->
 
-            <TextBlock Text="Narx (so'm)" Margin="0,0,0,4" />
-            <ui:TextBox Text="{Binding PriceText, UpdateSourceTrigger=PropertyChanged}"
-                        FontSize="16" MinHeight="44" Margin="0,0,0,12" />
+                <Grid Grid.Row="0"
+                      Margin="0,0,0,16">
 
-            <TextBlock Text="Birlik" Margin="0,0,0,4" />
-            <ComboBox ItemsSource="{Binding Units}"
-                      SelectedItem="{Binding SelectedUnit}"
-                      FontSize="16" MinHeight="44" Margin="0,0,0,12"
-                      HorizontalAlignment="Stretch" />
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-            <TextBlock Text="Shtrix-kod (ixtiyoriy)" Margin="0,0,0,4" />
-            <ui:TextBox Text="{Binding Barcode, UpdateSourceTrigger=PropertyChanged}"
-                        FontSize="16" MinHeight="44" Margin="0,0,0,12" />
+                    <StackPanel Grid.Column="0">
 
-            <TextBlock Text="{Binding ErrorMessage}" Foreground="#C42B1C"
-                       TextWrapping="Wrap" Margin="0,0,0,12" />
+                        <TextBlock Text="Mahsulotlar"
+                                   FontSize="22"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource PrimaryText}"/>
 
-            <ui:Button Content="Saqlash" Command="{Binding SaveCommand}"
-                       Appearance="Primary" HorizontalAlignment="Stretch"
-                       MinHeight="48" Margin="0,0,0,8" />
-            <ui:Button Content="Yangi mahsulot" Command="{Binding NewProductCommand}"
-                       HorizontalAlignment="Stretch" MinHeight="44" Margin="0,0,0,8" />
-            <ui:Button Content="Ro'yxatdan olib tashlash" Command="{Binding DeactivateCommand}"
-                       HorizontalAlignment="Stretch" MinHeight="44" />
-        </StackPanel>
+                        <TextBlock Text="Mahsulotlarni qidiring va boshqaring"
+                                   FontSize="13"
+                                   Foreground="{StaticResource SecondaryText}"
+                                   Margin="0,4,0,0"/>
+
+                    </StackPanel>
+
+                </Grid>
+
+                <!-- Search -->
+
+                <ui:TextBox Grid.Row="1"
+                            PlaceholderText="Mahsulot nomi yoki shtrix-kod bo'yicha qidirish..."
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                            FontSize="15"
+                            MinHeight="44"
+                            Margin="0,0,0,14"/>
+
+                <!-- Products table -->
+
+                <DataGrid Grid.Row="2"
+                          ItemsSource="{Binding Products}"
+                          SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          RowHeight="48"
+                          FontSize="14"
+                          ColumnHeaderStyle="{StaticResource TableHeaderStyle}"
+                          BorderThickness="0"
+                          Background="Transparent"
+                          AlternatingRowBackground="#FAFAFA">
+
+                    <DataGrid.Columns>
+
+                        <DataGridTextColumn Header="MAHSULOT"
+                                            Binding="{Binding Name}"
+                                            Width="*"/>
+
+                        <DataGridTextColumn Header="NARX"
+                                            Binding="{Binding Price, StringFormat={}{0:N0}}"
+                                            Width="130"/>
+
+                        <DataGridTextColumn Header="BIRLIK"
+                                            Binding="{Binding Unit}"
+                                            Width="90"/>
+
+                        <DataGridTextColumn Header="SHtrix-kod"
+                                            Binding="{Binding Barcode}"
+                                            Width="170"/>
+
+                    </DataGrid.Columns>
+
+                </DataGrid>
+
+            </Grid>
+
+        </Border>
+
+
+        <!-- ====================================================== -->
+        <!-- RIGHT: PRODUCT FORM                                   -->
+        <!-- ====================================================== -->
+
+        <Border Grid.Column="1"
+                Style="{StaticResource CardStyle}">
+
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Form header -->
+
+                <StackPanel Grid.Row="0"
+                            Margin="0,0,0,16">
+
+                    <TextBlock Text="{Binding FormTitle}"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource PrimaryText}"/>
+
+                    <TextBlock Text="Mahsulot ma'lumotlarini kiriting"
+                               FontSize="13"
+                               Foreground="{StaticResource SecondaryText}"
+                               Margin="0,4,0,0"/>
+
+                </StackPanel>
+
+
+                <!-- Form -->
+
+                <ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto">
+
+                    <StackPanel>
+
+                        <!-- Name -->
+
+                        <TextBlock Text="Mahsulot nomi"
+                                   Style="{StaticResource FieldLabelStyle}"/>
+
+                        <ui:TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                    FontSize="15"
+                                    MinHeight="44"
+                                    Margin="0,0,0,14"/>
+
+
+                        <!-- Price -->
+
+                        <TextBlock Text="Narx (so'm)"
+                                   Style="{StaticResource FieldLabelStyle}"/>
+
+                        <ui:TextBox Text="{Binding PriceText, UpdateSourceTrigger=PropertyChanged}"
+                                    FontSize="15"
+                                    MinHeight="44"
+                                    Margin="0,0,0,14"/>
+
+
+                        <!-- Unit -->
+
+                        <TextBlock Text="Birlik"
+                                   Style="{StaticResource FieldLabelStyle}"/>
+
+                        <ComboBox ItemsSource="{Binding Units}"
+                                  SelectedItem="{Binding SelectedUnit}"
+                                  FontSize="15"
+                                  MinHeight="44"
+                                  Margin="0,0,0,14"
+                                  HorizontalAlignment="Stretch"/>
+
+
+                        <!-- Barcode -->
+
+                        <TextBlock Text="Shtrix-kod"
+                                   Style="{StaticResource FieldLabelStyle}"/>
+
+                        <ui:TextBox Text="{Binding Barcode, UpdateSourceTrigger=PropertyChanged}"
+                                    PlaceholderText="Ixtiyoriy"
+                                    FontSize="15"
+                                    MinHeight="44"
+                                    Margin="0,0,0,16"/>
+
+
+                        <!-- Error -->
+
+                        <Border Background="#FEF2F2"
+                                BorderBrush="#FECACA"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="10"
+                                Margin="0,0,0,16">
+
+                            <TextBlock Text="{Binding ErrorMessage}"
+                                       Foreground="{StaticResource DangerText}"
+                                       TextWrapping="Wrap"
+                                       FontSize="13"/>
+
+                        </Border>
+
+
+                        <!-- Save -->
+
+                        <ui:Button Content="Saqlash"
+                                   Command="{Binding SaveCommand}"
+                                   Appearance="Primary"
+                                   HorizontalAlignment="Stretch"
+                                   MinHeight="46"
+                                   Margin="0,0,0,8"/>
+
+
+                        <!-- New product -->
+
+                        <ui:Button Content="Yangi mahsulot"
+                                   Command="{Binding NewProductCommand}"
+                                   HorizontalAlignment="Stretch"
+                                   MinHeight="44"
+                                   Margin="0,0,0,8"/>
+
+
+                        <!-- Deactivate -->
+
+                        <ui:Button Content="Ro'yxatdan olib tashlash"
+                                   Command="{Binding DeactivateCommand}"
+                                   HorizontalAlignment="Stretch"
+                                   MinHeight="44"/>
+
+                    </StackPanel>
+
+                </ScrollViewer>
+
+            </Grid>
+
+        </Border>
+
     </Grid>
+
 </UserControl>

@@ -5,191 +5,472 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
-             d:DesignHeight="600"
-             d:DesignWidth="1000">
+             d:DesignHeight="700"
+             d:DesignWidth="1200">
 
-    <Grid Margin="16">
+    <UserControl.Resources>
+
+        <!-- ============================= -->
+        <!-- COLORS                         -->
+        <!-- ============================= -->
+
+        <SolidColorBrush x:Key="CardBackground"
+                         Color="#FFFFFF"/>
+
+        <SolidColorBrush x:Key="BorderBrush"
+                         Color="#E5E7EB"/>
+
+        <SolidColorBrush x:Key="PrimaryText"
+                         Color="#111827"/>
+
+        <SolidColorBrush x:Key="SecondaryText"
+                         Color="#6B7280"/>
+
+        <SolidColorBrush x:Key="DangerText"
+                         Color="#DC2626"/>
+
+        <SolidColorBrush x:Key="LightBackground"
+                         Color="#F9FAFB"/>
+
+
+        <!-- ============================= -->
+        <!-- CARD                           -->
+        <!-- ============================= -->
+
+        <Style x:Key="CardStyle"
+               TargetType="Border">
+
+            <Setter Property="Background"
+                    Value="{StaticResource CardBackground}"/>
+
+            <Setter Property="BorderBrush"
+                    Value="{StaticResource BorderBrush}"/>
+
+            <Setter Property="BorderThickness"
+                    Value="1"/>
+
+            <Setter Property="CornerRadius"
+                    Value="12"/>
+
+            <Setter Property="Padding"
+                    Value="18"/>
+
+        </Style>
+
+
+        <!-- ============================= -->
+        <!-- TABLE HEADER                   -->
+        <!-- ============================= -->
+
+        <Style x:Key="TableHeaderStyle"
+               TargetType="DataGridColumnHeader">
+
+            <Setter Property="FontSize"
+                    Value="12"/>
+
+            <Setter Property="FontWeight"
+                    Value="SemiBold"/>
+
+            <Setter Property="Foreground"
+                    Value="{StaticResource SecondaryText}"/>
+
+            <Setter Property="Background"
+                    Value="#F9FAFB"/>
+
+            <Setter Property="Padding"
+                    Value="12,10"/>
+
+            <Setter Property="BorderThickness"
+                    Value="0,0,0,1"/>
+
+            <Setter Property="BorderBrush"
+                    Value="{StaticResource BorderBrush}"/>
+
+        </Style>
+
+
+        <!-- ============================= -->
+        <!-- TABLE TEXT                    -->
+        <!-- ============================= -->
+
+        <Style x:Key="TableTextStyle"
+               TargetType="TextBlock">
+
+            <Setter Property="FontSize"
+                    Value="14"/>
+
+            <Setter Property="Foreground"
+                    Value="{StaticResource PrimaryText}"/>
+
+            <Setter Property="VerticalAlignment"
+                    Value="Center"/>
+
+        </Style>
+
+
+        <!-- ============================= -->
+        <!-- FIELD LABEL                   -->
+        <!-- ============================= -->
+
+        <Style x:Key="FieldLabelStyle"
+               TargetType="TextBlock">
+
+            <Setter Property="FontSize"
+                    Value="13"/>
+
+            <Setter Property="FontWeight"
+                    Value="SemiBold"/>
+
+            <Setter Property="Foreground"
+                    Value="{StaticResource SecondaryText}"/>
+
+            <Setter Property="Margin"
+                    Value="0,0,0,6"/>
+
+        </Style>
+
+    </UserControl.Resources>
+
+
+    <!-- ====================================================== -->
+    <!-- MAIN                                                   -->
+    <!-- ====================================================== -->
+
+    <Grid Margin="20">
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="400" />
+
+            <ColumnDefinition Width="*"/>
+
+            <ColumnDefinition Width="390"/>
+
         </Grid.ColumnDefinitions>
 
-        <!-- Mahsulotlar -->
-        <Grid Grid.Column="0"
-              Margin="0,0,16,0">
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <!-- ================================================== -->
+        <!-- LEFT: PRODUCTS                                    -->
+        <!-- ================================================== -->
 
-            <ui:TextBox
-                Grid.Row="0"
-                Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                PlaceholderText="Mahsulot nomi yoki shtrix-kod..."
-                FontSize="16"
-                MinHeight="44"
-                Margin="0,0,0,12" />
+        <Border Grid.Column="0"
+                Style="{StaticResource CardStyle}"
+                Margin="0,0,16,0">
 
-            <DataGrid
-                Grid.Row="1"
-                ItemsSource="{Binding Products}"
-                SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
-                AutoGenerateColumns="False"
-                IsReadOnly="True"
-                SelectionMode="Single"
-                RowHeight="44"
-                FontSize="15">
+            <Grid>
 
-                <DataGrid.Columns>
+                <Grid.RowDefinitions>
 
-                    <DataGridTextColumn
-                        Header="Nomi"
-                        Binding="{Binding Name}"
-                        Width="*" />
+                    <RowDefinition Height="Auto"/>
 
-                    <DataGridTextColumn
-                        Header="Narx"
-                        Binding="{Binding Price, StringFormat={}{0:N0}}"
-                        Width="120" />
+                    <RowDefinition Height="Auto"/>
 
-                    <DataGridTextColumn
-                        Header="Birlik"
-                        Binding="{Binding Unit}"
-                        Width="80" />
+                    <RowDefinition Height="*"/>
 
-                    <DataGridTextColumn
-                        Header="Barcode"
-                        Binding="{Binding Barcode}"
-                        Width="150" />
+                </Grid.RowDefinitions>
 
-                </DataGrid.Columns>
 
-            </DataGrid>
+                <!-- HEADER -->
 
-        </Grid>
+                <StackPanel Grid.Row="0"
+                            Margin="0,0,0,16">
 
-        <!-- Savat -->
-        <Grid Grid.Column="1">
+                    <TextBlock Text="Mahsulotlar"
+                               FontSize="22"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource PrimaryText}"/>
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+                    <TextBlock Text="Sotuv uchun mahsulot tanlang"
+                               FontSize="13"
+                               Foreground="{StaticResource SecondaryText}"
+                               Margin="0,4,0,0"/>
 
-            <TextBlock
-                Text="Savat"
-                FontSize="22"
-                FontWeight="SemiBold"
-                Margin="0,0,0,12" />
+                </StackPanel>
 
-            <DataGrid
-                Grid.Row="1"
-                ItemsSource="{Binding CartItems}"
-                AutoGenerateColumns="False"
-                IsReadOnly="True"
-                RowHeight="50">
 
-                <DataGrid.Columns>
+                <!-- SEARCH -->
 
-                    <DataGridTextColumn
-                        Header="Mahsulot"
-                        Binding="{Binding ProductName}"
-                        Width="*" />
+                <ui:TextBox Grid.Row="1"
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                            PlaceholderText="Mahsulot nomi yoki shtrix-kod bo'yicha qidirish..."
+                            FontSize="15"
+                            MinHeight="44"
+                            Margin="0,0,0,14"/>
 
-                    <DataGridTextColumn
-                        Header="Miqdor"
-                        Binding="{Binding Quantity}"
-                        Width="70" />
 
-                    <DataGridTextColumn
-                        Header="Summa"
-                        Binding="{Binding LineTotal, StringFormat={}{0:N0}}"
-                        Width="110" />
+                <!-- PRODUCTS TABLE -->
 
-                    <DataGridTemplateColumn
-                        Header=""
-                        Width="100">
+                <DataGrid Grid.Row="2"
+                          ItemsSource="{Binding Products}"
+                          SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          RowHeight="48"
+                          FontSize="14"
+                          ColumnHeaderStyle="{StaticResource TableHeaderStyle}"
+                          BorderThickness="0"
+                          Background="Transparent"
+                          AlternatingRowBackground="#FAFAFA">
 
-                        <DataGridTemplateColumn.CellTemplate>
+                    <DataGrid.Columns>
 
-                            <DataTemplate>
+                        <DataGridTextColumn
+                            Header="MAHSULOT"
+                            Binding="{Binding Name}"
+                            Width="*"/>
 
-                                <StackPanel
-                                    Orientation="Horizontal">
+                        <DataGridTextColumn
+                            Header="NARX"
+                            Binding="{Binding Price, StringFormat={}{0:N0}}"
+                            Width="130"/>
 
-                                    <Button
-                                        Content="-"
-                                        Command="{Binding DataContext.DecreaseQuantityCommand,
-                                            RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                        CommandParameter="{Binding}"
-                                        Width="30" />
+                        <DataGridTextColumn
+                            Header="BIRLIK"
+                            Binding="{Binding Unit}"
+                            Width="90"/>
 
-                                    <Button
-                                        Content="+"
-                                        Command="{Binding DataContext.IncreaseQuantityCommand,
-                                            RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                        CommandParameter="{Binding}"
-                                        Width="30"
-                                        Margin="4,0,0,0" />
+                        <DataGridTextColumn
+                            Header="SHtrix-kod"
+                            Binding="{Binding Barcode}"
+                            Width="160"/>
 
-                                </StackPanel>
+                    </DataGrid.Columns>
 
-                            </DataTemplate>
+                </DataGrid>
 
-                        </DataGridTemplateColumn.CellTemplate>
+            </Grid>
 
-                    </DataGridTemplateColumn>
+        </Border>
 
-                </DataGrid.Columns>
 
-            </DataGrid>
+        <!-- ================================================== -->
+        <!-- RIGHT: CART                                        -->
+        <!-- ================================================== -->
 
-            <StackPanel Grid.Row="2">
+        <Border Grid.Column="1"
+                Style="{StaticResource CardStyle}">
 
-                <TextBlock
-                    Text="{Binding ErrorMessage}"
-                    Foreground="#C42B1C"
-                    TextWrapping="Wrap"
-                    Margin="0,8" />
+            <Grid>
 
-                <TextBlock
-                    Text="To'lov turi"
-                    Margin="0,4" />
+                <Grid.RowDefinitions>
 
-                <ComboBox
-                    ItemsSource="{Binding PaymentMethods}"
-                    SelectedItem="{Binding SelectedPaymentMethod}"
-                    MinHeight="40"
-                    Margin="0,0,0,12" />
+                    <RowDefinition Height="Auto"/>
 
-                <DockPanel Margin="0,0,0,12">
+                    <RowDefinition Height="*"/>
+
+                    <RowDefinition Height="Auto"/>
+
+                </Grid.RowDefinitions>
+
+
+                <!-- CART HEADER -->
+
+                <Grid Grid.Row="0"
+                      Margin="0,0,0,16">
+
+                    <Grid.ColumnDefinitions>
+
+                        <ColumnDefinition Width="*"/>
+
+                        <ColumnDefinition Width="Auto"/>
+
+                    </Grid.ColumnDefinitions>
+
+
+                    <StackPanel Grid.Column="0">
+
+                        <TextBlock Text="Savat"
+                                   FontSize="22"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource PrimaryText}"/>
+
+                        <TextBlock Text="Tanlangan mahsulotlar"
+                                   FontSize="13"
+                                   Foreground="{StaticResource SecondaryText}"
+                                   Margin="0,4,0,0"/>
+
+                    </StackPanel>
+
+                </Grid>
+
+
+                <!-- CART TABLE -->
+
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding CartItems}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          RowHeight="54"
+                          FontSize="14"
+                          ColumnHeaderStyle="{StaticResource TableHeaderStyle}"
+                          BorderThickness="0"
+                          Background="Transparent"
+                          AlternatingRowBackground="#FAFAFA">
+
+                    <DataGrid.Columns>
+
+                        <DataGridTextColumn
+                            Header="MAHSULOT"
+                            Binding="{Binding ProductName}"
+                            Width="*"/>
+
+
+                        <DataGridTextColumn
+                            Header="MIQDOR"
+                            Binding="{Binding Quantity}"
+                            Width="65"/>
+
+
+                        <DataGridTextColumn
+                            Header="SUMMA"
+                            Binding="{Binding LineTotal, StringFormat={}{0:N0}}"
+                            Width="100"/>
+
+
+                        <!-- +/- -->
+
+                        <DataGridTemplateColumn
+                            Header=""
+                            Width="72">
+
+                            <DataGridTemplateColumn.CellTemplate>
+
+                                <DataTemplate>
+
+                                    <StackPanel
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Center">
+
+                                        <Button
+                                            Content="−"
+                                            Command="{Binding DataContext.DecreaseQuantityCommand,
+                                                RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"
+                                            Width="28"
+                                            Height="28"/>
+
+
+                                        <Button
+                                            Content="+"
+                                            Command="{Binding DataContext.IncreaseQuantityCommand,
+                                                RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"
+                                            Width="28"
+                                            Height="28"
+                                            Margin="4,0,0,0"/>
+
+                                    </StackPanel>
+
+                                </DataTemplate>
+
+                            </DataGridTemplateColumn.CellTemplate>
+
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
+
+                </DataGrid>
+
+
+                <!-- ================================================== -->
+                <!-- CHECKOUT                                           -->
+                <!-- ================================================== -->
+
+                <StackPanel Grid.Row="2"
+                            Margin="0,16,0,0">
+
+
+                    <!-- ERROR -->
+
+                    <Border Background="#FEF2F2"
+                            BorderBrush="#FECACA"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="10"
+                            Margin="0,0,0,14">
+
+                        <TextBlock
+                            Text="{Binding ErrorMessage}"
+                            Foreground="{StaticResource DangerText}"
+                            TextWrapping="Wrap"
+                            FontSize="13"/>
+
+                    </Border>
+
+
+                    <!-- PAYMENT -->
 
                     <TextBlock
-                        Text="Jami:"
-                        FontSize="20"
-                        FontWeight="SemiBold" />
+                        Text="To'lov turi"
+                        Style="{StaticResource FieldLabelStyle}"/>
 
-                    <TextBlock
-    Text="{Binding TotalAmount}"
-    FontSize="20"
-    FontWeight="Bold"
-    HorizontalAlignment="Right" />
 
-                </DockPanel>
+                    <ComboBox
+                        ItemsSource="{Binding PaymentMethods}"
+                        SelectedItem="{Binding SelectedPaymentMethod}"
+                        MinHeight="44"
+                        FontSize="15"
+                        Margin="0,0,0,16"/>
 
-                <ui:Button
-                    Content="SOTISH"
-                    Command="{Binding CompleteSaleCommand}"
-                    Appearance="Primary"
-                    MinHeight="50"
-                    FontSize="18" />
 
-            </StackPanel>
+                    <!-- TOTAL -->
 
-        </Grid>
+                    <Border Background="{StaticResource LightBackground}"
+                            CornerRadius="10"
+                            Padding="14"
+                            Margin="0,0,0,14">
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+
+                                <ColumnDefinition Width="*"/>
+
+                                <ColumnDefinition Width="Auto"/>
+
+                            </Grid.ColumnDefinitions>
+
+
+                            <TextBlock
+                                Text="JAMI"
+                                FontSize="13"
+                                FontWeight="SemiBold"
+                                Foreground="{StaticResource SecondaryText}"
+                                VerticalAlignment="Center"/>
+
+
+                            <TextBlock
+                                Grid.Column="1"
+                                Text="{Binding TotalAmount, StringFormat={}{0:N0}}"
+                                FontSize="24"
+                                FontWeight="Bold"
+                                Foreground="{StaticResource PrimaryText}"
+                                HorizontalAlignment="Right"/>
+
+                        </Grid>
+
+                    </Border>
+
+
+                    <!-- COMPLETE SALE -->
+
+                    <ui:Button
+                        Content="SOTUVNI YAKUNLASH"
+                        Command="{Binding CompleteSaleCommand}"
+                        Appearance="Primary"
+                        MinHeight="52"
+                        FontSize="17"
+                        FontWeight="SemiBold"
+                        HorizontalAlignment="Stretch"/>
+
+                </StackPanel>
+
+            </Grid>
+
+        </Border>
 
     </Grid>
 

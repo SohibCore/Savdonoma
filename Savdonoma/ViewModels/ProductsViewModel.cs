@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Savdonoma.ViewModels
 {
-    public partial class ProductsViewModel : ObservableObject
+    public partial class ProductsViewModel : ObservableObject // UI ga qandaydir o'zgarishlar bo'lsa, xabar beradi
     {
         private readonly IProductService _service;
         private CancellationTokenSource? _searchCts;
