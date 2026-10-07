@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using Savdonoma.Core.Entity;
 using Savdonoma.Core.Enums;
 using Savdonoma.Core.Logic; // Ensure the correct namespace for SaleItem is included
@@ -7,6 +8,7 @@ namespace Savdonoma.Data.Services.Sales
 {
     public class SaleService : ISaleService
     {
+        private static readonly SemaphoreSlim SaleCreationLock = new(1, 1);
         private readonly IDbContextFactory<AppDbContext> _factory;
         public SaleService(IDbContextFactory<AppDbContext> factory)
         {
@@ -21,7 +23,31 @@ namespace Savdonoma.Data.Services.Sales
             if (dto.Items.Any(q => q.Quantity <= 0))
                 throw new Exception("Miqdor 0 dan katta bo'lilshi kerak.");
 
+            await SaleCreationLock.WaitAsync(cancellation);
+            try
+            {
+                for (var attempt = 0; ; attempt++)
+                {
+                    try
+                    {
+                        return await CreateOnceAsync(dto, cancellation);
+                    }
+                    catch (Exception ex) when (IsDatabaseLocked(ex) && attempt < 2)
+                    {
+                        await Task.Delay(TimeSpan.FromMilliseconds(150 * (attempt + 1)), cancellation);
+                    }
+                }
+            }
+            finally
+            {
+                SaleCreationLock.Release();
+            }
+        }
+
+        private async Task<SaleDto> CreateOnceAsync(CreateSaleDto dto, CancellationToken cancellation)
+        {
             using var db = _factory.CreateDbContext();
+            await using var transaction = await db.Database.BeginTransactionAsync(cancellation);
 
             var product = dto.Items
                 .Select(x => x.ProductId)
@@ -64,6 +90,7 @@ namespace Savdonoma.Data.Services.Sales
 
             await db.Sales.AddAsync(sale, cancellation);
             await db.SaveChangesAsync(cancellation);
+            await transaction.CommitAsync(cancellation);
 
             return new SaleDto
             {
@@ -72,6 +99,18 @@ namespace Savdonoma.Data.Services.Sales
                 TotalAmount = sale.TotalAmount,
                 PaymentMethod = sale.PaymentMethod,
             };
+        }
+
+        private static bool IsDatabaseLocked(Exception exception)
+        {
+            for (Exception? current = exception; current != null; current = current.InnerException)
+            {
+                if (current is SqliteException sqliteException
+                    && sqliteException.SqliteErrorCode is 5 or 6)
+                    return true;
+            }
+
+            return false;
         }
 
         public async Task<List<SaleDto>> GetTodayAsync(CancellationToken cancellation)

@@ -61,6 +61,8 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnOrder(10)
                 .HasColumnName("UPDATED_AT")
                 .IsRequired(false);
+
+            builder.HasIndex(x => x.CreatedAt);
         }
     }
 }

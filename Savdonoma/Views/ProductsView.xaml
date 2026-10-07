@@ -123,10 +123,38 @@
                           Background="Transparent">
                     <ListView.View>
                         <GridView ColumnHeaderContainerStyle="{StaticResource TableHeaderStyle}">
-                            <GridViewColumn Header="MAHSULOT" DisplayMemberBinding="{Binding Name}" Width="250"/>
-                            <GridViewColumn Header="NARX" DisplayMemberBinding="{Binding Price, StringFormat={}{0:N0}}" Width="130"/>
-                            <GridViewColumn Header="BIRLIK" DisplayMemberBinding="{Binding Unit}" Width="90"/>
-                            <GridViewColumn Header="SHtrix-kod" DisplayMemberBinding="{Binding Barcode}" Width="150"/>
+                            <GridViewColumn Header="MAHSULOT" Width="250">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}"
+                                                   HorizontalAlignment="Center"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="NARX" Width="130">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Price, StringFormat={}{0:N0}}"
+                                                   HorizontalAlignment="Center"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="BIRLIK" Width="90">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Unit}"
+                                                   HorizontalAlignment="Center"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="SHtrix-kod" Width="150">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Barcode}"
+                                                   HorizontalAlignment="Center"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -248,31 +276,32 @@
                         </Border>
 
 
-                        <!-- Save -->
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,8,0,0">
 
-                        <ui:Button Content="Saqlash"
-                                   Command="{Binding SaveCommand}"
-                                   Appearance="Primary"
-                                   HorizontalAlignment="Stretch"
-                                   MinHeight="46"
-                                   Margin="0,0,0,8"/>
+                            <!-- New product -->
+                            <ui:Button Content="Yangi mahsulot"
+                                       Command="{Binding NewProductCommand}"
+                                       MinHeight="44"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,8,0"/>
 
+                            <!-- Deactivate -->
+                            <ui:Button Content="Ro'yxatdan olib tashlash"
+                                       Command="{Binding DeactivateCommand}"
+                                       MinHeight="44"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,8,0"/>
 
-                        <!-- New product -->
+                            <!-- Save -->
+                            <ui:Button Content="Saqlash"
+                                       Command="{Binding SaveCommand}"
+                                       Appearance="Primary"
+                                       MinHeight="46"
+                                       VerticalAlignment="Center"/>
 
-                        <ui:Button Content="Yangi mahsulot"
-                                   Command="{Binding NewProductCommand}"
-                                   HorizontalAlignment="Stretch"
-                                   MinHeight="44"
-                                   Margin="0,0,0,8"/>
-
-
-                        <!-- Deactivate -->
-
-                        <ui:Button Content="Ro'yxatdan olib tashlash"
-                                   Command="{Binding DeactivateCommand}"
-                                   HorizontalAlignment="Stretch"
-                                   MinHeight="44"/>
+                        </StackPanel>
 
                     </StackPanel>
 

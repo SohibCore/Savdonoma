@@ -83,7 +83,7 @@ namespace Savdonoma.ViewModels
                 ErrorMessage = ex.InnerException?.Message ?? ex.Message;
             }
         }
-
+        #region
         [RelayCommand]
         private void NewProduct()
         {
@@ -99,6 +99,7 @@ namespace Savdonoma.ViewModels
             FormTitle = "Yangi mahsulot";
             ErrorMessage = "";
         }
+        #endregion
 
         [RelayCommand]
         private async Task SaveAsync()

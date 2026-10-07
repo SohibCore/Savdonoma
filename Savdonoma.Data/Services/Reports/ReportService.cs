@@ -12,7 +12,12 @@ namespace Savdonoma.Data.Services.Reports
         }
         private static (DateTime fromUtc, DateTime toUtc) ToUtcRange(DateTime from, DateTime to)
         {
-            return (from.Date.ToUniversalTime(), to.Date.AddDays(1).ToUniversalTime());
+            var localFrom = DateTime.SpecifyKind(from.Date, DateTimeKind.Unspecified);
+            var localTo = DateTime.SpecifyKind(to.Date.AddDays(1), DateTimeKind.Unspecified);
+
+            return (
+                TimeZoneInfo.ConvertTimeToUtc(localFrom, TimeZoneInfo.Local),
+                TimeZoneInfo.ConvertTimeToUtc(localTo, TimeZoneInfo.Local));
         }
 
         public async Task<SalesSummaryDto> GetSummaryAsync(DateTime from, DateTime to, CancellationToken cancellation)

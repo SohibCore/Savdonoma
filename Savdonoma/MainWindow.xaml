@@ -6,27 +6,235 @@
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
         Title="Savdonoma"
-        Height="700" Width="1100"
+        Height="760" Width="1240"
+        MinHeight="640" MinWidth="980"
         WindowStartupLocation="CenterScreen"
         ExtendsContentIntoTitleBar="True">
+    <ui:FluentWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Style x:Key="NavButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#94A3B8" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Height" Value="50" />
+            <Setter Property="Padding" Value="14,0" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="12" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1E293B" />
+                    <Setter Property="Foreground" Value="#FFFFFF" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </ui:FluentWindow.Resources>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="272" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Grid.Column="0" Padding="20,14,20,18">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#0F172A" Offset="0" />
+                    <GradientStop Color="#1E1B4B" Offset="1" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,4,0,0">
+                    <Border Width="52" Height="52" CornerRadius="15">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#38BDF6" Offset="0" />
+                                <GradientStop Color="#6366F1" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <TextBlock Text="S" Foreground="White" FontSize="26" FontWeight="ExtraBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Savdonoma" Foreground="White" FontSize="21" FontWeight="Bold" />
+                        <TextBlock Text="Savdo boshqaruvi" Foreground="#94A3B8" FontSize="12" Margin="0,3,0,0" />
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Margin="0,30,0,0">
+                    <TextBlock Text="ASOSIY MENYU" Foreground="#64748B" FontSize="11" FontWeight="Bold" Margin="12,0,0,10" />
 
-        <ui:TitleBar Grid.Row="0" Title="Savdonoma" />
-
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="16,8">
-            <ui:Button Content="Sotuv" Command="{Binding ShowSaleCommand}"
-                       MinWidth="120" MinHeight="44" Margin="0,0,8,0" />
-            <ui:Button Content="Mahsulotlar" Command="{Binding ShowProductsCommand}"
-                       MinWidth="120" MinHeight="44" Margin="0,0,8,0" />
-            <ui:Button Content="Hisobot" Command="{Binding ShowReportsCommand}"
-                       MinWidth="120" MinHeight="44" />
-        </StackPanel>
-
-        <ContentControl Grid.Row="2" Content="{Binding CurrentPage}" />
+                    <Button Command="{Binding ShowSaleCommand}">
+                        <Button.Style>
+                            <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSaleActive}" Value="True">
+                                        <Setter Property="Background" Value="#2563EB" />
+                                        <Setter Property="Foreground" Value="#FFFFFF" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="S" FontSize="16" FontWeight="Bold" Width="30" TextAlignment="Center" VerticalAlignment="Center" />
+                            <TextBlock Text="Sotuv" FontSize="15" FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding ShowProductsCommand}">
+                        <Button.Style>
+                            <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsProductsActive}" Value="True">
+                                        <Setter Property="Background" Value="#2563EB" />
+                                        <Setter Property="Foreground" Value="#FFFFFF" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="M" FontSize="16" FontWeight="Bold" Width="30" TextAlignment="Center" VerticalAlignment="Center" />
+                            <TextBlock Text="Mahsulotlar" FontSize="15" FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding ShowReportsCommand}">
+                        <Button.Style>
+                            <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsReportsActive}" Value="True">
+                                        <Setter Property="Background" Value="#2563EB" />
+                                        <Setter Property="Foreground" Value="#FFFFFF" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="H" FontSize="16" FontWeight="Bold" Width="30" TextAlignment="Center" VerticalAlignment="Center" />
+                            <TextBlock Text="Hisobot" FontSize="15" FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <Grid Grid.Column="1" Background="#F8FAFC">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ui:TitleBar Grid.Row="0" Title="" />
+            <Grid Grid.Row="1" Margin="28,2,28,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding PageTitle}" FontSize="26" FontWeight="Bold" Foreground="#0F172A" />
+                    <TextBlock Text="{Binding PageSubtitle}" FontSize="13" Foreground="#64748B" Margin="0,4,0,0" />
+                </StackPanel>
+                <Border Grid.Column="1" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="18" Padding="14,8" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding TodayText}" FontSize="13" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" />
+                </Border>
+            </Grid>
+            <ContentControl Grid.Row="2" Content="{Binding CurrentPage}" Margin="20,12,20,8" />
+            <Border Grid.Row="3"
+                    Margin="20,0,20,14"
+                    Padding="8,6"
+                    Background="White"
+                    BorderBrush="#E2E8F0"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Visibility="{Binding IsSaleActive, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <DockPanel LastChildFill="True">
+                    <Button DockPanel.Dock="Right"
+                            Command="{Binding AddSaleSessionCommand}"
+                            Content="+ Yangi sotuv"
+                            Margin="8,0,0,0"
+                            Padding="16,8"
+                            Background="#2563EB"
+                            Foreground="White"
+                            BorderThickness="0"
+                            FontWeight="SemiBold"
+                            Cursor="Hand" />
+                    <ListBox ItemsSource="{Binding SaleSessions}"
+                             SelectedItem="{Binding CurrentSaleSession, Mode=TwoWay}"
+                             BorderThickness="0"
+                             Background="Transparent"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                             ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                             ScrollViewer.CanContentScroll="False">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="0" />
+                                <Setter Property="Margin" Value="0,0,6,0" />
+                                <Setter Property="Background" Value="#F1F5F9" />
+                                <Setter Property="BorderBrush" Value="Transparent" />
+                                <Setter Property="BorderThickness" Value="1" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="TabBorder"
+                                                    Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="8">
+                                                <ContentPresenter />
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="TabBorder" Property="Background" Value="#DBEAFE" />
+                                                    <Setter TargetName="TabBorder" Property="BorderBrush" Value="#93C5FD" />
+                                                </Trigger>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="TabBorder" Property="Background" Value="#E2E8F0" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="12,7,7,7">
+                                    <TextBlock Text="{Binding SessionTitle}"
+                                               VerticalAlignment="Center"
+                                               FontSize="13"
+                                               FontWeight="SemiBold"
+                                               Foreground="#334155" />
+                                    <Button Content="×"
+                                            Command="{Binding DataContext.CloseSaleSessionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                            CommandParameter="{Binding}"
+                                            Margin="12,0,0,0"
+                                            Padding="5,0"
+                                            Background="Transparent"
+                                            Foreground="#64748B"
+                                            BorderThickness="0"
+                                            FontSize="16"
+                                            Cursor="Hand" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+        </Grid>
     </Grid>
 </ui:FluentWindow>

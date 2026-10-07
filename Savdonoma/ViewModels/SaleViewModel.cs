@@ -1,5 +1,7 @@
 ﻿using Savdonoma.Core.Enums;
 using CommunityToolkit.Mvvm.Input;
+using System.Globalization;
+using System.ComponentModel;
 using Savdonoma.Data.Services.Sales;
 using System.Collections.ObjectModel;
 using Savdonoma.Data.Services.Products;
@@ -33,6 +35,8 @@ namespace Savdonoma.ViewModels
 
         [ObservableProperty]
         private string errorMessage = "";
+
+        public string SessionTitle { get; set; } = "";
 
         public decimal TotalAmount =>
             CartItems.Sum(x => x.LineTotal);
@@ -107,13 +111,27 @@ namespace Savdonoma.ViewModels
             }
             else
             {
-                CartItems.Add(new SaleCartItem
+                var item = new SaleCartItem
                 {
                     ProductId = product.Id,
                     ProductName = product.Name,
                     UnitPrice = product.Price,
+                    Unit = product.Unit,
                     Quantity = 1
-                });
+                };
+
+                // Foydalanuvchi miqdorini qo'lda kiritganda ham
+                // JAMI summa yangilanishi uchun.
+                item.PropertyChanged += (_, e) =>
+                {
+                    if (e.PropertyName is nameof(SaleCartItem.LineTotal)
+                        or nameof(SaleCartItem.Quantity))
+                    {
+                        OnPropertyChanged(nameof(TotalAmount));
+                    }
+                };
+
+                CartItems.Add(item);
             }
 
             OnPropertyChanged(nameof(TotalAmount));
@@ -171,7 +189,7 @@ namespace Savdonoma.ViewModels
                     Items = CartItems.Select(x => new CreateSaleItemDto
                     {
                         ProductId = x.ProductId,
-                        Quantity = x.Quantity
+                        Quantity = (int)x.Quantity
                     }).ToList()
                 };
 
@@ -196,16 +214,78 @@ namespace Savdonoma.ViewModels
     public partial class SaleCartItem : ObservableObject
     {
         public int ProductId { get; set; }
-
         public string ProductName { get; set; } = "";
 
         public decimal UnitPrice { get; set; }
+        public Unit Unit { get; set; }
 
         [ObservableProperty]
-        private int quantity;
+        private decimal quantity;
 
         public decimal LineTotal =>
             UnitPrice * Quantity;
+
+        /// <summary>
+        /// MIQDOR katakchasi uchun matn: kg da sakkannoma (1.25),
+        /// boshqa birliklarda butun son (2). Formatlash va parse
+        /// model ichida — WPF binding uchun converter talab qilmaydi.
+        /// </summary>
+        public string QuantityText
+        {
+            get => Unit == Unit.Kg
+                ? Quantity.ToString("0.###")
+                : Quantity.ToString("0");
+
+            set
+            {
+                if (!TryParseQuantity(value, out var parsed))
+                {
+                    // Noto'g'ri qiymat (bo'sh, manfiy, 0 yoki harf) —
+                    // eski qiymatni qaytarib ko'rsatamiz.
+                    OnPropertyChanged(nameof(QuantityText));
+                    return;
+                }
+
+                if (parsed != Quantity)
+                    Quantity = parsed;
+
+                // Kiritilgan matnni normallashtirish ("1,50" -> "1,5")
+                OnPropertyChanged(nameof(QuantityText));
+            }
+        }
+
+        partial void OnQuantityChanged(decimal value)
+        {
+            Refresh();
+            OnPropertyChanged(nameof(QuantityText));
+        }
+
+        private bool TryParseQuantity(string? text, out decimal result)
+        {
+            result = 0m;
+
+            if (string.IsNullOrWhiteSpace(text))
+                return false;
+
+            // "1,5" va "1.5" kiritishlari ikkalasi ham qabul qilinadi
+            var normalized = text.Trim().Replace(',', '.');
+
+            if (!decimal.TryParse(
+                    normalized,
+                    NumberStyles.Number,
+                    CultureInfo.InvariantCulture,
+                    out var parsed))
+                return false;
+
+            if (Unit != Unit.Kg)
+                parsed = Math.Round(parsed);
+
+            if (parsed <= 0)
+                return false;
+
+            result = parsed;
+            return true;
+        }
 
         public void Refresh()
         {

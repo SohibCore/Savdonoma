@@ -456,46 +456,58 @@
                         <GridView>
                             <GridView.ColumnHeaderContainerStyle>
                                 <Style TargetType="GridViewColumnHeader">
-                                    <Setter Property="Height" Value="40" />
-                                    <Setter Property="Padding" Value="12,0" />
+                                    <Setter Property="Height" Value="46" />
+                                    <Setter Property="Padding" Value="14,0" />
                                     <Setter Property="Background" Value="#F8FAFC" />
                                     <Setter Property="BorderBrush" Value="#E5E7EB" />
                                     <Setter Property="BorderThickness" Value="0,0,0,1" />
-                                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                    <Setter Property="FontSize" Value="13" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                    <Setter Property="Foreground" Value="{StaticResource ReportPrimaryText}" />
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Header="CHEK RAQAMI" Width="180">
+                            <GridViewColumn Header="CHEK RAQAMI" Width="220">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Number}" Style="{StaticResource CancelledAwareText}" FontWeight="SemiBold" Margin="12,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Number}" Style="{StaticResource CancelledAwareText}"
+                                                   FontWeight="SemiBold" Margin="12,0" VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="SANA VA VAQT" Width="180">
+                            <GridViewColumn Header="SANA VA VAQT" Width="220">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Time, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Style="{StaticResource CancelledAwareText}" Margin="12,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Time, StringFormat={}{0:dd.MM.yyyy HH:mm}}"
+                                                   Style="{StaticResource CancelledAwareText}" Margin="12,0"
+                                                   VerticalAlignment="Center" HorizontalAlignment="Center" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="TO'LOV" Width="140">
+                            <GridViewColumn Header="TO'LOV" Width="180">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding PaymentMethod}" Style="{StaticResource CancelledAwareText}" Margin="12,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding PaymentMethod}" Style="{StaticResource CancelledAwareText}"
+                                                   Margin="12,0" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="SUMMA" Width="150">
+                            <GridViewColumn Header="SUMMA" Width="200">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding TotalAmount, Converter={StaticResource Money}}" Style="{StaticResource CancelledAwareText}" HorizontalAlignment="Right" TextAlignment="Right" Margin="12,0" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding TotalAmount, Converter={StaticResource Money}}"
+                                                   Style="{StaticResource CancelledAwareText}"
+                                                   HorizontalAlignment="Right" TextAlignment="Right" Margin="12,0"
+                                                   FontWeight="SemiBold" VerticalAlignment="Center" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="HOLAT" Width="170">
+                            <GridViewColumn Header="HOLAT" Width="180">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Status}" Style="{StaticResource CancelledAwareText}" Margin="12,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Status}" Style="{StaticResource CancelledAwareText}"
+                                                   Margin="12,0" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
