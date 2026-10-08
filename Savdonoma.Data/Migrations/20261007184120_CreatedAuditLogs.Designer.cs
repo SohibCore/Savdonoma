@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Savdonoma.Data;
 
@@ -10,9 +11,11 @@ using Savdonoma.Data;
 namespace Savdonoma.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261007184120_CreatedAuditLogs")]
+    partial class CreatedAuditLogs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.31");
@@ -29,31 +32,24 @@ namespace Savdonoma.Data.Migrations
                         .IsRequired()
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("CREATED_AT")
-                        .HasColumnOrder(5);
+                        .HasColumnOrder(4);
 
                     b.Property<string>("EntityName")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)")
                         .HasColumnName("ENTITY_NAME")
-                        .HasColumnOrder(3);
+                        .HasColumnOrder(2);
 
                     b.Property<string>("Log")
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("AUDIT_LOG")
-                        .HasColumnOrder(4);
+                        .HasColumnOrder(3);
 
-                    b.Property<string>("NewValue")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("NEW_VALUE")
-                        .HasColumnOrder(2);
-
-                    b.Property<string>("OldValue")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("OLD_VALUE")
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("USER_ID")
                         .HasColumnOrder(1);
 
                     b.HasKey("Id");
