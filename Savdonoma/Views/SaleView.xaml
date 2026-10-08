@@ -78,10 +78,13 @@
                     Value="#F9FAFB"/>
 
             <Setter Property="Padding"
-                    Value="12,10"/>
+                    Value="8,10"/>
+
+            <Setter Property="HorizontalContentAlignment"
+                    Value="Center"/>
 
             <Setter Property="BorderThickness"
-                    Value="0,0,0,1"/>
+                    Value="0,0,1,1"/>
 
             <Setter Property="BorderBrush"
                     Value="{StaticResource BorderBrush}"/>
@@ -159,7 +162,7 @@
 
             <ColumnDefinition Width="*"/>
 
-            <ColumnDefinition Width="390"/>
+            <ColumnDefinition Width="470"/>
 
         </Grid.ColumnDefinitions>
 
@@ -192,11 +195,13 @@
                     <TextBlock Text="Mahsulotlar"
                                FontSize="22"
                                FontWeight="SemiBold"
-                               Foreground="{StaticResource PrimaryText}"/>
+                               Foreground="{StaticResource PrimaryText}"
+                               HorizontalAlignment="Center"/>
                     <TextBlock Text="Sotuv uchun mahsulot tanlang"
                                FontSize="13"
                                Foreground="{StaticResource SecondaryText}"
-                               Margin="0,4,0,0"/>
+                               Margin="0,4,0,0"
+                               HorizontalAlignment="Center"/>
                 </StackPanel>
 
 
@@ -212,20 +217,26 @@
 
                 <!-- PRODUCTS TABLE -->
 
-                <ListView Grid.Row="2"
+                <ListView x:Name="SaleProductsList"
+                          Grid.Row="2"
                           ItemsSource="{Binding Products}"
                           SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
                           SelectionMode="Single"
                           FontSize="14"
                           BorderThickness="0"
-                          Background="Transparent">
+                          Padding="0"
+                          Background="Transparent"
+                          SizeChanged="SaleProductsList_SizeChanged">
                     <ListView.View>
                         <GridView ColumnHeaderContainerStyle="{StaticResource TableHeaderStyle}">
                             <GridViewColumn Header="MAHSULOT" Width="250">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Name}"
-                                                   HorizontalAlignment="Center"/>
+                                                   TextAlignment="Center"
+                                                   HorizontalAlignment="Stretch"
+                                                   VerticalAlignment="Center"
+                                                   Padding="6,10"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -233,7 +244,10 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Price, StringFormat={}{0:N0}}"
-                                                   HorizontalAlignment="Center"/>
+                                                   TextAlignment="Center"
+                                                   HorizontalAlignment="Stretch"
+                                                   VerticalAlignment="Center"
+                                                   Padding="6,10"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -241,7 +255,10 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Unit}"
-                                                   HorizontalAlignment="Center"/>
+                                                   TextAlignment="Center"
+                                                   HorizontalAlignment="Stretch"
+                                                   VerticalAlignment="Center"
+                                                   Padding="6,10"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -249,13 +266,24 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Barcode}"
-                                                   HorizontalAlignment="Center"/>
+                                                   TextAlignment="Center"
+                                                   HorizontalAlignment="Stretch"
+                                                   VerticalAlignment="Center"
+                                                   Padding="6,10"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>
+                <Canvas Grid.Row="2" IsHitTestVisible="False">
+                    <Rectangle Canvas.Left="249" Width="1" Fill="{StaticResource BorderBrush}"
+                               Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
+                    <Rectangle Canvas.Left="379" Width="1" Fill="{StaticResource BorderBrush}"
+                               Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
+                    <Rectangle Canvas.Left="469" Width="1" Fill="{StaticResource BorderBrush}"
+                               Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
+                </Canvas>
 
             </Grid>
 
@@ -301,12 +329,14 @@
                         <TextBlock Text="Savat"
                                    FontSize="22"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource PrimaryText}"/>
+                                   Foreground="{StaticResource PrimaryText}"
+                                   HorizontalAlignment="Center"/>
 
                         <TextBlock Text="Tanlangan mahsulotlar"
                                    FontSize="13"
                                    Foreground="{StaticResource SecondaryText}"
-                                   Margin="0,4,0,0"/>
+                                   Margin="0,4,0,0"
+                                   HorizontalAlignment="Center"/>
 
                     </StackPanel>
 
@@ -323,53 +353,53 @@
                     <ListView.View>
                         <GridView ColumnHeaderContainerStyle="{StaticResource TableHeaderStyle}">
                             <GridViewColumn Header="MAHSULOT" Width="150">
-                <GridViewColumn.CellTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding ProductName}"
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding ProductName}"
                                    HorizontalAlignment="Center"/>
-                    </DataTemplate>
-                </GridViewColumn.CellTemplate>
-            </GridViewColumn>
-            <GridViewColumn Header="MIQDOR" Width="80">
-                <GridViewColumn.CellTemplate>
-                    <DataTemplate>
-                        <TextBox Text="{Binding QuantityText}"
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="MIQDOR" Width="80">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding QuantityText}"
                                  FontSize="14"
                                  MinWidth="60"
                                  VerticalAlignment="Center"
                                  TextAlignment="Center"
                                  BorderThickness="1"
                                  BorderBrush="#D1D5DB"/>
-                    </DataTemplate>
-                </GridViewColumn.CellTemplate>
-            </GridViewColumn>
-            <GridViewColumn Header="SUMMA" Width="90">
-                <GridViewColumn.CellTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding LineTotal, StringFormat={}{0:N0}}"
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="SUMMA" Width="90">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding LineTotal, StringFormat={}{0:N0}}"
                                    HorizontalAlignment="Center"/>
-                    </DataTemplate>
-                </GridViewColumn.CellTemplate>
-            </GridViewColumn>
-            <GridViewColumn Header="" Width="60">
-                <GridViewColumn.CellTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button Content="−"
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="AMAL" Width="82">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Button Content="−"
                                     Command="{Binding DataContext.DecreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                     CommandParameter="{Binding}"
                                     Width="28"
                                     Height="28"/>
-                            <Button Content="+"
+                                            <Button Content="+"
                                     Command="{Binding DataContext.IncreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                     CommandParameter="{Binding}"
                                     Width="28"
                                     Height="28"
                                     Margin="4,0,0,0"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </GridViewColumn.CellTemplate>
-            </GridViewColumn>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>

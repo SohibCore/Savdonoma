@@ -31,7 +31,7 @@ namespace Savdonoma.ViewModels
         private ProductDto? selectedProduct;
 
         [ObservableProperty]
-        private PaymentMethod selectedPaymentMethod;
+        private PaymentMethod selectedPaymentMethod = PaymentMethod.Karta;
 
         [ObservableProperty]
         private string errorMessage = "";

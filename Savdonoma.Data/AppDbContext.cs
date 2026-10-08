@@ -45,9 +45,11 @@ namespace Savdonoma.Data
                             if (!property.IsModified)
                                 continue;
 
-                            oldVlaues[property.Metadata.Name] = property.OriginalValue;
-
-                            newVlaues[property.Metadata.Name] = property.CurrentValue;
+                            if (property.Metadata.Name == "Price")
+                            {
+                                oldVlaues[property.Metadata.Name] = property.OriginalValue;
+                                newVlaues[property.Metadata.Name] = property.CurrentValue;
+                            }
                         }
                         break;
 
@@ -71,8 +73,8 @@ namespace Savdonoma.Data
                 var log = new AuditLog
                 {
                     EntityName = "Product",
-                    OldValue = oldVlaues.Count == 0 ? null : JsonSerializer.Serialize(oldVlaues),
-                    NewValue = newVlaues.Count == 0 ? null : JsonSerializer.Serialize(newVlaues),
+                    OldValue = oldVlaues.Count == 0 ? null : JsonSerializer.Serialize(oldVlaues.Values),
+                    NewValue = newVlaues.Count == 0 ? null : JsonSerializer.Serialize(newVlaues.Values),
                     Log = auditAction,
                     CreatedAt = DateTime.Now,
                 };

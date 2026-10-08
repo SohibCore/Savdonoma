@@ -28,8 +28,19 @@ namespace Savdonoma.ViewModels
         [ObservableProperty] private Unit selectedUnit;
         [ObservableProperty] private string barcode = "";
         [ObservableProperty] private string formTitle = "Yangi mahsulot";
+        [ObservableProperty] private string formDescription = "Mahsulot ma'lumotlarini kiriting";
         [ObservableProperty] private string errorMessage = "";
         [ObservableProperty] private CategroyDto? selectedCategory;
+
+        public bool IsCreating => EditingId is null;
+
+        partial void OnEditingIdChanged(int? value)
+        {
+            OnPropertyChanged(nameof(IsCreating));
+            FormDescription = value.HasValue
+                ? "Tahrirlashda faqat narxni o'zgartirish mumkin"
+                : "Mahsulot ma'lumotlarini kiriting";
+        }
 
         public ProductsViewModel(IProductService service, ICategoryService categoryService)
         {
@@ -138,10 +149,7 @@ namespace Savdonoma.ViewModels
                     await _service.UpdateAsync(new UpdateProductDto
                     {
                         Id = EditingId.Value,
-                        Name = Name,
-                        Unit = SelectedUnit,
-                        Price = price,
-                        Barcode = Barcode
+                        Price = price
                     }, CancellationToken.None);
                 }
 

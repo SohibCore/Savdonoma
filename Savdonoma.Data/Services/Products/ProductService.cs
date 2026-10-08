@@ -103,27 +103,11 @@ namespace Savdonoma.Data.Services.Products
 
         public async Task<ProductDto> UpdateAsync(UpdateProductDto dto, CancellationToken cancellation)
         {
-            ValidateUpdating(dto);
+            var price = ValidateUpdating(dto);
             using var db = _factory.CreateDbContext();
             var product = await db.Products.FirstOrDefaultAsync(x => x.Id == dto.Id, cancellation) ?? throw new Exception("Mahsulot topilmadi");
 
-            var barcode = CleanBarcode(dto.Barcode);
-
-            if (dto.Name != null)
-            {
-                product.Name = dto.Name.Trim();
-                product.NameSearch = NameNormalizer.Normalize(dto.Name);
-            }
-            if (dto.Barcode != null)
-                product.Barcode = barcode;
-            if (dto.Unit.HasValue)
-                product.Unit = dto.Unit.Value;
-            if (dto.Price.HasValue)
-                product.Price = dto.Price.Value;
-            if (dto.IsActive.HasValue)
-                product.IsActive = dto.IsActive.Value;
-            if (dto.CategoryId.HasValue)
-                product.CategoryId = dto.CategoryId.Value;
+            product.Price = price;
 
             product.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync(cancellation);
@@ -170,21 +154,14 @@ namespace Savdonoma.Data.Services.Products
             }
             return barcode.Trim();
         }
-        private static void ValidateUpdating(UpdateProductDto dto)
+        private static long ValidateUpdating(UpdateProductDto dto)
         {
-            if (dto.Name != null && string.IsNullOrWhiteSpace(dto.Name))
-            {
-                throw new ArgumentException("Mahsulot nomi bo'sh bo'lmasligi kerak", nameof(dto.Name));
-            }
-            if (dto.Price.HasValue && dto.Price <= 0)
+            if (!dto.Price.HasValue || dto.Price.Value <= 0)
             {
                 throw new ArgumentException("Mahsulot narxi 0 dan katta bo'lishi kerak", nameof(dto.Price));
             }
-            /*if (dto.CategoryId.HasValue && dto.CategoryId <= 0)
-            {
-                throw new ArgumentException("Mahsulot uchun kategoriya tanlash shart", nameof(dto.CategoryId));
-            }*/
-            ValidateBarcode(dto.Barcode);
+
+            return dto.Price.Value;
         }
         private static void ValidateBarcode(string? barcode)
         {

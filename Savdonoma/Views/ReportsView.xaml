@@ -154,12 +154,14 @@
                 <TextBlock Text="Hisobotlar"
                            FontSize="26"
                            FontWeight="SemiBold"
-                           Foreground="{StaticResource ReportPrimaryText}" />
+                           Foreground="{StaticResource ReportPrimaryText}" 
+                           HorizontalAlignment="Center"/>
 
                 <TextBlock Text="Savdo natijalari va cheklar statistikasi"
                            FontSize="13"
                            Margin="0,4,0,0"
-                           Foreground="{StaticResource ReportSecondaryText}" />
+                           Foreground="{StaticResource ReportSecondaryText}" 
+                           HorizontalAlignment="Center"/>
 
             </StackPanel>
 
@@ -423,12 +425,14 @@
                         <TextBlock Text="Cheklar"
                                    FontSize="20"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource ReportPrimaryText}" />
+                                   Foreground="{StaticResource ReportPrimaryText}" 
+                                   HorizontalAlignment="Center"/>
 
                         <TextBlock Text="Tanlangan sana oralig'idagi savdolar"
                                    FontSize="12"
                                    Margin="0,3,0,0"
-                                   Foreground="{StaticResource ReportSecondaryText}" />
+                                   Foreground="{StaticResource ReportSecondaryText}" 
+                                   HorizontalAlignment="Center"/>
 
                     </StackPanel>
 
@@ -450,6 +454,7 @@
                           SelectionMode="Single"
                           Background="Transparent"
                           BorderThickness="0"
+                          Padding="0"
                           FontSize="14"
                           SelectionChanged="DataGrid_SelectionChanged">
                     <ListView.View>
@@ -460,7 +465,7 @@
                                     <Setter Property="Padding" Value="14,0" />
                                     <Setter Property="Background" Value="#F8FAFC" />
                                     <Setter Property="BorderBrush" Value="#E5E7EB" />
-                                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                                    <Setter Property="BorderThickness" Value="0,0,1,1" />
                                     <Setter Property="FontSize" Value="13" />
                                     <Setter Property="FontWeight" Value="SemiBold" />
                                     <Setter Property="Foreground" Value="{StaticResource ReportPrimaryText}" />
@@ -471,8 +476,9 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Number}" Style="{StaticResource CancelledAwareText}"
-                                                   FontWeight="SemiBold" Margin="12,0" VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center" />
+                                                   FontWeight="SemiBold" VerticalAlignment="Center"
+                                                   HorizontalAlignment="Stretch" TextAlignment="Center"
+                                                   Padding="6,10" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -480,8 +486,9 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Time, StringFormat={}{0:dd.MM.yyyy HH:mm}}"
-                                                   Style="{StaticResource CancelledAwareText}" Margin="12,0"
-                                                   VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                                   Style="{StaticResource CancelledAwareText}"
+                                                   HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                                   TextAlignment="Center" Padding="6,10" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -489,7 +496,8 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding PaymentMethod}" Style="{StaticResource CancelledAwareText}"
-                                                   Margin="12,0" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                                   VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                                                   TextAlignment="Center" Padding="6,10" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -498,8 +506,9 @@
                                     <DataTemplate>
                                         <TextBlock Text="{Binding TotalAmount, Converter={StaticResource Money}}"
                                                    Style="{StaticResource CancelledAwareText}"
-                                                   HorizontalAlignment="Right" TextAlignment="Right" Margin="12,0"
-                                                   FontWeight="SemiBold" VerticalAlignment="Center" />
+                                                   HorizontalAlignment="Stretch" TextAlignment="Center"
+                                                   FontWeight="SemiBold" VerticalAlignment="Center"
+                                                   Padding="6,10" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -507,13 +516,26 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Status}" Style="{StaticResource CancelledAwareText}"
-                                                   Margin="12,0" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                                   VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                                                   TextAlignment="Center" Padding="6,10" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>
+                <Canvas Grid.Row="1" IsHitTestVisible="False">
+                    <Rectangle Canvas.Left="221" Width="1" Fill="{StaticResource ReportBorderBrush}"
+                               Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
+                    <Rectangle Canvas.Left="441" Width="1" Fill="{StaticResource ReportBorderBrush}"
+                               Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
+                    <Rectangle Canvas.Left="621" Width="1" Fill="{StaticResource ReportBorderBrush}"
+                               Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
+                    <Rectangle Canvas.Left="821" Width="1" Fill="{StaticResource ReportBorderBrush}"
+                               Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
+                    <Rectangle Canvas.Left="1000" Width="1" Fill="{StaticResource ReportBorderBrush}"
+           Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
+                </Canvas>
 
             </Grid>
 

@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Savdonoma.Core.Enums;
+using Savdonoma.Core.Logic; // Ensure the correct namespace for SaleItem is included
 using Microsoft.Data.Sqlite;
 using Savdonoma.Core.Entity;
-using Savdonoma.Core.Enums;
-using Savdonoma.Core.Logic; // Ensure the correct namespace for SaleItem is included
+using Microsoft.EntityFrameworkCore;
 
 namespace Savdonoma.Data.Services.Sales
 {
