@@ -456,6 +456,7 @@
                           BorderThickness="0"
                           Padding="0"
                           FontSize="14"
+                          ItemContainerStyle="{StaticResource TableRowStyle}"
                           SelectionChanged="DataGrid_SelectionChanged">
                     <ListView.View>
                         <GridView>

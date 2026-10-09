@@ -11,6 +11,11 @@
                 <ui:ControlsDictionary />
             </ResourceDictionary.MergedDictionaries>
 
+            <Style x:Key="TableRowStyle" TargetType="ListViewItem">
+                <Setter Property="BorderBrush" Value="#E5E7EB" />
+                <Setter Property="BorderThickness" Value="0,0,0,1" />
+            </Style>
+
             <DataTemplate DataType="{x:Type vm:SaleViewModel}">
                 <views:SaleView />
             </DataTemplate>

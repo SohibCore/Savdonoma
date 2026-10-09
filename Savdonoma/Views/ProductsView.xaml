@@ -127,6 +127,7 @@
                           BorderThickness="0"
                           Padding="0"
                           Background="Transparent"
+                          ItemContainerStyle="{StaticResource TableRowStyle}"
                           SelectionChanged="ListView_SelectionChanged"
                           SizeChanged="ProductsList_SizeChanged">
                     <ListView.View>

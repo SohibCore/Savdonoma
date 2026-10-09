@@ -226,6 +226,7 @@
                           BorderThickness="0"
                           Padding="0"
                           Background="Transparent"
+                          ItemContainerStyle="{StaticResource TableRowStyle}"
                           SizeChanged="SaleProductsList_SizeChanged">
                     <ListView.View>
                         <GridView ColumnHeaderContainerStyle="{StaticResource TableHeaderStyle}">
@@ -349,7 +350,8 @@
                           ItemsSource="{Binding CartItems}"
                           FontSize="14"
                           BorderThickness="0"
-                          Background="Transparent">
+                          Background="Transparent"
+                          ItemContainerStyle="{StaticResource TableRowStyle}">
                     <ListView.View>
                         <GridView ColumnHeaderContainerStyle="{StaticResource TableHeaderStyle}">
                             <GridViewColumn Header="MAHSULOT" Width="150">
@@ -385,16 +387,20 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Button Content="−"
+                                            <Button Content="-"
                                     Command="{Binding DataContext.DecreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                     CommandParameter="{Binding}"
                                     Width="28"
-                                    Height="28"/>
+                                    Height="28"
+                                    FontSize="16"
+                                    FontWeight="Bold"/>
                                             <Button Content="+"
                                     Command="{Binding DataContext.IncreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                     CommandParameter="{Binding}"
                                     Width="28"
                                     Height="28"
+                                    FontSize="16"
+                                    FontWeight="Bold"
                                     Margin="4,0,0,0"/>
                                         </StackPanel>
                                     </DataTemplate>

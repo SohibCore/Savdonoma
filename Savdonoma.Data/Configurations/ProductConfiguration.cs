@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Savdonoma.Core.Entity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Savdonoma.Core.Entity;
 
 namespace Savdonoma.Data.Configurations
 {
