@@ -1,0 +1,184 @@
+﻿<UserControl x:Class="Savdonoma.Views.LicenseView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="820">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="LicenseTextPrimary" Color="#0F172A" />
+        <SolidColorBrush x:Key="LicenseTextSecondary" Color="#64748B" />
+        <SolidColorBrush x:Key="LicenseBorder" Color="#E2E8F0" />
+
+        <Style x:Key="SectionLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource LicenseTextSecondary}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="SectionValueStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource LicenseTextPrimary}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Background="#F1F5F9">
+        <Grid MaxWidth="760"
+              HorizontalAlignment="Center"
+              Margin="28,24">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,22">
+                    <Border Width="48" Height="48" CornerRadius="14">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#38BDF8" Offset="0" />
+                                <GradientStop Color="#4F46E5" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <TextBlock Text="S"
+                                   Foreground="White"
+                                   FontSize="25"
+                                   FontWeight="ExtraBold"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel VerticalAlignment="Center" Margin="14,0,0,0">
+                        <TextBlock Text="Savdonoma"
+                                   Foreground="{StaticResource LicenseTextPrimary}"
+                                   FontSize="23"
+                                   FontWeight="Bold" />
+                        <TextBlock Text="Dastur litsenziyasini faollashtirish"
+                                   Foreground="{StaticResource LicenseTextSecondary}"
+                                   FontSize="13"
+                                   Margin="0,2,0,0" />
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Background="White"
+                        BorderBrush="{StaticResource LicenseBorder}"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        Padding="20"
+                        Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="Litsenziya holati"
+                                   Foreground="{StaticResource LicenseTextPrimary}"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,16" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="Do'kon" Style="{StaticResource SectionLabelStyle}" Margin="0,0,12,10" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ShopName}" Style="{StaticResource SectionValueStyle}" Margin="0,0,0,10" />
+                            <TextBlock Grid.Row="1" Text="Holat" Style="{StaticResource SectionLabelStyle}" Margin="0,0,12,10" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding StatusText}" Style="{StaticResource SectionValueStyle}" Margin="0,0,0,10" />
+                            <TextBlock Grid.Row="2" Text="Tugash sanasi" Style="{StaticResource SectionLabelStyle}" Margin="0,0,12,10" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ExpiryText}" Style="{StaticResource SectionValueStyle}" Margin="0,0,0,10" />
+                            <TextBlock Grid.Row="3" Text="Qolgan muddat" Style="{StaticResource SectionLabelStyle}" Margin="0,0,12,0" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding DaysLeftText}" Style="{StaticResource SectionValueStyle}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="White"
+                        BorderBrush="{StaticResource LicenseBorder}"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="Yangi litsenziyani faollashtirish"
+                                   Foreground="{StaticResource LicenseTextPrimary}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="Sizga yuborilgan .lic faylni tanlang yoki litsenziya kodini maydonga joylang. .key fayllarini tanlamang."
+                                   Foreground="{StaticResource LicenseTextSecondary}"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"
+                                   Margin="0,6,0,16" />
+
+                        <ui:TextBox Text="{Binding LicenseKey, UpdateSourceTrigger=PropertyChanged}"
+                                    PlaceholderText="Litsenziya kodi shu yerda ko'rinadi"
+                                    AcceptsReturn="True"
+                                    TextWrapping="Wrap"
+                                    VerticalContentAlignment="Top"
+                                    MinHeight="124"
+                                    MaxHeight="190"
+                                    Padding="12"
+                                    FontSize="13"
+                                    Margin="0,0,0,14"
+                                    ToolTip="Faqat litsenziya kodi yoki .lic fayl ichidagi matnni kiriting." />
+
+                        <WrapPanel>
+                            <ui:Button Content="Litsenziya faylini tanlash"
+                                       Command="{Binding LoadFromFileCommand}"
+                                       MinHeight="44"
+                                       Padding="16,0"
+                                       Margin="0,0,10,8" />
+                            <ui:Button Content="Faollashtirish"
+                                       Command="{Binding ActivateCommand}"
+                                       Appearance="Primary"
+                                       MinHeight="44"
+                                       Padding="20,0"
+                                       Margin="0,0,0,8" />
+                        </WrapPanel>
+
+                        <Border CornerRadius="8"
+                                Padding="12"
+                                Margin="0,8,0,0">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="#F0FDF4" />
+                                    <Setter Property="BorderBrush" Value="#BBF7D0" />
+                                    <Setter Property="BorderThickness" Value="1" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ResultIsError}" Value="True">
+                                            <Setter Property="Background" Value="#FEF2F2" />
+                                            <Setter Property="BorderBrush" Value="#FECACA" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="{Binding ResultMessage}"
+                                       Foreground="#166534"
+                                       TextWrapping="Wrap"
+                                       FontSize="13">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#166534" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ResultIsError}" Value="True">
+                                                <Setter Property="Foreground" Value="#B91C1C" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="Xavfsizlik uchun private.key faylini hech kimga bermang."
+                           Foreground="{StaticResource LicenseTextSecondary}"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           Margin="2,14,2,0" />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Savdonoma.Core.Enums;
+using Savdonoma.Core.Licensing;
 using Savdonoma.Data.Services.Categories;
 using Savdonoma.Data.Services.Products;
 using System.Collections.ObjectModel;
@@ -12,7 +13,10 @@ namespace Savdonoma.ViewModels
     {
         private readonly IProductService _service;
         private readonly ICategoryService _categoryService;
+        private readonly ILicenseService _license;
         private CancellationTokenSource? _searchCts;
+
+        public bool CanWrite => _license.Current.IsActive;
 
         [ObservableProperty] private ObservableCollection<ProductDto> products = new();
         public ObservableCollection<CategroyDto> Categories { get; } = new();
@@ -34,20 +38,36 @@ namespace Savdonoma.ViewModels
 
         public bool IsCreating => EditingId is null;
 
+        // Bitta konstruktor: uchala servis shu yerda
+        public ProductsViewModel(
+            IProductService service,
+            ICategoryService categoryService,
+            ILicenseService license)
+        {
+            _service = service;
+            _categoryService = categoryService;
+            _license = license;
+
+            // Litsenziya holati o'zgarsa (masalan, yarim tunda muddat tugasa), tugmalar yangilanadi.
+            // Event fon oqimidan keladi, shuning uchun Dispatcher kerak.
+            _license.StatusChanged += (_, _) =>
+                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    OnPropertyChanged(nameof(CanWrite));
+                    SaveCommand.NotifyCanExecuteChanged();
+                    DeactivateCommand.NotifyCanExecuteChanged();
+                }));
+
+            _ = LoadAsync();
+            _ = LoadCategoriesAsync();
+        }
+
         partial void OnEditingIdChanged(int? value)
         {
             OnPropertyChanged(nameof(IsCreating));
             FormDescription = value.HasValue
                 ? "Tahrirlashda faqat narxni o'zgartirish mumkin"
                 : "Mahsulot ma'lumotlarini kiriting";
-        }
-
-        public ProductsViewModel(IProductService service, ICategoryService categoryService)
-        {
-            _service = service;
-            _categoryService = categoryService;
-            _ = LoadAsync();
-            _ = LoadCategoriesAsync();
         }
 
         // Qidirish matni o'zgarganda ro'yxat yangilanadi
@@ -94,7 +114,23 @@ namespace Savdonoma.ViewModels
                 ErrorMessage = ex.InnerException?.Message ?? ex.Message;
             }
         }
-        #region
+
+        private async Task LoadCategoriesAsync()
+        {
+            try
+            {
+                var categories = await _categoryService.GetListAsync(CancellationToken.None);
+
+                Categories.Clear();
+                foreach (var category in categories)
+                    Categories.Add(category);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
+            }
+        }
+
         [RelayCommand]
         private void NewProduct()
         {
@@ -104,15 +140,13 @@ namespace Savdonoma.ViewModels
             Name = "";
             PriceText = "";
             Barcode = "";
-
             SelectedCategory = null;
 
             FormTitle = "Yangi mahsulot";
             ErrorMessage = "";
         }
-        #endregion
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanWrite))]
         private async Task SaveAsync()
         {
             ErrorMessage = "";
@@ -156,19 +190,17 @@ namespace Savdonoma.ViewModels
                 NewProduct();
                 await LoadAsync();
             }
+            catch (LicenseExpiredException ex)
+            {
+                ErrorMessage = ex.Message;
+            }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    ex.ToString(),
-                    "Xatolik",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-
-                ErrorMessage = ex.Message;
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
             }
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanWrite))]
         private async Task DeactivateAsync()
         {
             if (EditingId == null) return;
@@ -182,25 +214,6 @@ namespace Savdonoma.ViewModels
                 await _service.DeactivateAsync(EditingId.Value, CancellationToken.None);
                 NewProduct();
                 await LoadAsync();
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
-            }
-        }
-        private async Task LoadCategoriesAsync()
-        {
-            try
-            {
-                var categories = await _categoryService.GetListAsync(
-                    CancellationToken.None);
-
-                Categories.Clear();
-
-                foreach (var category in categories)
-                {
-                    Categories.Add(category);
-                }
             }
             catch (Exception ex)
             {

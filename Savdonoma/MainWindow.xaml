@@ -43,6 +43,8 @@
             <ColumnDefinition Width="272" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
+
+        <!-- Yon menyu -->
         <Border Grid.Column="0" Padding="20,14,20,18">
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -57,6 +59,7 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
+
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,4,0,0">
                     <Border Width="52" Height="52" CornerRadius="15">
                         <Border.Background>
@@ -72,6 +75,7 @@
                         <TextBlock Text="Savdo boshqaruvi" Foreground="#94A3B8" FontSize="12" Margin="0,3,0,0" />
                     </StackPanel>
                 </StackPanel>
+
                 <StackPanel Grid.Row="1" Margin="0,30,0,0">
                     <TextBlock Text="ASOSIY MENYU" Foreground="#64748B" FontSize="11" FontWeight="Bold" Margin="12,0,0,10" HorizontalAlignment="Center"/>
 
@@ -124,16 +128,49 @@
                         </StackPanel>
                     </Button>
                 </StackPanel>
+
+                <!-- Menyu pastida: Litsenziya -->
+                <StackPanel Grid.Row="3">
+                    <Button Command="{Binding ShowLicenseCommand}" Height="58">
+                        <Button.Style>
+                            <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLicenseActive}" Value="True">
+                                        <Setter Property="Background" Value="#2563EB" />
+                                        <Setter Property="Foreground" Value="#FFFFFF" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="L" FontSize="16" FontWeight="Bold" Width="30" TextAlignment="Center" VerticalAlignment="Center" />
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Litsenziya" FontSize="15" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding LicenseSummary}" FontSize="11" Opacity="0.8" Margin="0,2,0,0" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
             </Grid>
         </Border>
+
+        <!-- O'ng qism -->
         <Grid Grid.Column="1" Background="#F8FAFC">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <!-- 0: TitleBar -->
                 <RowDefinition Height="Auto" />
+                <!-- 1: sarlavha -->
+                <RowDefinition Height="Auto" />
+                <!-- 2: litsenziya banneri -->
                 <RowDefinition Height="*" />
+                <!-- 3: sahifa -->
                 <RowDefinition Height="Auto" />
+                <!-- 4: sotuv tablari -->
             </Grid.RowDefinitions>
+
             <ui:TitleBar Grid.Row="0" Title="" />
+
             <Grid Grid.Row="1" Margin="28,2,28,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -147,8 +184,36 @@
                     <TextBlock Text="{Binding TodayText}" FontSize="13" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" />
                 </Border>
             </Grid>
-            <ContentControl Grid.Row="2" Content="{Binding CurrentPage}" Margin="20,12,20,8" />
-            <Border Grid.Row="3"
+
+            <!-- Litsenziya banneri (14 kundan kam qolganda yoki muddat tugaganda) -->
+            <Border Grid.Row="2" Margin="28,10,28,0" Padding="16,10" CornerRadius="10"
+                    Visibility="{Binding ShowBanner, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="#FEF3C7" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding BannerIsError}" Value="True">
+                                <Setter Property="Background" Value="#FEE2E2" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <DockPanel LastChildFill="True">
+                    <Button DockPanel.Dock="Right"
+                            Command="{Binding ShowLicenseCommand}"
+                            Content="Litsenziya"
+                            Margin="12,0,0,0"
+                            Padding="14,6"
+                            Cursor="Hand" />
+                    <TextBlock Text="{Binding BannerText}" TextWrapping="Wrap" FontSize="14"
+                               Foreground="#1E293B" VerticalAlignment="Center" />
+                </DockPanel>
+            </Border>
+
+            <ContentControl Grid.Row="3" Content="{Binding CurrentPage}" Margin="20,12,20,8" />
+
+            <!-- Sotuv tablari -->
+            <Border Grid.Row="4"
                     Margin="20,0,20,14"
                     Padding="8,6"
                     Background="White"

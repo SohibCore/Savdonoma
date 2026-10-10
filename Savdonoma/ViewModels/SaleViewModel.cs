@@ -1,7 +1,6 @@
 ﻿using Savdonoma.Core.Enums;
 using CommunityToolkit.Mvvm.Input;
 using System.Globalization;
-using System.ComponentModel;
 using Savdonoma.Data.Services.Sales;
 using System.Collections.ObjectModel;
 using Savdonoma.Data.Services.Products;
@@ -10,7 +9,7 @@ using Savdonoma.Data.Services.Sales.SaleItems;
 
 namespace Savdonoma.ViewModels
 {
-    public partial class SaleViewModel : ObservableObject
+    public partial class SaleViewModel : ObservableObject, IDisposable
     {
         private readonly IProductService _productService;
         private readonly ISaleService _saleService;
@@ -49,6 +48,19 @@ namespace Savdonoma.ViewModels
             _saleService = saleService;
 
             _ = LoadProductsAsync();
+        }
+        private bool _disposed;
+
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+
+            _disposed = true;
+
+            _searchCts?.Cancel();
+            _searchCts?.Dispose();
+            _searchCts = null;
         }
 
         partial void OnSearchTextChanged(string value)

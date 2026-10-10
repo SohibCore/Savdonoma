@@ -1,12 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Savdonoma.Core.Licensing;
 using Savdonoma.Data;
+using Savdonoma.Data.Licensing;
 using Savdonoma.Data.Services.Categories;
 using Savdonoma.Data.Services.Products;
 using Savdonoma.Data.Services.Reports;
 using Savdonoma.Data.Services.Sales;
 using Savdonoma.ViewModels;
+using Savdonoma.Views;
 using System.IO;
 using System.Windows;
 using System.Windows.Markup;
@@ -22,6 +25,9 @@ namespace Savdonoma
         protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            // Faollashtirish oynasi yopilganda dastur o'zi o'chib ketmasligi uchun
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
             _instanceMutex = new Mutex(
                 initiallyOwned: true,
@@ -43,7 +49,7 @@ namespace Savdonoma
 
             FrameworkElement.LanguageProperty.OverrideMetadata(
                 typeof(FrameworkElement),
-                new FrameworkPropertyMetadata(XmlLanguage.GetLanguage("ru-RU"))); //tilni o'gartirish
+                new FrameworkPropertyMetadata(XmlLanguage.GetLanguage("ru-RU"))); // tilni o'zgartirish
 
             Directory.CreateDirectory(AppPaths.DataFolder);
 
@@ -64,14 +70,17 @@ namespace Savdonoma
             sc.AddTransient<ISaleService, SaleService>();
             sc.AddTransient<IReportService, ReportService>();
             sc.AddTransient<ICategoryService, CategoryService>();
+            sc.AddSingleton<ILicenseService, LicenseService>();   // singleton: bitta taymer
 
             // ViewModel'lar
             sc.AddSingleton<MainViewModel>();
             sc.AddTransient<SaleViewModel>();
             sc.AddSingleton<ProductsViewModel>();
             sc.AddSingleton<ReportsViewModel>();
+            sc.AddSingleton<LicenseViewModel>();
 
-            // Oyna
+            // Oynalar
+            sc.AddTransient<ActivationWindow>();
             sc.AddTransient<MainWindow>();
 
             Services = sc.BuildServiceProvider();
@@ -91,8 +100,24 @@ namespace Savdonoma
                 Shutdown();
                 return;
             }
-            Services.GetRequiredService<MainWindow>().Show();
-            //MessageBox.Show(AppPaths.DbPath);
+
+            // Litsenziya: faollashtirilmagan yoki fayl buzilgan bo'lsa, faollashtirish oynasi
+            var license = Services.GetRequiredService<ILicenseService>();
+            if (license.Current.Status is LicenseStatus.NoLicense or LicenseStatus.Invalid)
+            {
+                var activation = Services.GetRequiredService<ActivationWindow>();
+                if (activation.ShowDialog() != true)
+                {
+                    Shutdown();
+                    return;
+                }
+            }
+
+            // Muddati tugagan (Expired) bo'lsa, dastur ochiladi: faqat ko'rish rejimi va qizil banner
+            var main = Services.GetRequiredService<MainWindow>();
+            MainWindow = main;
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
+            main.Show();
         }
 
         protected override void OnExit(ExitEventArgs e)
