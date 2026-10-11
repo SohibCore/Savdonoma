@@ -10,6 +10,7 @@ namespace Savdonoma.Core.Licensing
 
         // null bo'lsa, litsenziya muddatsiz (doimiy)
         public DateOnly? ExpiresOn { get; set; }
+        public string MachineId { get; set; } = null!;
 
         public List<string> MachineParts { get; set; } = new();
 

@@ -14,7 +14,8 @@ namespace Savdonoma.ViewModels
         //[ObservableProperty] - bu CommunityToolkit.Mvvm kutubxonasidagi atribut bo‘lib, oddiy private field asosida avtomatik ravishda public property yaratadi va uning qiymati o‘zgarganda UI'ga xabar beradi.
 
         [ObservableProperty] private string shopName = "";
-        [ObservableProperty] private string statusText = "";  // Litsenziya holatini ko‘rsatadi
+        [ObservableProperty] private string machineId = "";
+        [ObservableProperty] private string statusText = "";  // Litsenziya holatini ko'rsatadi
         [ObservableProperty] private string expiryText = "";  // Litsenziyaning amal qilish muddatini ko‘rsatadi
         [ObservableProperty] private string daysLeftText = ""; //Litsenziya tugashigacha qolgan kunlarni ko‘rsatadi
         [ObservableProperty] private string licenseKey = ""; //Kiritilgan litsenziya kalitini saqlaydi
@@ -27,6 +28,7 @@ namespace Savdonoma.ViewModels
         public LicenseViewModel(ILicenseService license)
         {
             _license = license;
+            MachineId = license.MachineId;
             _license.StatusChanged += (_, _) =>
                 Application.Current.Dispatcher.BeginInvoke(new Action(Update));
             Update();

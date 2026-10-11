@@ -70,6 +70,7 @@ namespace Savdonoma
             sc.AddTransient<ISaleService, SaleService>();
             sc.AddTransient<IReportService, ReportService>();
             sc.AddTransient<ICategoryService, CategoryService>();
+            sc.AddSingleton<IMachineIdProvider, MachineIdProvider>();
             sc.AddSingleton<ILicenseService, LicenseService>();   // singleton: bitta taymer
 
             // ViewModel'lar

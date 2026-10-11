@@ -8,6 +8,7 @@ namespace Savdonoma.Data.Licensing
 
         private readonly object _lock = new();
         private readonly Timer _timer;
+        private readonly string _machineId;
         private LicenseInfo? _info;
         private string? _loadError;
         private LicenseState _current;
@@ -19,8 +20,13 @@ namespace Savdonoma.Data.Licensing
             get { lock (_lock) return _current; }
         }
 
-        public LicenseService()
+        public string MachineId => _machineId;
+
+        public LicenseService(IMachineIdProvider machineIdProvider)
         {
+            // ID bir marta olinadi (sekin bo'lishi mumkin), keyin maydonda turadi
+            _machineId = machineIdProvider.GetMachineId();
+
             LoadFromDisk();
             _current = Evaluate();
             // Har daqiqada sanani tekshiradi (fayl o'qimaydi): yarim tunda muddat tugasa ham sezadi
@@ -54,7 +60,7 @@ namespace Savdonoma.Data.Licensing
             if (_loadError != null) return LicenseState.Invalid(_loadError);
 
             var today = LicenseEvaluator.TodayInTashkent(DateTime.UtcNow);
-            return LicenseEvaluator.Evaluate(_info, today);
+            return LicenseEvaluator.Evaluate(_info, today, _machineId);
         }
 
         public LicenseState Refresh()
@@ -80,39 +86,40 @@ namespace Savdonoma.Data.Licensing
                 return LicenseState.Invalid("Litsenziya kaliti noto'g'ri.");
 
             var today = LicenseEvaluator.TodayInTashkent(DateTime.UtcNow);
-            var state = LicenseEvaluator.Evaluate(info, today);
+            var state = LicenseEvaluator.Evaluate(info, today, _machineId);
 
-            // Muddati tugagan litsenziya mavjud faylni almashtirmaydi
+            // Muddati tugagan yoki shu kompyuterga mos kelmaydigan litsenziya faylni almashtirmaydi
             if (!state.IsActive) return state;
-
-            // Doimiy litsenziyani muddatli bilan almashtirmaslik   <-- SHU YERGA
-            if (_info is { ExpiresOn: null } && info.ExpiresOn != null)
-                return LicenseState.Invalid("Bu kompyuterda doimiy litsenziya bor.");
-
-            try
-            {
-                Directory.CreateDirectory(AppPaths.DataFolder);
-                var temporaryPath = LicensePath + ".tmp";
-                File.WriteAllText(temporaryPath, LicenseCrypto.Clean(licenseKey));
-                File.Move(temporaryPath, LicensePath, overwrite: true);
-            }
-            catch (IOException ex)
-            {
-                return LicenseState.Invalid("Litsenziyani saqlab bo'lmadi: " + ex.Message);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return LicenseState.Invalid("Litsenziyani saqlashga ruxsat yo'q: " + ex.Message);
-            }
 
             lock (_lock)
             {
+                // Doimiy litsenziyani muddatli bilan almashtirmaslik
+                if (_info is { ExpiresOn: null } && info.ExpiresOn != null)
+                    return LicenseState.Invalid("Bu kompyuterda doimiy litsenziya bor.");
+
+                try
+                {
+                    Directory.CreateDirectory(AppPaths.DataFolder);
+                    var temporaryPath = LicensePath + ".tmp";
+                    File.WriteAllText(temporaryPath, LicenseCrypto.Clean(licenseKey));
+                    File.Move(temporaryPath, LicensePath, overwrite: true);
+                }
+                catch (IOException ex)
+                {
+                    return LicenseState.Invalid("Litsenziyani saqlab bo'lmadi: " + ex.Message);
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    return LicenseState.Invalid("Litsenziyani saqlashga ruxsat yo'q: " + ex.Message);
+                }
+
                 _info = info;
                 _loadError = null;
             }
 
             return Refresh();
         }
+
         public void EnsureCanWrite()
         {
             var state = Refresh();

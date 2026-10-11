@@ -8,11 +8,15 @@
         public static DateOnly TodayInTashkent(DateTime utcNow)
             => DateOnly.FromDateTime(utcNow.AddHours(5));
 
-        public static LicenseState Evaluate(LicenseInfo? info, DateOnly today)
+        public static LicenseState Evaluate(LicenseInfo? info, DateOnly today, string currentMachineId)
         {
             if (info == null)
                 return new(LicenseStatus.NoLicense, null, null, 0,
                     "Litsenziya topilmadi. Dasturni faollashtiring.");
+
+            if (!string.Equals(info.MachineId, currentMachineId, StringComparison.OrdinalIgnoreCase))
+                return new(LicenseStatus.WrongMachine, info.ShopName, null, 0,
+                    "Bu litsenziya boshqa kompyuter uchun berilgan.");
 
             // Muddatsiz (doimiy) litsenziya
             if (info.ExpiresOn is not DateOnly expires)

@@ -82,6 +82,7 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" Text="Do'kon" Style="{StaticResource SectionLabelStyle}" Margin="0,0,12,10" />
@@ -92,6 +93,20 @@
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ExpiryText}" Style="{StaticResource SectionValueStyle}" Margin="0,0,0,10" />
                             <TextBlock Grid.Row="3" Text="Qolgan muddat" Style="{StaticResource SectionLabelStyle}" Margin="0,0,12,0" />
                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding DaysLeftText}" Style="{StaticResource SectionValueStyle}" />
+                            <TextBlock Grid.Row="4" Text="Machine ID" Style="{StaticResource SectionLabelStyle}" Margin="0,0,12,0" />
+                            <TextBox Grid.Row="4" Grid.Column="1"
+                                     Text="{Binding MachineId}"
+                                     IsReadOnly="True"
+                                     IsTabStop="False"
+                                     TextWrapping="Wrap"
+                                     VerticalAlignment="Center"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     Padding="0"
+                                     Foreground="{StaticResource LicenseTextPrimary}"
+                                     FontSize="13"
+                                     FontWeight="SemiBold"
+                                     ToolTip="Litsenziya olish uchun ushbu ID ni nusxalab yuboring." />
                         </Grid>
                     </StackPanel>
                 </Border>

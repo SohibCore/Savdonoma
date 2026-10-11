@@ -1,6 +1,6 @@
 ﻿namespace Savdonoma.Core.Licensing
 {
-    public enum LicenseStatus { NoLicense, Valid, ExpiringSoon, Expired, Invalid }
+    public enum LicenseStatus { NoLicense, Valid, ExpiringSoon, Expired, Invalid, WrongMachine }
 
     public record LicenseState(LicenseStatus Status, string? ShopName, DateOnly? ExpiresOn, int DaysLeft, string Message, bool IsPerpetual = false)
     {

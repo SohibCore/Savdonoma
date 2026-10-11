@@ -1,6 +1,6 @@
 ﻿using Savdonoma.Core.Enums;
-using CommunityToolkit.Mvvm.Input;
 using System.Globalization;
+using CommunityToolkit.Mvvm.Input;
 using Savdonoma.Data.Services.Sales;
 using System.Collections.ObjectModel;
 using Savdonoma.Data.Services.Products;
@@ -40,9 +40,35 @@ namespace Savdonoma.ViewModels
         public decimal TotalAmount =>
             CartItems.Sum(x => x.LineTotal);
 
-        public SaleViewModel(
-            IProductService productService,
-            ISaleService saleService)
+        private async Task LoadProductsAsync()
+        {
+            _searchCts?.Cancel();
+
+            var cts = _searchCts = new CancellationTokenSource();
+
+            try
+            {
+                await Task.Delay(200, cts.Token);
+
+                var products = await _productService.SearchAsync(SearchText ?? "", cts.Token, take: 100);
+                cts.Token.ThrowIfCancellationRequested();
+
+                var selectedProductId = SelectedProduct?.Id;
+                SelectedProduct = null;
+                Products = new ObservableCollection<ProductDto>(products);
+                if (selectedProductId.HasValue)
+                    SelectedProduct = Products.FirstOrDefault(x => x.Id == selectedProductId.Value);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
+            }
+        }
+
+        public SaleViewModel(IProductService productService, ISaleService saleService)
         {
             _productService = productService;
             _saleService = saleService;
@@ -76,37 +102,6 @@ namespace Savdonoma.ViewModels
             AddToCart(value);
 
             SelectedProduct = null;
-        }
-
-        private async Task LoadProductsAsync()
-        {
-            _searchCts?.Cancel();
-
-            var cts = _searchCts = new CancellationTokenSource();
-
-            try
-            {
-                await Task.Delay(200, cts.Token);
-
-                var products = await _productService.SearchAsync(
-                    SearchText ?? "",
-                    cts.Token,
-                    take: 100);
-                cts.Token.ThrowIfCancellationRequested();
-
-                var selectedProductId = SelectedProduct?.Id;
-                SelectedProduct = null;
-                Products = new ObservableCollection<ProductDto>(products);
-                if (selectedProductId.HasValue)
-                    SelectedProduct = Products.FirstOrDefault(x => x.Id == selectedProductId.Value);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
-            }
         }
 
         private void AddToCart(ProductDto product)

@@ -2,13 +2,12 @@
 using Savdonoma.Core.Licensing;
 
 // Kalitlar va litsenziyalar repozitoriydan TASHQARIDA saqlanadi
-var dir = Path.Combine(
-    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SavdonomaLicenses");
+var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SavdonomaLicenses");
 Directory.CreateDirectory(dir);
 
 var privatePath = Path.Combine(dir, "private.key");
 var publicPath = Path.Combine(dir, "public.key");
-var registryPath = Path.Combine(dir, "registry.csv");
+var registryPath = Path.Combine(dir, "RegisteredMarkets.csv");
 
 Console.WriteLine("1 - Kalit juftligini yaratish (faqat bir marta)");
 Console.WriteLine("2 - Litsenziya berish");
@@ -46,6 +45,14 @@ else if (choice == "2")
         return;
     }
 
+    Console.Write("Machine ID (mijozning dasturidan oling): ");
+    var machineId = Console.ReadLine()?.Trim() ?? "";
+    if (string.IsNullOrWhiteSpace(machineId))
+    {
+        Console.WriteLine("Machine ID bo'sh bo'lmasligi kerak.");
+        return;
+    }
+
     // 3-bo'lak: doimiy yoki muddatli
     Console.Write("Muddatsiz (doimiy) litsenziyami? (ha/yo'q): ");
     var perpetual = Console.ReadLine()?.Trim().ToLower() == "ha";
@@ -68,7 +75,8 @@ else if (choice == "2")
         LicenseId = Guid.NewGuid().ToString("N")[..8].ToUpper(),
         ShopName = shop,
         IssuedAt = LicenseEvaluator.TodayInTashkent(DateTime.UtcNow),
-        ExpiresOn = expires
+        ExpiresOn = expires,
+        MachineId = machineId
     };
 
     var key = LicenseCrypto.Sign(info, File.ReadAllText(privatePath));

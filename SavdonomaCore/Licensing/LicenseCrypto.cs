@@ -11,7 +11,7 @@ namespace Savdonoma.Core.Licensing
             using var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
             return (Convert.ToBase64String(ecdsa.ExportPkcs8PrivateKey()),
                     Convert.ToBase64String(ecdsa.ExportSubjectPublicKeyInfo()));
-        }
+        }   
 
         // Litsenziya kaliti: "<ma'lumot base64>.<imzo base64>"
         public static string Sign(LicenseInfo info, string privateKeyBase64)
