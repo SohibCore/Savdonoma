@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Text;
+using System.Globalization;
 using Savdonoma.Core.Licensing;
 
 // Kalitlar va litsenziyalar repozitoriydan TASHQARIDA saqlanadi
@@ -92,10 +93,51 @@ else if (choice == "2")
     var filePath = Path.Combine(dir, $"{safeName}-{expiresText}.lic");
     File.WriteAllText(filePath, key);
 
-    File.AppendAllText(registryPath,
-        $"{info.LicenseId};{shop};{info.IssuedAt:yyyy-MM-dd};{expiresText}{Environment.NewLine}");
+    AppendRegistryRecord(registryPath, info, expiresText);
 
     Console.WriteLine($"Fayl: {filePath}");
+    Console.WriteLine($"Ro'yxat: {registryPath}");
     Console.WriteLine("Kalit (matn ko'rinishida yuborsangiz ham bo'ladi):");
     Console.WriteLine(key);
+}
+
+static void AppendRegistryRecord(string path, LicenseInfo info, string expiresText)
+{
+    const string header = "Litsenziya ID | Do'kon nomi | Berilgan sana | Amal qilish muddati | Machine ID";
+
+    if (!File.Exists(path) || new FileInfo(path).Length == 0)
+    {
+        File.WriteAllText(path, header + Environment.NewLine, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+    }
+    else
+    {
+        var existingLines = File.ReadAllLines(path);
+        if (existingLines[0].TrimStart('\uFEFF') != header)
+        {
+            File.WriteAllLines(
+                path,
+                new[] { header }.Concat(existingLines),
+                new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+        }
+    }
+
+    var fields = new[]
+    {
+        info.LicenseId,
+        info.ShopName,
+        info.IssuedAt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+        expiresText,
+        info.MachineId
+    };
+
+    using var writer = new StreamWriter(path, append: true, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+    writer.WriteLine(string.Join(';', fields.Select(EscapeCsvField)));
+}
+
+static string EscapeCsvField(string value)
+{
+    if (!value.Contains(';') && !value.Contains('"') && !value.Contains('\r') && !value.Contains('\n'))
+        return value;
+
+    return $"\"{value.Replace("\"", "\"\"")}\"";
 }

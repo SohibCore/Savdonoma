@@ -14,6 +14,7 @@ namespace Savdonoma.Data
         public DbSet<Sale> Sales { get; set; } = null!;
         public DbSet<SaleItem> SaleItems { get; set; } = null!;
         public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+        public DbSet<User> Users { get; set; } = null!;
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellation = default)
         {

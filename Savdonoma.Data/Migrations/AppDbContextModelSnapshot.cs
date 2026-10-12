@@ -282,6 +282,74 @@ namespace Savdonoma.Data.Migrations
                     b.ToTable("SYS_SALE_ITEMS", (string)null);
                 });
 
+            modelBuilder.Entity("Savdonoma.Core.Entity.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID")
+                        .HasColumnOrder(0);
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CREATED_AT")
+                        .HasColumnOrder(8);
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(350)
+                        .HasColumnType("varchar(350)")
+                        .HasColumnName("FULL_NAME")
+                        .HasColumnOrder(1);
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("IS_ACTIVE")
+                        .HasColumnOrder(5);
+
+                    b.Property<string>("OrgName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("ORG_NAME")
+                        .HasColumnOrder(4);
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("PASSWORD")
+                        .HasColumnOrder(3);
+
+                    b.Property<bool?>("SelfRegister")
+                        .IsRequired()
+                        .HasColumnType("boolean")
+                        .HasColumnName("SELF_REGISTER")
+                        .HasColumnOrder(7);
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UPDATED_AT")
+                        .HasColumnOrder(9);
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("USER_NAME")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("UserRole")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("USER_ROLE")
+                        .HasColumnOrder(6);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SYS_USER", (string)null);
+                });
+
             modelBuilder.Entity("Savdonoma.Core.Entity.Product", b =>
                 {
                     b.HasOne("Savdonoma.Core.Entity.Category", "Category")
