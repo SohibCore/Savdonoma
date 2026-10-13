@@ -1,15 +1,19 @@
 ﻿using Savdonoma.Core.Logic;
 using Savdonoma.Core.Entity;
 using Microsoft.EntityFrameworkCore;
+using Savdonoma.Services;
 
 namespace Savdonoma.Data.Services.Products
 {
     public class ProductService : IProductService
     {
         private readonly IDbContextFactory<AppDbContext> _factory;
-        public ProductService(IDbContextFactory<AppDbContext> factory)
+        private readonly CurrentUserService _currentUser;
+
+        public ProductService(IDbContextFactory<AppDbContext> factory, CurrentUserService currentUser)
         {
             _factory = factory;
+            _currentUser = currentUser;
         }
         public async Task<List<ProductDto>> GetListAsync(CancellationToken cancellation)
         {
@@ -65,6 +69,7 @@ namespace Savdonoma.Data.Services.Products
 
         public async Task<ProductDto> CreateAsync(CreateProductDto dto, CancellationToken cancellation)
         {
+            EnsureOwner();
             ValidateCreating(dto);
             using var db = _factory.CreateDbContext();
 
@@ -92,6 +97,7 @@ namespace Savdonoma.Data.Services.Products
 
         public async Task DeactivateAsync(int Id, CancellationToken cancellation)
         {
+            EnsureOwner();
             using var db = _factory.CreateDbContext();
 
             var product = await db.Products.FirstOrDefaultAsync(p => p.Id == Id, cancellation) ?? throw new Exception("Mahsulot topilmadi");
@@ -103,6 +109,7 @@ namespace Savdonoma.Data.Services.Products
 
         public async Task<ProductDto> UpdateAsync(UpdateProductDto dto, CancellationToken cancellation)
         {
+            EnsureOwner();
             var price = ValidateUpdating(dto);
             using var db = _factory.CreateDbContext();
             var product = await db.Products.FirstOrDefaultAsync(x => x.Id == dto.Id, cancellation) ?? throw new Exception("Mahsulot topilmadi");
@@ -112,6 +119,12 @@ namespace Savdonoma.Data.Services.Products
             product.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync(cancellation);
             return ReturnDto(product);
+        }
+
+        private void EnsureOwner()
+        {
+            if (!_currentUser.IsOwner)
+                throw new UnauthorizedAccessException("Mahsulotlarni faqat do‘kon egasi boshqara oladi.");
         }
 
         // Yordamichi funksiyalar

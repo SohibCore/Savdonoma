@@ -2,6 +2,6 @@
 {
     internal static class LicenseKeys
     {
-        public const string PublicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErToBbhENvEgWcdr0DeWtHeo/msoJhrSs5Wg8huKQEBrpiRl9ZYF0/c51nYRHP5LeQrSHq/qwhCffAFjJDwiCdw==";
+        public const string PublicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE/OcY872OjRlUsBcF8b7U+VI4+ArrQ7dUQ1t+OfMvHJnLSDl8+NdIZK6ZUPBWrN+kMxVFbIApUHcHnAt8WmBDlQ==";
     }
 }

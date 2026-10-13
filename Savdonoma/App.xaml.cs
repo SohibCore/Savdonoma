@@ -85,9 +85,12 @@ namespace Savdonoma
             sc.AddSingleton<ProductsViewModel>();
             sc.AddSingleton<ReportsViewModel>();
             sc.AddSingleton<LicenseViewModel>();
+            sc.AddTransient<AuthViewModel>();
+            sc.AddTransient<EmployeesViewModel>();
 
             // Oynalar
             sc.AddTransient<ActivationWindow>();
+            sc.AddTransient<AuthWindow>();
             sc.AddTransient<MainWindow>();
 
             Services = sc.BuildServiceProvider();
@@ -118,6 +121,13 @@ namespace Savdonoma
                     Shutdown();
                     return;
                 }
+            }
+
+            var auth = Services.GetRequiredService<AuthWindow>();
+            if (auth.ShowDialog() != true)
+            {
+                Shutdown();
+                return;
             }
 
             // Muddati tugagan (Expired) bo'lsa, dastur ochiladi: faqat ko'rish rejimi va qizil banner

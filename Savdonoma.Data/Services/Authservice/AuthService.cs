@@ -19,9 +19,7 @@ namespace Savdonoma.Data.Services.Authservice
 
             var userName = dto.UserName.Trim().ToLowerInvariant();
 
-            var user = await db.Users.SingleOrDefaultAsync(
-                x => x.UserName == userName && x.IsActive,
-                cancellation);
+            var user = await db.Users.SingleOrDefaultAsync(x => x.UserName == userName && x.IsActive, cancellation);
 
             if (user == null)
                 throw new UnauthorizedAccessException("Login yoki parol noto‘g‘ri.");

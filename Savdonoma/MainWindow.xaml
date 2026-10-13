@@ -95,7 +95,8 @@
                             <TextBlock Text="Sotuv" FontSize="15" FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding ShowProductsCommand}">
+                    <Button Command="{Binding ShowProductsCommand}"
+                            Visibility="{Binding IsOwner, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <Button.Style>
                             <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
                                 <Style.Triggers>
@@ -125,6 +126,25 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="H" FontSize="16" FontWeight="Bold" Width="30" TextAlignment="Center" VerticalAlignment="Center" />
                             <TextBlock Text="Hisobot" FontSize="15" FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding ShowEmployeesCommand}"
+                            Visibility="{Binding IsOwner, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Button.Style>
+                            <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEmployeesActive}" Value="True">
+                                        <Setter Property="Background" Value="#2563EB" />
+                                        <Setter Property="Foreground" Value="#FFFFFF" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="X" FontSize="16" FontWeight="Bold" Width="30"
+                                       TextAlignment="Center" VerticalAlignment="Center" />
+                            <TextBlock Text="Xodimlar" FontSize="15" FontWeight="SemiBold"
+                                       Margin="10,0,0,0" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
                 </StackPanel>

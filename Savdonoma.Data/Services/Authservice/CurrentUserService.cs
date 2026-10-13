@@ -11,7 +11,7 @@ public class CurrentUserService
     public UserRole? UserRole { get; private set; }
 
     public bool IsAuthenticated => UserId.HasValue;
-    public bool IsOwner => UserRole == UserRole.Boshliq;
+    public bool IsOwner => UserRole == Savdonoma.Core.Enums.UserRole.Boshliq;
 
     public void SignIn(AuthResultDto user)
     {

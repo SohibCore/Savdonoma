@@ -1,4 +1,5 @@
-﻿using Savdonoma.Core.Enums;
+﻿using Savdonoma.Services;
+using Savdonoma.Core.Enums;
 using Savdonoma.Core.Entity;
 using Microsoft.EntityFrameworkCore;
 using Savdonoma.Data.Services.Authservice;
@@ -8,84 +9,123 @@ namespace Savdonoma.Data.Services.UserService
     public class UserService : IUserService
     {
         private readonly IDbContextFactory<AppDbContext> _factory;
-        private readonly IAuthservice _service;
-        public UserService(IDbContextFactory<AppDbContext> factory, IAuthservice authservice)
+        private readonly CurrentUserService _currentUser;
+
+        public UserService(IDbContextFactory<AppDbContext> factory,
+            CurrentUserService currentUser)
         {
             _factory = factory;
-            _service = authservice;
-        }
-        public Task<List<UserDto>> GetListAsync(CancellationToken cancellation)
-        {
-            using var db = _factory.CreateDbContext();
-
-            var users = db.Users
-                .Select(x => new UserDto
-                {
-                    Id = x.Id,
-                    FullName = x.FullName,
-                    UserName = x.UserName,
-                    UserRole = x.UserRole,
-                }).ToListAsync(cancellation);
-
-            return users;
+            _currentUser = currentUser;
         }
 
-        public async Task<UserDto> GetAsync(int Id, CancellationToken cancellation)
+        public async Task<bool> HasUsersAsync(CancellationToken cancellation)
         {
-            using var db = _factory.CreateDbContext();
-
-            var user = await db.Users
-                .Where(x => x.Id == Id)
-                .Select(x => new UserDto
-                {
-                    Id = x.Id,
-                    FullName = x.FullName,
-                    UserName = x.UserName,
-                    UserRole = x.UserRole,
-                }).FirstOrDefaultAsync(cancellation);
-
-            if (user is null)
-                throw new Exception("Foydalanuvchi topilmadi.");
-
-            return user;
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
+            return await db.Users.AnyAsync(cancellation);
         }
 
-        public async Task<UserDto> CreateAsync(CreateUserDto dto, CancellationToken cancellation)
+        public async Task<AuthResultDto> RegisterFirstOwnerAsync(CreateUserDto dto, CancellationToken cancellation)
         {
-            using var db = _factory.CreateDbContext();
+            ValidateDetails(dto);
 
-            var userName = dto.UserName.Trim().ToLowerInvariant();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
+            if (await db.Users.AnyAsync(cancellation))
+                throw new InvalidOperationException("Ro‘yxatdan o‘tish allaqachon yakunlangan.");
 
-            var user = new User
+            var userName = NormalizeUserName(dto.UserName);
+            if (await db.Users.AnyAsync(x => x.UserName == userName, cancellation))
+                throw new InvalidOperationException("Bu login band.");
+
+            var owner = new User
             {
-                FullName = dto.FullName,
+                FullName = dto.FullName.Trim(),
                 UserName = userName,
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                OrgName = dto.OrgName,
-                UserRole = dto.UserRole,
+                OrgName = dto.OrgName.Trim(),
+                UserRole = UserRole.Boshliq,
                 IsActive = true,
+                SelfRegister = true,
+                CreatedAt = DateTime.UtcNow
             };
 
-            if (user.UserRole == UserRole.Boshliq)
-                user.SelfRegister = true;
-
-            await db.Users.AddAsync(user, cancellation);
+            db.Users.Add(owner);
             await db.SaveChangesAsync(cancellation);
 
-            return new UserDto
-            {
-                FullName = user.FullName,
-                UserName = user.UserName,
-                OrgName = user.OrgName,
-                UserRole = user.UserRole
-            };
+            return ToAuthResult(owner);
         }
 
-        public async Task DeleteAsync(int Id, CancellationToken cancellation)
+        public async Task<List<UserDto>> GetListAsync(CancellationToken cancellation)
         {
-            using var db = _factory.CreateDbContext();
+            EnsureOwner();
+            var orgName = _currentUser.OrgName!;
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
-            var user = await db.Users.SingleOrDefaultAsync(x => x.Id == Id) ?? throw new Exception("Foydalanuvchi topilmadi");
+            return await db.Users
+                .Where(x => x.OrgName == orgName && x.UserRole != UserRole.Boshliq)
+                .OrderBy(x => x.FullName)
+                .Select(x => ToDto(x))
+                .ToListAsync(cancellation);
+        }
+
+        public async Task<UserDto> GetAsync(int id, CancellationToken cancellation)
+        {
+            EnsureOwner();
+            var orgName = _currentUser.OrgName!;
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
+
+            var user = await db.Users
+                .SingleOrDefaultAsync(
+                    x => x.Id == id && x.OrgName == orgName && x.UserRole != UserRole.Boshliq,
+                    cancellation);
+
+            return user is null
+                ? throw new InvalidOperationException("Xodim topilmadi.")
+                : ToDto(user);
+        }
+
+        public async Task<UserDto> CreateEmployeeAsync(CreateUserDto dto, CancellationToken cancellation)
+        {
+            EnsureOwner();
+            if (string.IsNullOrWhiteSpace(dto.FullName)
+                || string.IsNullOrWhiteSpace(dto.UserName)
+                || string.IsNullOrEmpty(dto.Password))
+                throw new InvalidOperationException("Barcha maydonlarni to‘ldiring.");
+            if (dto.UserRole == UserRole.Boshliq || !Enum.IsDefined(dto.UserRole))
+                throw new InvalidOperationException("Xodim uchun tanlangan rol noto‘g‘ri.");
+
+            var userName = NormalizeUserName(dto.UserName);
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
+            if (await db.Users.AnyAsync(x => x.UserName == userName, cancellation))
+                throw new InvalidOperationException("Bu login band.");
+
+            var employee = new User
+            {
+                FullName = dto.FullName.Trim(),
+                UserName = userName,
+                Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                OrgName = _currentUser.OrgName!,
+                UserRole = dto.UserRole,
+                IsActive = true,
+                SelfRegister = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            db.Users.Add(employee);
+            await db.SaveChangesAsync(cancellation);
+            return ToDto(employee);
+        }
+
+        public async Task DeleteAsync(int id, CancellationToken cancellation)
+        {
+            EnsureOwner();
+            var orgName = _currentUser.OrgName!;
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
+
+            var user = await db.Users.SingleOrDefaultAsync(
+                x => x.Id == id && x.OrgName == orgName && x.UserRole != UserRole.Boshliq,
+                cancellation);
+            if (user is null)
+                throw new InvalidOperationException("Xodim topilmadi.");
 
             db.Users.Remove(user);
             await db.SaveChangesAsync(cancellation);
@@ -93,34 +133,77 @@ namespace Savdonoma.Data.Services.UserService
 
         public async Task<UserDto> UpdateAsync(UpdateUserDto dto, CancellationToken cancellation)
         {
-            using var db = _factory.CreateDbContext();
+            EnsureOwner();
+            var orgName = _currentUser.OrgName!;
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
-            var user = await db.Users.SingleOrDefaultAsync(x => x.Id == dto.Id) ?? throw new Exception("Foydalanuvchi topilmadi.");
+            var user = await db.Users.SingleOrDefaultAsync(
+                x => x.Id == dto.Id && x.OrgName == orgName && x.UserRole != UserRole.Boshliq,
+                cancellation);
+            if (user is null)
+                throw new InvalidOperationException("Xodim topilmadi.");
 
             if (!string.IsNullOrWhiteSpace(dto.UserName))
             {
-                var userName = dto.UserName.Trim().ToLowerInvariant();
+                var userName = NormalizeUserName(dto.UserName);
+                if (await db.Users.AnyAsync(
+                    x => x.Id != dto.Id && x.UserName == userName,
+                    cancellation))
+                    throw new InvalidOperationException("Bu login band.");
                 user.UserName = userName;
             }
 
             if (!string.IsNullOrWhiteSpace(dto.FullName))
-                user.FullName = dto.FullName;
+                user.FullName = dto.FullName.Trim();
 
-            if (!string.IsNullOrWhiteSpace(dto.OrgName))
-                user.OrgName = dto.OrgName;
-
-            if (!string.IsNullOrWhiteSpace(dto.Password))
+            if (!string.IsNullOrEmpty(dto.Password))
                 user.Password = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
-            await db.SaveChangesAsync(cancellation);
-
-            return new UserDto
+            if (dto.UserRole.HasValue)
             {
-                Id = user.Id,
-                FullName = user.FullName,
-                UserName = user.UserName,
-                UserRole = user.UserRole,
-            };
+                if (dto.UserRole == UserRole.Boshliq || !Enum.IsDefined(dto.UserRole.Value))
+                    throw new InvalidOperationException("Xodim uchun tanlangan rol noto‘g‘ri.");
+                user.UserRole = dto.UserRole.Value;
+            }
+
+            user.UpdatedAt = DateTime.UtcNow;
+            await db.SaveChangesAsync(cancellation);
+            return ToDto(user);
         }
+
+        private void EnsureOwner()
+        {
+            if (!_currentUser.IsOwner || string.IsNullOrWhiteSpace(_currentUser.OrgName))
+                throw new UnauthorizedAccessException("Bu amal faqat do‘kon egasi uchun ruxsat etilgan.");
+        }
+
+        private static void ValidateDetails(CreateUserDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.FullName)
+                || string.IsNullOrWhiteSpace(dto.UserName)
+                || string.IsNullOrWhiteSpace(dto.OrgName)
+                || string.IsNullOrEmpty(dto.Password))
+                throw new InvalidOperationException("Barcha maydonlarni to‘ldiring.");
+        }
+
+        private static string NormalizeUserName(string userName) =>
+            userName.Trim().ToLowerInvariant();
+
+        private static AuthResultDto ToAuthResult(User user) => new()
+        {
+            UserId = user.Id,
+            UserName = user.UserName,
+            OrgName = user.OrgName,
+            UserRole = user.UserRole
+        };
+
+        private static UserDto ToDto(User user) => new()
+        {
+            Id = user.Id,
+            FullName = user.FullName,
+            UserName = user.UserName,
+            OrgName = user.OrgName,
+            UserRole = user.UserRole
+        };
     }
 }

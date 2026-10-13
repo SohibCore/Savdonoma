@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
+using Savdonoma.Services;
 
 namespace Savdonoma.ViewModels
 {
@@ -11,6 +12,7 @@ namespace Savdonoma.ViewModels
     {
         private readonly IServiceProvider _sp;
         private readonly ILicenseService _license;
+        private readonly CurrentUserService _currentUser;
         private int _saleSessionNumber;
 
         public ObservableCollection<SaleViewModel> SaleSessions { get; } = new();
@@ -39,6 +41,11 @@ namespace Savdonoma.ViewModels
         [ObservableProperty]
         private bool isLicenseActive = false;
 
+        [ObservableProperty]
+        private bool isEmployeesActive;
+
+        public bool IsOwner => _currentUser.IsOwner;
+
         // Litsenziya banneri va yon menyudagi qisqa holat
         [ObservableProperty]
         private bool showBanner;
@@ -54,10 +61,11 @@ namespace Savdonoma.ViewModels
 
         public string TodayText => DateTime.Now.ToString("dd.MM.yyyy • dddd");
 
-        public MainViewModel(IServiceProvider sp, ILicenseService license)
+        public MainViewModel(IServiceProvider sp, ILicenseService license, CurrentUserService currentUser)
         {
             _sp = sp;
             _license = license;
+            _currentUser = currentUser;
 
             // StatusChanged fon oqimidan keladi, shuning uchun Dispatcher kerak
             _license.StatusChanged += (_, _) =>
@@ -88,12 +96,13 @@ namespace Savdonoma.ViewModels
             };
         }
 
-        private void SetActiveSection(bool sale = false, bool products = false, bool reports = false, bool license = false)
+        private void SetActiveSection(bool sale = false, bool products = false, bool reports = false, bool license = false, bool employees = false)
         {
             IsSaleActive = sale;
             IsProductsActive = products;
             IsReportsActive = reports;
             IsLicenseActive = license;
+            IsEmployeesActive = employees;
         }
 
         partial void OnCurrentSaleSessionChanged(SaleViewModel? value)
@@ -147,6 +156,9 @@ namespace Savdonoma.ViewModels
         [RelayCommand]
         private void ShowProducts()
         {
+            if (!_currentUser.IsOwner)
+                return;
+
             CurrentPage = _sp.GetRequiredService<ProductsViewModel>();
             PageTitle = "Mahsulotlar";
             PageSubtitle = "Katalog, narx va qoldiqni boshqaring";
@@ -170,6 +182,20 @@ namespace Savdonoma.ViewModels
             PageTitle = "Litsenziya";
             PageSubtitle = "Dastur litsenziyasi va faollashtirish";
             SetActiveSection(license: true);
+        }
+
+        [RelayCommand]
+        private async Task ShowEmployeesAsync()
+        {
+            if (!_currentUser.IsOwner)
+                return;
+
+            var viewModel = _sp.GetRequiredService<EmployeesViewModel>();
+            CurrentPage = viewModel;
+            PageTitle = "Xodimlar";
+            PageSubtitle = "Xodimlar va ularning tizimdagi rollarini boshqaring";
+            SetActiveSection(employees: true);
+            await viewModel.LoadCommand.ExecuteAsync(null);
         }
     }
 }

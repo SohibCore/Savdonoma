@@ -11,7 +11,7 @@ namespace Savdonoma.Core.Entity
         public string OrgName { get; set; } = null!;
         public UserRole UserRole { get; set; }
         public bool IsActive { get; set; }
-        public bool SelfRegister { get; set; }
+        public bool? SelfRegister { get; set; } = false;
 
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

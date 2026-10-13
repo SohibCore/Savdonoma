@@ -1,0 +1,76 @@
+﻿<UserControl x:Class="Savdonoma.Views.EmployeesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="1100">
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="340" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="White" BorderBrush="#E2E8F0"
+                BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,16,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="Xodimlar" FontSize="22" FontWeight="Bold"
+                               Foreground="#0F172A" />
+                    <TextBlock Text="Do‘koningiz xodimlari ro‘yxati"
+                               Foreground="#64748B" Margin="0,4,0,0" />
+                </StackPanel>
+                <DataGrid Grid.Row="1" ItemsSource="{Binding Employees}"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal" BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Ism-familiya" Binding="{Binding FullName}" Width="*" />
+                        <DataGridTextColumn Header="Login" Binding="{Binding UserName}" Width="*" />
+                        <DataGridTextColumn Header="Rol" Binding="{Binding UserRole}" Width="130" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <Border Grid.Column="1" Background="White" BorderBrush="#E2E8F0"
+                BorderThickness="1" CornerRadius="12" Padding="20">
+            <StackPanel>
+                <TextBlock Text="Xodim yaratish" FontSize="20" FontWeight="Bold"
+                           Foreground="#0F172A" Margin="0,0,0,18" />
+                <TextBlock Text="Ism-familiya" Foreground="#475569" Margin="0,0,0,5" />
+                <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
+                         Height="38" Padding="9,6" Margin="0,0,0,13" />
+                <TextBlock Text="Login" Foreground="#475569" Margin="0,0,0,5" />
+                <TextBox Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}"
+                         Height="38" Padding="9,6" Margin="0,0,0,13" />
+                <TextBlock Text="Parol" Foreground="#475569" Margin="0,0,0,5" />
+                <PasswordBox x:Name="EmployeePassword" PasswordChanged="EmployeePassword_PasswordChanged"
+                             Height="38" Padding="9,6" Margin="0,0,0,13" />
+                <TextBlock Text="Rol" Foreground="#475569" Margin="0,0,0,5" />
+                <ComboBox ItemsSource="{Binding Roles}" SelectedItem="{Binding SelectedRole}"
+                          Height="38" Padding="8,5" Margin="0,0,0,18" />
+                <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap"
+                           Margin="0,0,0,12">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="#15803D" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasError}" Value="True">
+                                    <Setter Property="Foreground" Value="#DC2626" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <Button Content="Xodimni saqlash" Command="{Binding CreateCommand}"
+                        Height="42" Background="#2563EB" Foreground="White"
+                        BorderThickness="0" FontWeight="SemiBold" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

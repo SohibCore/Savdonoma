@@ -488,3 +488,4 @@ obj/
 .vs/
 *.user
 *.suo
+**/LicenseKeys.cs
