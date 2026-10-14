@@ -222,7 +222,7 @@ namespace Savdonoma.ViewModels
                     Items = CartItems.Select(x => new CreateSaleItemDto
                     {
                         ProductId = x.ProductId,
-                        Quantity = (int)x.Quantity
+                        Quantity = x.Quantity
                     }).ToList()
                 };
 

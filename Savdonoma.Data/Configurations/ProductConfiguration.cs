@@ -30,6 +30,7 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnName("PRICE")
                 .HasColumnType("bigint")
                 .IsRequired();
+            builder.HasIndex(x => x.Price);
 
             builder.Property(x => x.IsActive)
                 .HasColumnType("boolean")

@@ -255,8 +255,8 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("PRODUCT_NAME")
                         .HasColumnOrder(5);
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer")
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal")
                         .HasColumnName("QUANTITY")
                         .HasColumnOrder(3);
 

@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Savdonoma.Core.Entity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Savdonoma.Core.Entity;
 
 namespace Savdonoma.Data.Configurations
 {
@@ -17,6 +17,7 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnName("ID")
                 .HasColumnType("integer")
                 .ValueGeneratedOnAdd();
+            builder.HasIndex(x => x.Id);
 
             builder.Property(x => x.SaleId)
                 .HasColumnOrder(1)
@@ -33,7 +34,7 @@ namespace Savdonoma.Data.Configurations
             builder.Property(x => x.Quantity)
                 .HasColumnOrder(3)
                 .HasColumnName("QUANTITY")
-                .HasColumnType("integer")
+                .HasColumnType("decimal")
                 //.HasConversion(v => (long)(v * 1000m), v => v / 1000m)
                 .IsRequired();
 

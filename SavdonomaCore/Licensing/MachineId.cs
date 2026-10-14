@@ -1,8 +1,8 @@
+using System.Text;
 using Microsoft.Win32;
 using System.Management;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Savdonoma.Core.Licensing
 {

@@ -6,7 +6,9 @@
 
         // O'zbekistonda yozgi vaqt yo'q: doim UTC+5
         public static DateOnly TodayInTashkent(DateTime utcNow)
-            => DateOnly.FromDateTime(utcNow.AddHours(5));
+        {
+            return DateOnly.FromDateTime(utcNow.AddHours(5));
+        }
 
         public static LicenseState Evaluate(LicenseInfo? info, DateOnly today, string currentMachineId)
         {

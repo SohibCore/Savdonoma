@@ -8,7 +8,7 @@ namespace Savdonoma.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<SystemSettings> builder)
         {
-            builder.ToTable("SYSTEM_SETTINGS", schema: "sys");
+            builder.ToTable("SYSTEM_SETTINGS");
 
             builder.HasKey(x => x.Id);
 
@@ -23,6 +23,7 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnName("INVENTORY_ENABLED")
                 .HasColumnType("boolean")
                 .IsRequired();
+            builder.HasIndex(x => x.InventoryEnabled);
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnType("timestamp with time zone")

@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Savdonoma.Core.Entity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Savdonoma.Core.Entity;
 
 namespace Savdonoma.Data.Configurations
 {
@@ -24,6 +24,7 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnType("varchar(350)")
                 .HasMaxLength(350)
                 .IsRequired();
+            builder.HasIndex(x => x.FullName);
 
             builder.Property(x => x.UserName)
                 .HasColumnOrder(2)
@@ -31,6 +32,7 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnType("varchar(100)")
                 .HasMaxLength(100)
                 .IsRequired();
+            builder.HasIndex(x => x.UserName);
 
             builder.Property(x => x.Password)
                 .HasColumnOrder(3)

@@ -8,7 +8,7 @@ namespace Savdonoma.Core.Licensing
         public string ShopName { get; set; } = "";
         public DateOnly IssuedAt { get; set; }
 
-        // null bo'lsa, litsenziya muddatsiz (doimiy)
+        // null bo'lsa, litsenziya muddatsiz (doimiy) 
         public DateOnly? ExpiresOn { get; set; }
         public string MachineId { get; set; } = null!;
 

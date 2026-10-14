@@ -4,7 +4,7 @@
     {
         public static long RowSum(long price, decimal quantity)
         {
-            return (long)Math.Round(price * quantity, 2);
+            return (long)Math.Round(price * quantity, MidpointRounding.AwayFromZero);
         }
         public static long TotolSale(IEnumerable<long> lineSum)
         {

@@ -6,12 +6,12 @@ namespace Savdonoma.Data.Licensing
     {
         private static string LicensePath => Path.Combine(AppPaths.DataFolder, "license.lic");
 
-        private readonly object _lock = new();
-        private readonly Timer _timer;
-        private readonly string _machineId;
         private LicenseInfo? _info;
         private string? _loadError;
+        private readonly Timer _timer;
         private LicenseState _current;
+        private readonly string _machineId;
+        private readonly object _lock = new();
 
         public event EventHandler<LicenseState>? StatusChanged;
 
@@ -21,17 +21,6 @@ namespace Savdonoma.Data.Licensing
         }
 
         public string MachineId => _machineId;
-
-        public LicenseService(IMachineIdProvider machineIdProvider)
-        {
-            // ID bir marta olinadi (sekin bo'lishi mumkin), keyin maydonda turadi
-            _machineId = machineIdProvider.GetMachineId();
-
-            LoadFromDisk();
-            _current = Evaluate();
-            // Har daqiqada sanani tekshiradi (fayl o'qimaydi): yarim tunda muddat tugasa ham sezadi
-            _timer = new Timer(_ => Refresh(), null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
-        }
 
         private void LoadFromDisk()
         {
@@ -55,9 +44,21 @@ namespace Savdonoma.Data.Licensing
             }
         }
 
+        public LicenseService(IMachineIdProvider machineIdProvider)
+        {
+            // ID bir marta olinadi (sekin bo'lishi mumkin), keyin maydonda turadi
+            _machineId = machineIdProvider.GetMachineId();
+
+            LoadFromDisk();
+            _current = Evaluate();
+            // Har daqiqada sanani tekshiradi (fayl o'qimaydi): yarim tunda muddat tugasa ham sezadi
+            _timer = new Timer(_ => Refresh(), null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+        }
+
         private LicenseState Evaluate()
         {
-            if (_loadError != null) return LicenseState.Invalid(_loadError);
+            if (_loadError != null)
+                return LicenseState.Invalid(_loadError);
 
             var today = LicenseEvaluator.TodayInTashkent(DateTime.UtcNow);
             return LicenseEvaluator.Evaluate(_info, today, _machineId);
@@ -89,7 +90,8 @@ namespace Savdonoma.Data.Licensing
             var state = LicenseEvaluator.Evaluate(info, today, _machineId);
 
             // Muddati tugagan yoki shu kompyuterga mos kelmaydigan litsenziya faylni almashtirmaydi
-            if (!state.IsActive) return state;
+            if (!state.IsActive)
+                return state;
 
             lock (_lock)
             {

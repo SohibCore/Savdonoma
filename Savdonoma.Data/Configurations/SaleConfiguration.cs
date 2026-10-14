@@ -24,6 +24,7 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnType("varchar(20)")
                 .HasMaxLength(20)
                 .IsRequired();
+            builder.HasIndex(x => x.Number);
 
             builder.Property(x => x.TotalAmount)
                 .HasColumnType("bigint")

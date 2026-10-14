@@ -47,7 +47,7 @@ namespace Savdonoma.Data
                             if (!property.IsModified)
                                 continue;
 
-                            if (property.Metadata.Name == "Price")
+                            if (property.Metadata.Name == "Price" || property.Metadata.Name != nameof(Product.Price))
                             {
                                 oldVlaues[property.Metadata.Name] = property.OriginalValue;
                                 newVlaues[property.Metadata.Name] = property.CurrentValue;
@@ -60,7 +60,7 @@ namespace Savdonoma.Data
 
                         foreach (var property in item.Properties)
                         {
-                            if (!property.IsModified)
+                            if (!property.IsModified || property.Metadata.Name != nameof(Product.Price))
                                 continue;
 
                             oldVlaues[property.Metadata.Name] = property.OriginalValue;
