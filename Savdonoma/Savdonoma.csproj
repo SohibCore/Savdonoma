@@ -6,7 +6,20 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Savdonoma.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Savdonoma.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="MainWindow.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Savdonoma.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -29,6 +42,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Savdonoma.Data\Savdonoma.Data.csproj" />
     <ProjectReference Include="..\SavdonomaCore\Savdonoma.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="MainWindow.xaml" />
   </ItemGroup>
 
 </Project>

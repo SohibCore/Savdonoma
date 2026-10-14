@@ -12,5 +12,10 @@ namespace Savdonoma
             DataContext = vm;
             InitializeComponent();
         }
+
+        private void InitializeComponent()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
