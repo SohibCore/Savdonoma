@@ -3,6 +3,7 @@ using Savdonoma.Core.Logic; // Ensure the correct namespace for SaleItem is incl
 using Microsoft.Data.Sqlite;
 using Savdonoma.Core.Entity;
 using Microsoft.EntityFrameworkCore;
+using Savdonoma.Data.Services.SystemSetting;
 
 namespace Savdonoma.Data.Services.Sales
 {
@@ -10,13 +11,16 @@ namespace Savdonoma.Data.Services.Sales
     {
         private static readonly SemaphoreSlim SaleCreationLock = new(1, 1);
         private readonly IDbContextFactory<AppDbContext> _factory;
-        public SaleService(IDbContextFactory<AppDbContext> factory)
+        private readonly ISystemSettingsService _settings;
+        public SaleService(IDbContextFactory<AppDbContext> factory, ISystemSettingsService system)
         {
             _factory = factory;
+            _settings = system;
         }
 
         public async Task<SaleDto> CreateAsync(CreateSaleDto dto, CancellationToken cancellation)
         {
+
             if (dto.Items.Count == 0)
                 throw new Exception("Savat bo'sh.");
 
@@ -46,6 +50,13 @@ namespace Savdonoma.Data.Services.Sales
 
         private async Task<SaleDto> CreateOnceAsync(CreateSaleDto dto, CancellationToken cancellation)
         {
+            var inventoryEnabled = await _settings.GetInventoryEnabledAsync(cancellation);
+
+            if (inventoryEnabled is null)
+            {
+                throw new InvalidOperationException("Qoldiq rejimi hali tanlanmagan.");
+            }
+
             using var db = _factory.CreateDbContext();
             await using var transaction = await db.Database.BeginTransactionAsync(cancellation);
 
@@ -60,6 +71,31 @@ namespace Savdonoma.Data.Services.Sales
 
             if (products.Count() != product.Count)
                 throw new Exception("Savatdagi mahsulotlardan biri topilmadi yoki faol emas.");
+
+            if (inventoryEnabled.Value)
+            {
+                var requestedQuantities = dto.Items
+                    .GroupBy(x => x.ProductId)
+                    .ToDictionary(
+                        group => group.Key,
+                        group => group.Sum(x => x.Quantity));
+
+                foreach (var request in requestedQuantities)
+                {
+                    var p = products[request.Key];
+                    var requestedQuantity = request.Value;
+
+                    if (p.Quantity < requestedQuantity)
+                    {
+                        throw new InvalidOperationException(
+                            $"'{p.Name}' mahsulotidan qoldiq yetarli emas. " +
+                            $"Mavjud: {p.Quantity}, " +
+                            $"so'ralgan: {requestedQuantity}.");
+                    }
+
+                    p.Quantity -= requestedQuantity;
+                }
+            }
 
             var now = DateTime.UtcNow;
             var items = new List<SaleItem>();
@@ -137,28 +173,63 @@ namespace Savdonoma.Data.Services.Sales
 
         public async Task CancelAsync(int saleId, string? reason, CancellationToken cancellation)
         {
-            using var db = _factory.CreateDbContext();
+            await SaleCreationLock.WaitAsync(cancellation);
 
-            var sale = await db.Sales
-                .FirstOrDefaultAsync(s => s.Id == saleId, cancellation) ?? throw new InvalidOperationException("Sotuv topilmadi");
+            try
+            {
+                var inventoryEnabled = await _settings.GetInventoryEnabledAsync(cancellation);
 
-            if (sale.SaleStatus == SaleStatus.Cancelled)
-                throw new InvalidOperationException("Sotuv allaqachon bekor qilingan");
+                if (inventoryEnabled is null)
+                    throw new InvalidOperationException("Qoldiq rejimi hali tanlanmagan.");
 
-            var now = DateTime.UtcNow;
-            sale.SaleStatus = SaleStatus.Cancelled;
-            sale.CancelledAt = now;
-            sale.CancelReason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
-            sale.UpdatedAt = now;
+                await using var db = await _factory.CreateDbContextAsync(cancellation);
 
-            await db.SaveChangesAsync(cancellation);
+                await using var transaction = await db.Database.BeginTransactionAsync(cancellation);
+
+                var sale = await db.Sales
+                    .Include(s => s.SaleItems)
+                    .ThenInclude(item => item.Product)
+                    .FirstOrDefaultAsync(s => s.Id == saleId, cancellation);
+
+                if (sale is null)
+                    throw new InvalidOperationException("Sotuv topilmadi.");
+
+                if (sale.SaleStatus == SaleStatus.Cancelled)
+                    throw new InvalidOperationException("Sotuv allaqachon bekor qilingan.");
+
+                var now = DateTime.UtcNow;
+
+                // Qoldiq yoqilgan bo'lsa, mahsulotlarni qayta omborga qo'shamiz.
+                if (inventoryEnabled.Value)
+                {
+                    foreach (var item in sale.SaleItems)
+                    {
+                        item.Product.Quantity += item.Quantity;
+                        item.Product.UpdatedAt = now;
+                    }
+                }
+
+                sale.SaleStatus = SaleStatus.Cancelled;
+                sale.CancelledAt = now;
+                sale.CancelReason = string.IsNullOrWhiteSpace(reason)
+                    ? null
+                    : reason.Trim();
+                sale.UpdatedAt = now;
+
+                await db.SaveChangesAsync(cancellation);
+                await transaction.CommitAsync(cancellation);
+            }
+            finally
+            {
+                SaleCreationLock.Release();
+            }
         }
         //20261005-0001
         private static async Task<string> NextNumberAsync(AppDbContext db, CancellationToken cancellation)
         {
             var startUtc = DateTime.Now.Date.ToUniversalTime();
             var countToday = await db.Sales.CountAsync(s => s.CreatedAt >= startUtc, cancellation);
-            return $"{DateTime.Now:yyyyMMdd}-{countToday + 1:0000}";
+            return $"{DateTime.Now:yyyyMMdd}-{countToday + 1:000000}";
         }
     }
 }

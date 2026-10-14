@@ -230,7 +230,7 @@
                           SizeChanged="SaleProductsList_SizeChanged">
                     <ListView.View>
                         <GridView ColumnHeaderContainerStyle="{StaticResource TableHeaderStyle}">
-                            <GridViewColumn Header="MAHSULOT" Width="250">
+                            <GridViewColumn Header="MAHSULOT" Width="210">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Name}"
@@ -238,6 +238,28 @@
                                                    HorizontalAlignment="Stretch"
                                                    VerticalAlignment="Center"
                                                    Padding="6,10"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="QOLDIQ" Width="90">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock TextAlignment="Center"
+                                                   HorizontalAlignment="Stretch"
+                                                   VerticalAlignment="Center"
+                                                   Padding="6,10">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="{Binding Quantity, StringFormat={}{0:0.##}}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DataContext.InventoryEnabled, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                     Value="False">
+                                                            <Setter Property="Text" Value="—"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -278,11 +300,13 @@
                     </ListView.View>
                 </ListView>
                 <Canvas Grid.Row="2" IsHitTestVisible="False">
-                    <Rectangle Canvas.Left="249" Width="1" Fill="{StaticResource BorderBrush}"
+                    <Rectangle Canvas.Left="209" Width="1" Fill="{StaticResource BorderBrush}"
                                Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
-                    <Rectangle Canvas.Left="379" Width="1" Fill="{StaticResource BorderBrush}"
+                    <Rectangle Canvas.Left="299" Width="1" Fill="{StaticResource BorderBrush}"
                                Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
-                    <Rectangle Canvas.Left="469" Width="1" Fill="{StaticResource BorderBrush}"
+                    <Rectangle Canvas.Left="429" Width="1" Fill="{StaticResource BorderBrush}"
+                               Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
+                    <Rectangle Canvas.Left="519" Width="1" Fill="{StaticResource BorderBrush}"
                                Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
                 </Canvas>
 

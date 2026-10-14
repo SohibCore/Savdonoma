@@ -12,5 +12,6 @@ namespace Savdonoma.Data.Services.Products
         public string? Barcode { get; set; }
         public string? Name { get; set; }
         public string? NameSearch { get; set; }
+        public decimal? Quantity { get; set; }
     }
 }

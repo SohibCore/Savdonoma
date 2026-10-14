@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Savdonoma.Services;
+using Savdonoma.Data.Services.SystemSetting;
 
 namespace Savdonoma.ViewModels
 {
@@ -13,6 +14,7 @@ namespace Savdonoma.ViewModels
         private readonly IServiceProvider _sp;
         private readonly ILicenseService _license;
         private readonly CurrentUserService _currentUser;
+        private readonly ISystemSettingsService _settings;
         private int _saleSessionNumber;
 
         public ObservableCollection<SaleViewModel> SaleSessions { get; } = new();
@@ -59,20 +61,52 @@ namespace Savdonoma.ViewModels
         [ObservableProperty]
         private string licenseSummary = "";
 
+        [ObservableProperty]
+        private string inventoryModeText = "Rejim yuklanmoqda...";
+
+        [ObservableProperty]
+        private string inventoryModeTooltip = "";
+
         public string TodayText => DateTime.Now.ToString("dd.MM.yyyy • dddd");
 
-        public MainViewModel(IServiceProvider sp, ILicenseService license, CurrentUserService currentUser)
+        public MainViewModel(
+            IServiceProvider sp,
+            ILicenseService license,
+            CurrentUserService currentUser,
+            ISystemSettingsService settings)
         {
             _sp = sp;
             _license = license;
             _currentUser = currentUser;
+            _settings = settings;
 
             // StatusChanged fon oqimidan keladi, shuning uchun Dispatcher kerak
             _license.StatusChanged += (_, _) =>
                 Application.Current.Dispatcher.BeginInvoke(new Action(UpdateLicenseInfo));
 
             UpdateLicenseInfo();
+            _ = LoadInventoryModeAsync();
             AddSaleSession();
+        }
+
+        private async Task LoadInventoryModeAsync()
+        {
+            try
+            {
+                var inventoryEnabled = await _settings.GetInventoryEnabledAsync(CancellationToken.None);
+                if (inventoryEnabled is null)
+                    throw new InvalidOperationException("Do'kon rejimi sozlanmagan.");
+
+                InventoryModeText = inventoryEnabled.Value
+                    ? "Qoldiq bilan"
+                    : "Qoldiqsiz";
+                InventoryModeTooltip = "Do'kon rejimi";
+            }
+            catch (Exception ex)
+            {
+                InventoryModeText = "Rejim xatosi";
+                InventoryModeTooltip = ex.Message;
+            }
         }
 
         private void UpdateLicenseInfo()

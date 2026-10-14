@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Savdonoma.Data.Services.Sales;
 using System.Collections.ObjectModel;
 using Savdonoma.Data.Services.Products;
+using Savdonoma.Data.Services.SystemSetting;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Savdonoma.Data.Services.Sales.SaleItems;
 
@@ -13,6 +14,7 @@ namespace Savdonoma.ViewModels
     {
         private readonly IProductService _productService;
         private readonly ISaleService _saleService;
+        private readonly ISystemSettingsService _settings;
 
         private CancellationTokenSource? _searchCts;
 
@@ -34,6 +36,9 @@ namespace Savdonoma.ViewModels
 
         [ObservableProperty]
         private string errorMessage = "";
+
+        [ObservableProperty]
+        private bool inventoryEnabled;
 
         public string SessionTitle { get; set; } = "";
 
@@ -68,12 +73,33 @@ namespace Savdonoma.ViewModels
             }
         }
 
-        public SaleViewModel(IProductService productService, ISaleService saleService)
+        public SaleViewModel(
+            IProductService productService,
+            ISaleService saleService,
+            ISystemSettingsService settings)
         {
             _productService = productService;
             _saleService = saleService;
+            _settings = settings;
 
+            _ = LoadInventoryModeAsync();
             _ = LoadProductsAsync();
+        }
+
+        private async Task LoadInventoryModeAsync()
+        {
+            try
+            {
+                var inventoryEnabled = await _settings.GetInventoryEnabledAsync(CancellationToken.None);
+                if (inventoryEnabled is null)
+                    throw new InvalidOperationException("Qoldiq rejimi hali tanlanmagan.");
+
+                InventoryEnabled = inventoryEnabled.Value;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
+            }
         }
         private bool _disposed;
 

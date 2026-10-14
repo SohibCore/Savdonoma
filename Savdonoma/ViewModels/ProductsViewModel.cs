@@ -4,8 +4,10 @@ using Savdonoma.Core.Enums;
 using Savdonoma.Core.Licensing;
 using Savdonoma.Data.Services.Categories;
 using Savdonoma.Data.Services.Products;
+using Savdonoma.Data.Services.SystemSetting;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Globalization;
 
 namespace Savdonoma.ViewModels
 {
@@ -13,10 +15,12 @@ namespace Savdonoma.ViewModels
     {
         private readonly IProductService _service;
         private readonly ICategoryService _categoryService;
+        private readonly ISystemSettingsService _settings;
         private readonly ILicenseService _license;
         private CancellationTokenSource? _searchCts;
 
         public bool CanWrite => _license.Current.IsActive;
+        public bool CanSave => CanWrite && InventorySettingsLoaded;
 
         [ObservableProperty] private ObservableCollection<ProductDto> products = new();
         public ObservableCollection<CategroyDto> Categories { get; } = new();
@@ -29,6 +33,9 @@ namespace Savdonoma.ViewModels
         [ObservableProperty] private int? editingId;      // null = yangi mahsulot
         [ObservableProperty] private string name = "";
         [ObservableProperty] private string priceText = "";
+        [ObservableProperty] private string quantityText = "0";
+        [ObservableProperty] private bool inventoryEnabled;
+        [ObservableProperty] private bool inventorySettingsLoaded;
         [ObservableProperty] private Unit selectedUnit;
         [ObservableProperty] private string barcode = "";
         [ObservableProperty] private string formTitle = "Yangi mahsulot";
@@ -42,10 +49,12 @@ namespace Savdonoma.ViewModels
         public ProductsViewModel(
             IProductService service,
             ICategoryService categoryService,
+            ISystemSettingsService settings,
             ILicenseService license)
         {
             _service = service;
             _categoryService = categoryService;
+            _settings = settings;
             _license = license;
 
             // Litsenziya holati o'zgarsa (masalan, yarim tunda muddat tugasa), tugmalar yangilanadi.
@@ -54,12 +63,33 @@ namespace Savdonoma.ViewModels
                 Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     OnPropertyChanged(nameof(CanWrite));
+                    OnPropertyChanged(nameof(CanSave));
                     SaveCommand.NotifyCanExecuteChanged();
                     DeactivateCommand.NotifyCanExecuteChanged();
                 }));
 
             _ = LoadAsync();
             _ = LoadCategoriesAsync();
+            _ = LoadInventoryModeAsync();
+        }
+
+        private async Task LoadInventoryModeAsync()
+        {
+            try
+            {
+                var inventoryEnabled = await _settings.GetInventoryEnabledAsync(CancellationToken.None);
+                if (inventoryEnabled is null)
+                    throw new InvalidOperationException("Qoldiq rejimi hali tanlanmagan.");
+
+                InventoryEnabled = inventoryEnabled.Value;
+                InventorySettingsLoaded = true;
+                OnPropertyChanged(nameof(CanSave));
+                SaveCommand.NotifyCanExecuteChanged();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
+            }
         }
 
         partial void OnEditingIdChanged(int? value)
@@ -81,6 +111,7 @@ namespace Savdonoma.ViewModels
             EditingId = value.Id;
             Name = value.Name;
             PriceText = value.Price.ToString();
+            QuantityText = value.Quantity.ToString("0.##", CultureInfo.CurrentCulture);
             SelectedUnit = value.Unit;
             Barcode = value.Barcode ?? "";
 
@@ -139,6 +170,7 @@ namespace Savdonoma.ViewModels
 
             Name = "";
             PriceText = "";
+            QuantityText = "0";
             Barcode = "";
             SelectedCategory = null;
 
@@ -146,7 +178,7 @@ namespace Savdonoma.ViewModels
             ErrorMessage = "";
         }
 
-        [RelayCommand(CanExecute = nameof(CanWrite))]
+        [RelayCommand(CanExecute = nameof(CanSave))]
         private async Task SaveAsync()
         {
             ErrorMessage = "";
@@ -155,6 +187,15 @@ namespace Savdonoma.ViewModels
             if (!long.TryParse(digits, out var price))
             {
                 ErrorMessage = "Narx noto'g'ri kiritilgan";
+                return;
+            }
+
+            var quantity = 0m;
+            if (InventoryEnabled
+                && (!decimal.TryParse(QuantityText, NumberStyles.Number, CultureInfo.CurrentCulture, out quantity)
+                    || quantity < 0))
+            {
+                ErrorMessage = "Mahsulot qoldig'i 0 yoki undan katta bo'lishi kerak";
                 return;
             }
 
@@ -175,7 +216,8 @@ namespace Savdonoma.ViewModels
                         Unit = SelectedUnit,
                         Price = price,
                         Barcode = Barcode,
-                        CategoryId = category.Id
+                        CategoryId = category.Id,
+                        Quantity = quantity
                     }, CancellationToken.None);
                 }
                 else
@@ -183,7 +225,8 @@ namespace Savdonoma.ViewModels
                     await _service.UpdateAsync(new UpdateProductDto
                     {
                         Id = EditingId.Value,
-                        Price = price
+                        Price = price,
+                        Quantity = quantity
                     }, CancellationToken.None);
                 }
 

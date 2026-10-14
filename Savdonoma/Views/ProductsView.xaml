@@ -10,6 +10,8 @@
 
     <UserControl.Resources>
 
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
         <!-- Colors -->
         <SolidColorBrush x:Key="CardBackground" Color="#FFFFFF"/>
         <SolidColorBrush x:Key="BorderBrush" Color="#E5E7EB"/>
@@ -129,10 +131,10 @@
                           Background="Transparent"
                           ItemContainerStyle="{StaticResource TableRowStyle}"
                           SelectionChanged="ListView_SelectionChanged"
-                          SizeChanged="ProductsList_SizeChanged">
+                          SizeChanged="ProductsList_SizeChanged" Margin="220,75,-220,-76">
                     <ListView.View>
                         <GridView ColumnHeaderContainerStyle="{StaticResource TableHeaderStyle}">
-                            <GridViewColumn Header="MAHSULOT" Width="250">
+                            <GridViewColumn Header="MAHSULOT" Width="210">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Name}"
@@ -140,6 +142,28 @@
                                                    HorizontalAlignment="Stretch"
                                                    VerticalAlignment="Center"
                                                    Padding="6,10"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="QOLDIQ" Width="90">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock TextAlignment="Center"
+                                                   HorizontalAlignment="Stretch"
+                                                   VerticalAlignment="Center"
+                                                   Padding="6,10">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="{Binding Quantity, StringFormat={}{0:0.##}}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DataContext.InventoryEnabled, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                     Value="False">
+                                                            <Setter Property="Text" Value="—"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -180,11 +204,13 @@
                     </ListView.View>
                 </ListView>
                 <Canvas Grid.Row="2" IsHitTestVisible="False">
-                    <Rectangle Canvas.Left="249" Width="1" Fill="{StaticResource BorderBrush}"
+                    <Rectangle Canvas.Left="209" Width="1" Fill="{StaticResource BorderBrush}"
                                Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
-                    <Rectangle Canvas.Left="379" Width="1" Fill="{StaticResource BorderBrush}"
+                    <Rectangle Canvas.Left="299" Width="1" Fill="{StaticResource BorderBrush}"
                                Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
-                    <Rectangle Canvas.Left="469" Width="1" Fill="{StaticResource BorderBrush}"
+                    <Rectangle Canvas.Left="429" Width="1" Fill="{StaticResource BorderBrush}"
+                               Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
+                    <Rectangle Canvas.Left="519" Width="1" Fill="{StaticResource BorderBrush}"
                                Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"/>
                 </Canvas>
 
@@ -254,6 +280,16 @@
                                     FontSize="15"
                                     MinHeight="44"
                                     Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Qoldiq miqdori"
+                                   Style="{StaticResource FieldLabelStyle}"
+                                   Visibility="{Binding InventoryEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                        <ui:TextBox Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
+                                    FontSize="15"
+                                    MinHeight="44"
+                                    Margin="0,0,0,14"
+                                    Visibility="{Binding InventoryEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
 
                         <!-- Unit -->

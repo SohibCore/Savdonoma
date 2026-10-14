@@ -1,19 +1,23 @@
-﻿using Savdonoma.Core.Logic;
+﻿using Savdonoma.Services;
+using Savdonoma.Core.Logic;
 using Savdonoma.Core.Entity;
 using Microsoft.EntityFrameworkCore;
-using Savdonoma.Services;
+using Savdonoma.Data.Services.SystemSetting;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Savdonoma.Data.Services.Products
 {
     public class ProductService : IProductService
     {
         private readonly IDbContextFactory<AppDbContext> _factory;
+        private readonly ISystemSettingsService _settings;
         private readonly CurrentUserService _currentUser;
 
-        public ProductService(IDbContextFactory<AppDbContext> factory, CurrentUserService currentUser)
+        public ProductService(IDbContextFactory<AppDbContext> factory, CurrentUserService currentUser, ISystemSettingsService system)
         {
             _factory = factory;
             _currentUser = currentUser;
+            _settings = system;
         }
         public async Task<List<ProductDto>> GetListAsync(CancellationToken cancellation)
         {
@@ -30,8 +34,9 @@ namespace Savdonoma.Data.Services.Products
                     Name = x.Name,
                     Unit = x.Unit,
                     Price = x.Price,
-                    CategoryId = x.CategoryId,
                     Barcode = x.Barcode,
+                    Quantity = x.Quantity,
+                    CategoryId = x.CategoryId,
                 }).ToListAsync(cancellation);
         }
 
@@ -71,10 +76,21 @@ namespace Savdonoma.Data.Services.Products
         {
             EnsureOwner();
             ValidateCreating(dto);
+
+            var inventoryEnabled = await _settings.GetInventoryEnabledAsync(cancellation);
+
+            if (inventoryEnabled is null)
+                throw new InvalidOperationException("Qoldiq rejimi hali tanlanmagan.");
+
             using var db = _factory.CreateDbContext();
 
             var barcode = CleanBarcode(dto.Barcode);
             var now = DateTime.UtcNow;
+
+            if (inventoryEnabled.Value && dto.Quantity is < 0)
+                throw new ArgumentException("Mahsulot qoldig'i manfiy bo'lishi mumkin emas.");
+
+            var quantity = inventoryEnabled.Value ? dto.Quantity : 0m;
 
             var product = new Product()
             {
@@ -86,7 +102,8 @@ namespace Savdonoma.Data.Services.Products
                 Barcode = barcode,
                 IsActive = true,
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                Quantity = quantity,
             };
 
             await db.Products.AddAsync(product, cancellation);
@@ -111,10 +128,20 @@ namespace Savdonoma.Data.Services.Products
         {
             EnsureOwner();
             var price = ValidateUpdating(dto);
+            var inventoryEnabled = await _settings.GetInventoryEnabledAsync(cancellation);
+            if (inventoryEnabled is null)
+                throw new InvalidOperationException("Qoldiq rejimi hali tanlanmagan.");
+
+            if (inventoryEnabled.Value && dto.Quantity < 0)
+                throw new ArgumentException("Mahsulot qoldig'i manfiy bo'lishi mumkin.", nameof(dto.Quantity));
+
             using var db = _factory.CreateDbContext();
             var product = await db.Products.FirstOrDefaultAsync(x => x.Id == dto.Id, cancellation) ?? throw new Exception("Mahsulot topilmadi");
 
             product.Price = price;
+            product.Quantity = inventoryEnabled.Value
+                ? dto.Quantity ?? product.Quantity
+                : 0m;
 
             product.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync(cancellation);
@@ -155,7 +182,8 @@ namespace Savdonoma.Data.Services.Products
                 Price = p.Price,
                 IsActive = p.IsActive,
                 CategoryId = p.CategoryId,
-                Barcode = p.Barcode
+                Barcode = p.Barcode,
+                Quantity = p.Quantity
             };
             return response;
         }

@@ -139,6 +139,13 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("PRICE")
                         .HasColumnOrder(2);
 
+                    b.Property<decimal>("Quantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("QUANTITY")
+                        .HasColumnOrder(10);
+
                     b.Property<string>("Unit")
                         .IsRequired()
                         .HasColumnType("text")
@@ -280,6 +287,29 @@ namespace Savdonoma.Data.Migrations
                     b.HasIndex("SaleId");
 
                     b.ToTable("SYS_SALE_ITEMS", (string)null);
+                });
+
+            modelBuilder.Entity("Savdonoma.Core.Entity.SystemSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID")
+                        .HasColumnOrder(0);
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UPDATED_AT")
+                        .HasColumnOrder(2);
+
+                    b.Property<bool>("InventoryEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("INVENTORY_ENABLED")
+                        .HasColumnOrder(1);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SYSTEM_SETTINGS", "sys");
                 });
 
             modelBuilder.Entity("Savdonoma.Core.Entity.User", b =>

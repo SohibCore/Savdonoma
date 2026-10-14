@@ -200,9 +200,34 @@
                     <TextBlock Text="{Binding PageTitle}" FontSize="26" FontWeight="Bold" Foreground="#0F172A" />
                     <TextBlock Text="{Binding PageSubtitle}" FontSize="13" Foreground="#64748B" Margin="0,4,0,0" />
                 </StackPanel>
-                <Border Grid.Column="1" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="18" Padding="14,8" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding TodayText}" FontSize="13" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" />
-                </Border>
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <Border Background="#EFF6FF"
+                            BorderBrush="#BFDBFE"
+                            BorderThickness="1"
+                            CornerRadius="18"
+                            Padding="14,8"
+                            Margin="0,0,10,0"
+                            ToolTip="{Binding InventoryModeTooltip}">
+                        <TextBlock Text="{Binding InventoryModeText}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Foreground="#1D4ED8"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    <Border Background="White"
+                            BorderBrush="#E2E8F0"
+                            BorderThickness="1"
+                            CornerRadius="18"
+                            Padding="14,8">
+                        <TextBlock Text="{Binding TodayText}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Foreground="#334155"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
             </Grid>
 
             <!-- Litsenziya banneri (14 kundan kam qolganda yoki muddat tugaganda) -->

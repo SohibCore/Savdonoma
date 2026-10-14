@@ -15,6 +15,7 @@ namespace Savdonoma.Core.Entity
         public DateTime? CreatedAt { get; set; }
         public string Name { get; set; } = null!;
         public string NameSearch { get; set; } = null!;
+        public decimal Quantity { get; set; }
 
         //Navigation property
         [ForeignKey(nameof(CategoryId))]

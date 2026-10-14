@@ -75,6 +75,13 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnOrder(9)
                 .IsRequired(false);
 
+            builder.Property(x => x.Quantity)
+                .HasColumnOrder(10)
+                .HasColumnName("QUANTITY")
+                .HasColumnType("decimal")
+                .HasDefaultValue(0m)
+                .IsRequired();
+
             builder.HasOne(x => x.Category)
                 .WithMany(x => x.Products)
                 .HasForeignKey(x => x.CategoryId)
