@@ -5,6 +5,8 @@ using Savdonoma.Core.Licensing;
 using Savdonoma.Data.Services.Categories;
 using Savdonoma.Data.Services.Products;
 using Savdonoma.Data.Services.SystemSetting;
+using Savdonoma.Import;
+using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Globalization;
@@ -17,10 +19,12 @@ namespace Savdonoma.ViewModels
         private readonly ICategoryService _categoryService;
         private readonly ISystemSettingsService _settings;
         private readonly ILicenseService _license;
+        private readonly ProductImportService _importService;
         private CancellationTokenSource? _searchCts;
 
         public bool CanWrite => _license.Current.IsActive;
         public bool CanSave => CanWrite && InventorySettingsLoaded;
+        public bool CanImport => CanWrite && !IsImporting;
 
         [ObservableProperty] private ObservableCollection<ProductDto> products = new();
         public ObservableCollection<CategroyDto> Categories { get; } = new();
@@ -42,20 +46,26 @@ namespace Savdonoma.ViewModels
         [ObservableProperty] private string formDescription = "Mahsulot ma'lumotlarini kiriting";
         [ObservableProperty] private string errorMessage = "";
         [ObservableProperty] private CategroyDto? selectedCategory;
+        [ObservableProperty] private bool isImporting;
+        [ObservableProperty] private string importStatus = "";
+        [ObservableProperty] private bool isLoadingProducts;
 
         public bool IsCreating => EditingId is null;
+        public bool CanRefreshProducts => !IsLoadingProducts;
 
         // Bitta konstruktor: uchala servis shu yerda
         public ProductsViewModel(
             IProductService service,
             ICategoryService categoryService,
             ISystemSettingsService settings,
-            ILicenseService license)
+            ILicenseService license,
+            ProductImportService importService)
         {
             _service = service;
             _categoryService = categoryService;
             _settings = settings;
             _license = license;
+            _importService = importService;
 
             // Litsenziya holati o'zgarsa (masalan, yarim tunda muddat tugasa), tugmalar yangilanadi.
             // Event fon oqimidan keladi, shuning uchun Dispatcher kerak.
@@ -64,8 +74,10 @@ namespace Savdonoma.ViewModels
                 {
                     OnPropertyChanged(nameof(CanWrite));
                     OnPropertyChanged(nameof(CanSave));
+                    OnPropertyChanged(nameof(CanImport));
                     SaveCommand.NotifyCanExecuteChanged();
                     DeactivateCommand.NotifyCanExecuteChanged();
+                    ImportFromExcelCommand.NotifyCanExecuteChanged();
                 }));
 
             _ = LoadAsync();
@@ -122,14 +134,17 @@ namespace Savdonoma.ViewModels
             ErrorMessage = "";
         }
 
-        private async Task LoadAsync()
+        private async Task LoadAsync(bool debounce = true)
         {
             _searchCts?.Cancel();
             var cts = _searchCts = new CancellationTokenSource();
+            IsLoadingProducts = true;
 
             try
             {
-                await Task.Delay(200, cts.Token);   // har harfda emas, yozish to'xtagach qidiradi
+                if (debounce)
+                    await Task.Delay(200, cts.Token);   // har harfda emas, yozish to'xtagach qidiradi
+
                 var items = await _service.SearchAsync(SearchText ?? "", cts.Token, take: 1000);
                 cts.Token.ThrowIfCancellationRequested();
 
@@ -144,7 +159,22 @@ namespace Savdonoma.ViewModels
             {
                 ErrorMessage = ex.InnerException?.Message ?? ex.Message;
             }
+            finally
+            {
+                cts.Dispose();
+                if (ReferenceEquals(_searchCts, cts))
+                {
+                    _searchCts = null;
+                    IsLoadingProducts = false;
+                }
+            }
         }
+
+        partial void OnIsLoadingProductsChanged(bool value) =>
+            RefreshProductsCommand.NotifyCanExecuteChanged();
+
+        [RelayCommand(CanExecute = nameof(CanRefreshProducts))]
+        private Task RefreshProductsAsync() => LoadAsync(debounce: false);
 
         private async Task LoadCategoriesAsync()
         {
@@ -160,6 +190,118 @@ namespace Savdonoma.ViewModels
             {
                 ErrorMessage = ex.InnerException?.Message ?? ex.Message;
             }
+        }
+
+        partial void OnIsImportingChanged(bool value)
+        {
+            OnPropertyChanged(nameof(CanImport));
+            ImportFromExcelCommand.NotifyCanExecuteChanged();
+        }
+
+        [RelayCommand(CanExecute = nameof(CanImport))]
+        private async Task ImportFromExcelAsync()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Excel faylini tanlang",
+                Filter = "Excel fayllari (*.xlsx;*.xlsm)|*.xlsx;*.xlsm",
+                CheckFileExists = true,
+                Multiselect = false
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            IsImporting = true;
+            ImportStatus = "Fayl tekshirilmoqda...";
+            ErrorMessage = "";
+
+            try
+            {
+                var result = await _importService.ValidateAsync(dialog.FileName);
+                var summary = FormatImportSummary(result);
+
+                if (result.ReadyCount == 0)
+                {
+                    MessageBox.Show(summary, "Excel import tekshiruvi",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    ImportStatus = "Importga tayyor mahsulot topilmadi.";
+                    return;
+                }
+
+                var answer = MessageBox.Show(
+                    summary + "\n\nDavom etib, to'g'ri qatorlarni bazaga qo'shasizmi?",
+                    "Excel importni tasdiqlash",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (answer != MessageBoxResult.Yes)
+                {
+                    ImportStatus = "Import bekor qilindi.";
+                    return;
+                }
+
+                if (!CanWrite)
+                {
+                    MessageBox.Show(
+                        "Litsenziya muddati tugagan. Mahsulotlarni import qilib bo'lmaydi.",
+                        "Excel import",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    ImportStatus = "Import bajarilmadi.";
+                    return;
+                }
+
+                await _importService.CommitAsync(result);
+                await LoadAsync();
+
+                ImportStatus = $"{result.Added} ta mahsulot import qilindi.";
+                MessageBox.Show(
+                    $"Import yakunlandi.\nQo'shildi: {result.Added} ta\n" +
+                    $"Takror bo'lgani uchun o'tkazildi: {result.Skipped.Count} ta\n" +
+                    $"Xato qatorlar: {result.Errors.Count} ta",
+                    "Excel import",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                var message = ex.InnerException?.Message ?? ex.Message;
+                ImportStatus = "Importda xatolik yuz berdi.";
+                MessageBox.Show(message, "Excel import xatosi",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsImporting = false;
+            }
+        }
+
+        private static string FormatImportSummary(ProductImportResult result)
+        {
+            var lines = new List<string>
+            {
+                $"Importga tayyor: {result.ReadyCount} ta",
+                $"Takror bo'lgani uchun o'tkaziladi: {result.Skipped.Count} ta",
+                $"Xato qatorlar: {result.Errors.Count} ta"
+            };
+
+            AddDetails(lines, "Takrorlar", result.Skipped);
+            AddDetails(lines, "Xatolar", result.Errors);
+
+            return "Excel fayl tekshiruv natijasi:\n\n" + string.Join("\n", lines);
+        }
+
+        private static void AddDetails(List<string> lines, string title, List<string> entries)
+        {
+            if (entries.Count == 0)
+                return;
+
+            lines.Add($"\n{title}:");
+            lines.AddRange(entries.Take(8).Select(entry => $"- {entry}"));
+
+            if (entries.Count > 8)
+                lines.Add($"- ... yana {entries.Count - 8} ta");
         }
 
         [RelayCommand]

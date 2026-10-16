@@ -6,7 +6,7 @@
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
         Title="Savdonoma"
-        Icon="Savdonoma.ico"
+        Icon="pack://application:,,,/Savdonoma;component/Savdonoma.ico"
         Height="760" Width="1240"
         MinHeight="640" MinWidth="980"
         WindowStartupLocation="CenterScreen"

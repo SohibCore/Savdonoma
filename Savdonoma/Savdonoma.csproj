@@ -14,11 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Remove="MainWindow.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Savdonoma.ico" />
+    <Resource Include="Savdonoma.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,10 +38,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Savdonoma.Data\Savdonoma.Data.csproj" />
     <ProjectReference Include="..\SavdonomaCore\Savdonoma.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="MainWindow.xaml" />
+    <ProjectReference Include="..\Savdonoma.Import\Savdonoma.Import.csproj" />
   </ItemGroup>
 
 </Project>

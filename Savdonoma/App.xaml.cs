@@ -4,9 +4,11 @@ using System.Windows;
 using Savdonoma.Views;
 using Savdonoma.Services;
 using Savdonoma.ViewModels;
+using Savdonoma.Import;
 using Microsoft.Data.Sqlite;
 using System.Windows.Markup;
 using Savdonoma.Core.Licensing;
+using Savdonoma.Core.Logic;
 using Savdonoma.Data.Licensing;
 using Microsoft.EntityFrameworkCore;
 using Savdonoma.Data.Services.Sales;
@@ -80,6 +82,8 @@ namespace Savdonoma
             sc.AddTransient<IUserService, UserService>();
             sc.AddSingleton<CurrentUserService>();
             sc.AddTransient<ISystemSettingsService, SystemSettingsService>();
+            sc.AddTransient<ProductReader>();
+            sc.AddTransient<ProductImportService>();
 
             // ViewModel'lar
             sc.AddSingleton<MainViewModel>();
@@ -189,6 +193,7 @@ namespace Savdonoma
                     await db.Database.ExecuteSqlRawAsync("PRAGMA journal_mode=WAL;");
                     await db.Database.MigrateAsync();
                     await DbSeeder.SeedAsync(db);
+                    await RepairImportedProductsAsync(db);
                     return;
                 }
                 catch (Exception ex) when (IsDatabaseLocked(ex) && attempt < 2)
@@ -196,6 +201,25 @@ namespace Savdonoma
                     await Task.Delay(TimeSpan.FromMilliseconds(300 * (attempt + 1)));
                 }
             }
+        }
+
+        private static async Task RepairImportedProductsAsync(AppDbContext db)
+        {
+            var importedProducts = await db.Products
+                .Where(product => !product.IsActive && product.UpdatedAt == null)
+                .ToListAsync();
+
+            if (importedProducts.Count == 0)
+                return;
+
+            foreach (var product in importedProducts)
+            {
+                product.IsActive = true;
+                if (string.IsNullOrWhiteSpace(product.NameSearch))
+                    product.NameSearch = NameNormalizer.Normalize(product.Name);
+            }
+
+            await db.SaveChangesAsync();
         }
 
         private static bool IsDatabaseLocked(Exception exception)

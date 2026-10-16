@@ -59,11 +59,23 @@ namespace Savdonoma.Data.Services.Products
                 .AsNoTracking()
                 .Where(x => x.IsActive);
 
-            var key = NameNormalizer.Normalize(text);
-            var barcode = text?.Trim();
+            var key = NameNormalizer.Normalize(text ?? string.Empty);
+            var trimmedText = text?.Trim();
+            var barcode = trimmedText;
 
             if (key != "")
-                product = product.Where(x => x.NameSearch.Contains(key) || x.Barcode == barcode);
+            {
+                var escapedText = (trimmedText ?? "")
+                    .Replace("\\", "\\\\")
+                    .Replace("%", "\\%")
+                    .Replace("_", "\\_");
+                var namePattern = $"%{escapedText}%";
+
+                product = product.Where(x =>
+                    x.NameSearch.Contains(key)
+                    || EF.Functions.Like(x.Name, namePattern, "\\")
+                    || x.Barcode == barcode);
+            }
 
             var items = await product
                 .OrderBy(x => x.NameSearch)
