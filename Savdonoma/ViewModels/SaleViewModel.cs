@@ -1,4 +1,5 @@
 ﻿using Savdonoma.Core.Enums;
+using Savdonoma.Core.Licensing;
 using System.Globalization;
 using CommunityToolkit.Mvvm.Input;
 using Savdonoma.Data.Services.Sales;
@@ -7,6 +8,7 @@ using Savdonoma.Data.Services.Products;
 using Savdonoma.Data.Services.SystemSetting;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Savdonoma.Data.Services.Sales.SaleItems;
+using System.Windows;
 
 namespace Savdonoma.ViewModels
 {
@@ -15,6 +17,7 @@ namespace Savdonoma.ViewModels
         private readonly IProductService _productService;
         private readonly ISaleService _saleService;
         private readonly ISystemSettingsService _settings;
+        private readonly ILicenseService _license;
 
         private CancellationTokenSource? _searchCts;
 
@@ -41,6 +44,7 @@ namespace Savdonoma.ViewModels
         private bool inventoryEnabled;
 
         public string SessionTitle { get; set; } = "";
+        public bool CanWrite => _license.Current.IsActive;
 
         public decimal TotalAmount =>
             CartItems.Sum(x => x.LineTotal);
@@ -76,11 +80,14 @@ namespace Savdonoma.ViewModels
         public SaleViewModel(
             IProductService productService,
             ISaleService saleService,
-            ISystemSettingsService settings)
+            ISystemSettingsService settings,
+            ILicenseService license)
         {
             _productService = productService;
             _saleService = saleService;
             _settings = settings;
+            _license = license;
+            _license.StatusChanged += LicenseStatusChanged;
 
             _ = LoadInventoryModeAsync();
             _ = LoadProductsAsync();
@@ -113,6 +120,16 @@ namespace Savdonoma.ViewModels
             _searchCts?.Cancel();
             _searchCts?.Dispose();
             _searchCts = null;
+            _license.StatusChanged -= LicenseStatusChanged;
+        }
+
+        private void LicenseStatusChanged(object? sender, LicenseState state)
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                OnPropertyChanged(nameof(CanWrite));
+                CompleteSaleCommand.NotifyCanExecuteChanged();
+            }));
         }
 
         partial void OnSearchTextChanged(string value)
@@ -203,7 +220,7 @@ namespace Savdonoma.ViewModels
             OnPropertyChanged(nameof(TotalAmount));
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanWrite))]
         private async Task CompleteSaleAsync()
         {
             ErrorMessage = "";

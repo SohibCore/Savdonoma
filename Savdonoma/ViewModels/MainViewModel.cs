@@ -18,6 +18,7 @@ namespace Savdonoma.ViewModels
         private int _saleSessionNumber;
 
         public ObservableCollection<SaleViewModel> SaleSessions { get; } = new();
+        public bool CanWrite => _license.Current.IsActive;
 
         [ObservableProperty] // CurrentPage o'zgarganda UI ham o'zgarishi kerak
         private object? currentPage;
@@ -113,11 +114,18 @@ namespace Savdonoma.ViewModels
         {
             var s = _license.Current;
 
-            ShowBanner = s.Status is LicenseStatus.ExpiringSoon or LicenseStatus.Expired;
-            BannerIsError = s.Status == LicenseStatus.Expired;
-            BannerText = s.Status == LicenseStatus.Expired
+            ShowBanner = s.Status is LicenseStatus.ExpiringSoon
+                or LicenseStatus.Expired
+                or LicenseStatus.Invalid
+                or LicenseStatus.WrongMachine;
+            BannerIsError = s.Status is LicenseStatus.Expired
+                or LicenseStatus.Invalid
+                or LicenseStatus.WrongMachine;
+            BannerText = BannerIsError
                 ? s.Message + " Faqat ko'rish rejimi: sotuv va o'zgartirishlar o'chirilgan."
                 : s.Message;
+            OnPropertyChanged(nameof(CanWrite));
+            AddSaleSessionCommand.NotifyCanExecuteChanged();
 
             LicenseSummary = s.Status switch
             {
@@ -159,7 +167,7 @@ namespace Savdonoma.ViewModels
             PageSubtitle = "Mahsulot tanlang va savdoni yakunlang";
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanWrite))]
         private void AddSaleSession()
         {
             var session = _sp.GetRequiredService<SaleViewModel>();

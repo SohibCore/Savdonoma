@@ -1,5 +1,6 @@
 ﻿using Savdonoma.Data;
 using Savdonoma.Core.Logic;
+using Savdonoma.Core.Licensing;
 using System.Globalization;
 using Savdonoma.Core.Entity;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +14,16 @@ namespace Savdonoma.Import
 
         private readonly IDbContextFactory<AppDbContext> _context;
         private readonly ProductReader _reader;
+        private readonly ILicenseService _license;
 
-        public ProductImportService(IDbContextFactory<AppDbContext> dbContext, ProductReader reader)
+        public ProductImportService(
+            IDbContextFactory<AppDbContext> dbContext,
+            ProductReader reader,
+            ILicenseService license)
         {
             _context = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _reader = reader ?? throw new ArgumentNullException(nameof(reader));
+            _license = license ?? throw new ArgumentNullException(nameof(license));
         }
 
         // 1-bosqich: o'qish va tekshirish. Bazaga YOZMAYDI.
@@ -123,6 +129,7 @@ namespace Savdonoma.Import
             if (validated.ValidRows.Count == 0)
                 return;
 
+            _license.EnsureCanWrite();
             await using var db = await _context.CreateDbContextAsync();
 
             var toAdd = validated.ValidRows.Select(row => new Product

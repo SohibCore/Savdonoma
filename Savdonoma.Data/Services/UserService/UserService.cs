@@ -1,6 +1,7 @@
 ﻿using Savdonoma.Services;
 using Savdonoma.Core.Enums;
 using Savdonoma.Core.Entity;
+using Savdonoma.Core.Licensing;
 using Microsoft.EntityFrameworkCore;
 using Savdonoma.Data.Services.Authservice;
 
@@ -10,12 +11,15 @@ namespace Savdonoma.Data.Services.UserService
     {
         private readonly IDbContextFactory<AppDbContext> _factory;
         private readonly CurrentUserService _currentUser;
+        private readonly ILicenseService _license;
 
         public UserService(IDbContextFactory<AppDbContext> factory,
-            CurrentUserService currentUser)
+            CurrentUserService currentUser,
+            ILicenseService license)
         {
             _factory = factory;
             _currentUser = currentUser;
+            _license = license;
         }
 
         public async Task<bool> HasUsersAsync(CancellationToken cancellation)
@@ -86,6 +90,7 @@ namespace Savdonoma.Data.Services.UserService
         public async Task<UserDto> CreateEmployeeAsync(CreateUserDto dto, CancellationToken cancellation)
         {
             EnsureOwner();
+            _license.EnsureCanWrite();
             if (string.IsNullOrWhiteSpace(dto.FullName)
                 || string.IsNullOrWhiteSpace(dto.UserName)
                 || string.IsNullOrEmpty(dto.Password))
@@ -118,6 +123,7 @@ namespace Savdonoma.Data.Services.UserService
         public async Task DeleteAsync(int id, CancellationToken cancellation)
         {
             EnsureOwner();
+            _license.EnsureCanWrite();
             var orgName = _currentUser.OrgName!;
             await using var db = await _factory.CreateDbContextAsync(cancellation);
 
@@ -134,6 +140,7 @@ namespace Savdonoma.Data.Services.UserService
         public async Task<UserDto> UpdateAsync(UpdateUserDto dto, CancellationToken cancellation)
         {
             EnsureOwner();
+            _license.EnsureCanWrite();
             var orgName = _currentUser.OrgName!;
             await using var db = await _factory.CreateDbContextAsync(cancellation);
 

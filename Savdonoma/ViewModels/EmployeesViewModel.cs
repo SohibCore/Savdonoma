@@ -1,15 +1,19 @@
 ﻿using Savdonoma.Core.Enums;
+using Savdonoma.Core.Licensing;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
 using Savdonoma.Data.Services.UserService;
 using CommunityToolkit.Mvvm.ComponentModel;
+using System.Windows;
 
 namespace Savdonoma.ViewModels
 {
     public partial class EmployeesViewModel : ObservableObject
     {
         private readonly IUserService _userService;
+        private readonly ILicenseService _license;
+        public bool CanWrite => _license.Current.IsActive;
 
         public ObservableCollection<UserDto> Employees { get; } = new();
         public Array Roles { get; } = new[] { UserRole.Manager, UserRole.Sotuvchi };
@@ -35,9 +39,20 @@ namespace Savdonoma.ViewModels
         [ObservableProperty]
         private bool isBusy;
 
-        public EmployeesViewModel(IUserService userService)
+        public EmployeesViewModel(IUserService userService, ILicenseService license)
         {
             _userService = userService;
+            _license = license;
+            _license.StatusChanged += LicenseStatusChanged;
+        }
+
+        private void LicenseStatusChanged(object? sender, LicenseState state)
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                OnPropertyChanged(nameof(CanWrite));
+                CreateCommand.NotifyCanExecuteChanged();
+            }));
         }
 
         [RelayCommand]
@@ -64,7 +79,7 @@ namespace Savdonoma.ViewModels
             }
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanWrite))]
         private async Task CreateAsync()
         {
             IsBusy = true;
@@ -90,6 +105,11 @@ namespace Savdonoma.ViewModels
                 StatusMessage = "Xodim muvaffaqiyatli yaratildi.";
             }
             catch (UnauthorizedAccessException ex)
+            {
+                StatusMessage = ex.Message;
+                HasError = true;
+            }
+            catch (LicenseExpiredException ex)
             {
                 StatusMessage = ex.Message;
                 HasError = true;

@@ -4,6 +4,7 @@ using Microsoft.Data.Sqlite;
 using Savdonoma.Core.Entity;
 using Microsoft.EntityFrameworkCore;
 using Savdonoma.Data.Services.SystemSetting;
+using Savdonoma.Core.Licensing;
 
 namespace Savdonoma.Data.Services.Sales
 {
@@ -12,14 +13,20 @@ namespace Savdonoma.Data.Services.Sales
         private static readonly SemaphoreSlim SaleCreationLock = new(1, 1);
         private readonly IDbContextFactory<AppDbContext> _factory;
         private readonly ISystemSettingsService _settings;
-        public SaleService(IDbContextFactory<AppDbContext> factory, ISystemSettingsService system)
+        private readonly ILicenseService _license;
+        public SaleService(
+            IDbContextFactory<AppDbContext> factory,
+            ISystemSettingsService system,
+            ILicenseService license)
         {
             _factory = factory;
             _settings = system;
+            _license = license;
         }
 
         public async Task<SaleDto> CreateAsync(CreateSaleDto dto, CancellationToken cancellation)
         {
+            _license.EnsureCanWrite();
 
             if (dto.Items.Count == 0)
                 throw new Exception("Savat bo'sh.");
@@ -173,6 +180,7 @@ namespace Savdonoma.Data.Services.Sales
 
         public async Task CancelAsync(int saleId, string? reason, CancellationToken cancellation)
         {
+            _license.EnsureCanWrite();
             await SaleCreationLock.WaitAsync(cancellation);
 
             try

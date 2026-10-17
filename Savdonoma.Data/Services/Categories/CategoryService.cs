@@ -1,4 +1,5 @@
 ﻿using Savdonoma.Core.Entity;
+using Savdonoma.Core.Licensing;
 using Microsoft.EntityFrameworkCore;
 
 namespace Savdonoma.Data.Services.Categories
@@ -6,9 +7,11 @@ namespace Savdonoma.Data.Services.Categories
     public class CategoryService : ICategoryService
     {
         private readonly IDbContextFactory<AppDbContext> _factory;
-        public CategoryService(IDbContextFactory<AppDbContext> factory)
+        private readonly ILicenseService _license;
+        public CategoryService(IDbContextFactory<AppDbContext> factory, ILicenseService license)
         {
             _factory = factory;
+            _license = license;
         }
 
         public async Task<List<CategroyDto>> GetListAsync(CancellationToken cancellation)
@@ -48,6 +51,7 @@ namespace Savdonoma.Data.Services.Categories
 
         public async Task<CategroyDto> CreateAsync(CreateCategoryDto dto, CancellationToken cancellation)
         {
+            _license.EnsureCanWrite();
             CreateValidateDto(dto);
             using var db = _factory.CreateDbContext();
 
@@ -72,6 +76,7 @@ namespace Savdonoma.Data.Services.Categories
 
         public async Task<CategroyDto> UpdateAsync(UpdateCategoryDto dto, CancellationToken cancellation)
         {
+            _license.EnsureCanWrite();
             using var db = _factory.CreateDbContext();
 
             var category = db.Categories.SingleOrDefault(x => x.Id == dto.Id && x.IsActive) ?? throw new Exception("Categoriya topilmadi.");
@@ -92,12 +97,14 @@ namespace Savdonoma.Data.Services.Categories
 
         public async Task<bool> Delete(int id, CancellationToken cancellation)
         {
+            _license.EnsureCanWrite();
             using var db = _factory.CreateDbContext();
 
             var category = await db.Categories.SingleOrDefaultAsync(x => x.Id == id, cancellation) ?? throw new Exception("Categoriya topilmadi.");
 
             category.IsActive = false;
             category.UpdatedAt = DateTime.UtcNow;
+            await db.SaveChangesAsync(cancellation);
             return true;
         }
 

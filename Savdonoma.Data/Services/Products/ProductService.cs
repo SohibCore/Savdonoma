@@ -1,6 +1,7 @@
 ﻿using Savdonoma.Services;
 using Savdonoma.Core.Logic;
 using Savdonoma.Core.Entity;
+using Savdonoma.Core.Licensing;
 using Microsoft.EntityFrameworkCore;
 using Savdonoma.Data.Services.SystemSetting;
 using System.Security.Cryptography.X509Certificates;
@@ -12,12 +13,18 @@ namespace Savdonoma.Data.Services.Products
         private readonly IDbContextFactory<AppDbContext> _factory;
         private readonly ISystemSettingsService _settings;
         private readonly CurrentUserService _currentUser;
+        private readonly ILicenseService _license;
 
-        public ProductService(IDbContextFactory<AppDbContext> factory, CurrentUserService currentUser, ISystemSettingsService system)
+        public ProductService(
+            IDbContextFactory<AppDbContext> factory,
+            CurrentUserService currentUser,
+            ISystemSettingsService system,
+            ILicenseService license)
         {
             _factory = factory;
             _currentUser = currentUser;
             _settings = system;
+            _license = license;
         }
         public async Task<List<ProductDto>> GetListAsync(CancellationToken cancellation)
         {
@@ -87,6 +94,7 @@ namespace Savdonoma.Data.Services.Products
         public async Task<ProductDto> CreateAsync(CreateProductDto dto, CancellationToken cancellation)
         {
             EnsureOwner();
+            _license.EnsureCanWrite();
             ValidateCreating(dto);
 
             var inventoryEnabled = await _settings.GetInventoryEnabledAsync(cancellation);
@@ -127,6 +135,7 @@ namespace Savdonoma.Data.Services.Products
         public async Task DeactivateAsync(int Id, CancellationToken cancellation)
         {
             EnsureOwner();
+            _license.EnsureCanWrite();
             using var db = _factory.CreateDbContext();
 
             var product = await db.Products.FirstOrDefaultAsync(p => p.Id == Id, cancellation) ?? throw new Exception("Mahsulot topilmadi");
@@ -139,6 +148,7 @@ namespace Savdonoma.Data.Services.Products
         public async Task<ProductDto> UpdateAsync(UpdateProductDto dto, CancellationToken cancellation)
         {
             EnsureOwner();
+            _license.EnsureCanWrite();
             var price = ValidateUpdating(dto);
             var inventoryEnabled = await _settings.GetInventoryEnabledAsync(cancellation);
             if (inventoryEnabled is null)
