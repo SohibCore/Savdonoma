@@ -166,6 +166,8 @@ namespace Savdonoma.Data.Migrations
 
                     b.HasIndex("NameSearch");
 
+                    b.HasIndex("Price");
+
                     b.ToTable("SYS_PRODUCT", (string)null);
                 });
 
@@ -221,6 +223,8 @@ namespace Savdonoma.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt");
+
+                    b.HasIndex("Number");
 
                     b.ToTable("SYS_SALES", (string)null);
                 });
@@ -282,6 +286,8 @@ namespace Savdonoma.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Id");
+
                     b.HasIndex("ProductId");
 
                     b.HasIndex("SaleId");
@@ -309,7 +315,9 @@ namespace Savdonoma.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SYSTEM_SETTINGS", "sys");
+                    b.HasIndex("InventoryEnabled");
+
+                    b.ToTable("SYSTEM_SETTINGS", (string)null);
                 });
 
             modelBuilder.Entity("Savdonoma.Core.Entity.User", b =>
@@ -376,6 +384,10 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnOrder(6);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FullName");
+
+                    b.HasIndex("UserName");
 
                     b.ToTable("SYS_USER", (string)null);
                 });
