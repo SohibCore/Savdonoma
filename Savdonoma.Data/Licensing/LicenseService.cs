@@ -1,5 +1,7 @@
 ﻿using Savdonoma.Core.Licensing;
 using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Savdonoma.Data.Licensing
 {
@@ -7,11 +9,15 @@ namespace Savdonoma.Data.Licensing
     {
         private static string LicensePath => Path.Combine(AppPaths.DataFolder, "license.lic");
         private static string LastSeenDatePath => Path.Combine(AppPaths.DataFolder, "license-last-seen-date.txt");
+        private const string LastSeenDateFormat = "Savdonoma.LastSeenDate.v1";
 
         private LicenseInfo? _info;
         private string? _loadError;
         private string? _clockError;
         private DateOnly? _lastSeenDate;
+        private byte[]? _lastSeenDateKey;
+        private bool _lastSeenDateLoaded;
+        private bool _lastSeenDateNeedsUpgrade;
         private readonly Timer _timer;
         private LicenseState _current;
         private readonly string _machineId;
@@ -52,9 +58,7 @@ namespace Savdonoma.Data.Licensing
         {
             // ID bir marta olinadi (sekin bo'lishi mumkin), keyin maydonda turadi
             _machineId = machineIdProvider.GetMachineId();
-
             LoadFromDisk();
-            LoadLastSeenDate();
             _current = Evaluate();
             // Har daqiqada sanani tekshiradi (fayl o'qimaydi): yarim tunda muddat tugasa ham sezadi
             _timer = new Timer(_ => Refresh(), null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
@@ -65,6 +69,9 @@ namespace Savdonoma.Data.Licensing
             if (_loadError != null)
                 return LicenseState.Invalid(_loadError);
 
+            if (_info == null || _info.ExpiresOn == null)
+                return LicenseEvaluator.Evaluate(_info, DateOnly.MinValue, _machineId);
+
             if (!TryGetToday(out var today, out var clockError))
                 return LicenseState.Invalid(clockError!);
 
@@ -73,24 +80,59 @@ namespace Savdonoma.Data.Licensing
 
         private void LoadLastSeenDate()
         {
+            if (_lastSeenDateLoaded)
+                return;
+
+            _lastSeenDateLoaded = true;
             try
             {
                 if (!File.Exists(LastSeenDatePath))
                     return;
 
-                var value = File.ReadAllText(LastSeenDatePath).Trim();
-                if (!DateOnly.TryParseExact(
-                    value,
-                    "yyyy-MM-dd",
-                    CultureInfo.InvariantCulture,
-                    DateTimeStyles.None,
-                    out var lastSeenDate))
+                var lines = File.ReadAllLines(LastSeenDatePath);
+                if (lines.Length == 1 && TryParseDate(lines[0], out var legacyDate))
+                {
+                    _lastSeenDate = legacyDate;
+                    _lastSeenDateNeedsUpgrade = true;
+                    return;
+                }
+
+                if (lines.Length != 4 || lines[0] != LastSeenDateFormat)
+                {
+                    _clockError = "Litsenziya sanasi nazorati fayli buzilgan yoki formati noto'g'ri.";
+                    return;
+                }
+
+                if (!TryParseDate(lines[2], out var signedDate))
                 {
                     _clockError = "Litsenziya sanasi nazorati fayli buzilgan.";
                     return;
                 }
 
-                _lastSeenDate = lastSeenDate;
+                var protectedKey = Convert.FromBase64String(lines[1]);
+                var signature = Convert.FromBase64String(lines[3]);
+                var key = ProtectedData.Unprotect(
+                    protectedKey,
+                    GetDateProtectionEntropy(),
+                    DataProtectionScope.CurrentUser);
+                if (key.Length != 32)
+                {
+                    CryptographicOperations.ZeroMemory(key);
+                    _clockError = "Litsenziya sanasi uchun himoyalangan kalit noto'g'ri.";
+                    return;
+                }
+
+                var expectedSignature = CreateDateSignature(key, lines[2]);
+
+                if (!CryptographicOperations.FixedTimeEquals(signature, expectedSignature))
+                {
+                    CryptographicOperations.ZeroMemory(key);
+                    _clockError = "Litsenziya sanasi imzosi noto'g'ri.";
+                    return;
+                }
+
+                _lastSeenDate = signedDate;
+                _lastSeenDateKey = key;
             }
             catch (IOException ex)
             {
@@ -100,33 +142,59 @@ namespace Savdonoma.Data.Licensing
             {
                 _clockError = "Litsenziya sanasi nazorati faylini o'qishga ruxsat yo'q: " + ex.Message;
             }
+            catch (FormatException)
+            {
+                _clockError = "Litsenziya sanasi nazorati fayli buzilgan.";
+            }
+            catch (CryptographicException ex)
+            {
+                _clockError = "Litsenziya sanasi imzosini tekshirib bo'lmadi: " + ex.Message;
+            }
         }
 
         private bool TryGetToday(out DateOnly today, out string? error)
         {
             today = LicenseEvaluator.TodayInTashkent(DateTime.UtcNow);
-            error = _clockError;
-            if (error != null)
-                return false;
 
             lock (_lock)
             {
+                LoadLastSeenDate();
+                error = _clockError;
+                if (error != null)
+                    return false;
+
                 if (_lastSeenDate is DateOnly lastSeenDate && today < lastSeenDate)
                 {
                     error = $"Kompyuter sanasi orqaga o'zgartirilgan. Sana {lastSeenDate:dd.MM.yyyy} dan oldin bo'lmasligi kerak.";
                     return false;
                 }
 
-                if (_lastSeenDate is DateOnly existingDate && today <= existingDate)
+                if (_lastSeenDate is DateOnly existingDate
+                    && today <= existingDate
+                    && !_lastSeenDateNeedsUpgrade)
                     return true;
 
                 try
                 {
                     Directory.CreateDirectory(AppPaths.DataFolder);
                     var temporaryPath = LastSeenDatePath + ".tmp";
-                    File.WriteAllText(temporaryPath, today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+                    var dateText = today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                    _lastSeenDateKey ??= RandomNumberGenerator.GetBytes(32);
+                    var protectedKey = ProtectedData.Protect(
+                        _lastSeenDateKey,
+                        GetDateProtectionEntropy(),
+                        DataProtectionScope.CurrentUser);
+                    var signature = CreateDateSignature(_lastSeenDateKey, dateText);
+                    File.WriteAllLines(temporaryPath, new[]
+                    {
+                        LastSeenDateFormat,
+                        Convert.ToBase64String(protectedKey),
+                        dateText,
+                        Convert.ToBase64String(signature)
+                    });
                     File.Move(temporaryPath, LastSeenDatePath, overwrite: true);
                     _lastSeenDate = today;
+                    _lastSeenDateNeedsUpgrade = false;
                     return true;
                 }
                 catch (IOException ex)
@@ -139,8 +207,34 @@ namespace Savdonoma.Data.Licensing
                     error = "Litsenziya sanasini saqlashga ruxsat yo'q: " + ex.Message;
                     return false;
                 }
+                catch (CryptographicException ex)
+                {
+                    error = "Litsenziya sanasini himoyalab bo'lmadi: " + ex.Message;
+                    return false;
+                }
+                catch (PlatformNotSupportedException ex)
+                {
+                    error = "Bu Windows muhitida litsenziya sanasini himoyalash qo'llab-quvvatlanmaydi: " + ex.Message;
+                    return false;
+                }
             }
         }
+
+        private static bool TryParseDate(string value, out DateOnly date)
+            => DateOnly.TryParseExact(
+                value,
+                "yyyy-MM-dd",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out date);
+
+        private byte[] GetDateProtectionEntropy()
+            => Encoding.UTF8.GetBytes($"Savdonoma.LastSeenDate.v1|{_machineId}");
+
+        private static byte[] CreateDateSignature(byte[] key, string date)
+            => HMACSHA256.HashData(
+                key,
+                Encoding.UTF8.GetBytes($"{LastSeenDateFormat}\n{date}"));
 
         public LicenseState Refresh()
         {
@@ -164,7 +258,8 @@ namespace Savdonoma.Data.Licensing
             if (!LicenseCrypto.TryRead(licenseKey, LicenseKeys.PublicKey, out var info) || info == null)
                 return LicenseState.Invalid("Litsenziya kaliti noto'g'ri.");
 
-            if (!TryGetToday(out var today, out var clockError))
+            var today = DateOnly.MinValue;
+            if (info.ExpiresOn != null && !TryGetToday(out today, out var clockError))
                 return LicenseState.Invalid(clockError!);
 
             var state = LicenseEvaluator.Evaluate(info, today, _machineId);
@@ -209,6 +304,14 @@ namespace Savdonoma.Data.Licensing
                 throw new LicenseExpiredException(state.Message);
         }
 
-        public void Dispose() => _timer.Dispose();
+        public void Dispose()
+        {
+            _timer.Dispose();
+            if (_lastSeenDateKey != null)
+            {
+                CryptographicOperations.ZeroMemory(_lastSeenDateKey);
+                _lastSeenDateKey = null;
+            }
+        }
     }
 }

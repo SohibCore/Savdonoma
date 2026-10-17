@@ -10,6 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Resources\**" />
+    <EmbeddedResource Remove="Resources\**" />
+    <None Remove="Resources\**" />
+    <Page Remove="Resources\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Savdonoma.ico" />
   </ItemGroup>
 
@@ -17,10 +24,6 @@
     <Resource Include="Savdonoma.ico" />
     <None Remove="wwwroot\default import file.xlsx" />
     <Resource Include="wwwroot\default import file.xlsx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Resources\" />
   </ItemGroup>
 
   <ItemGroup>
