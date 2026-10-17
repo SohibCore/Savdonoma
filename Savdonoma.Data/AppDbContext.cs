@@ -87,7 +87,7 @@ namespace Savdonoma.Data
             return await base.SaveChangesAsync(cancellation);
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder) 
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         }
