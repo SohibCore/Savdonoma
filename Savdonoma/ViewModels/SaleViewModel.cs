@@ -1,23 +1,24 @@
-﻿using Savdonoma.Core.Enums;
-using Savdonoma.Core.Licensing;
-using System.Globalization;
-using CommunityToolkit.Mvvm.Input;
-using Savdonoma.Data.Services.Sales;
-using System.Collections.ObjectModel;
-using Savdonoma.Data.Services.Products;
-using Savdonoma.Data.Services.SystemSetting;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Savdonoma.Core.Entity;
+using Savdonoma.Core.Enums;
+using Savdonoma.Core.Licensing;
+using Savdonoma.Data.Services.Products;
+using Savdonoma.Data.Services.Sales;
 using Savdonoma.Data.Services.Sales.SaleItems;
+using Savdonoma.Data.Services.SystemSetting;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Windows;
 
 namespace Savdonoma.ViewModels
 {
     public partial class SaleViewModel : ObservableObject, IDisposable
     {
-        private readonly IProductService _productService;
-        private readonly ISaleService _saleService;
-        private readonly ISystemSettingsService _settings;
         private readonly ILicenseService _license;
+        private readonly ISaleService _saleService;
+        private readonly IProductService _productService;
+        private readonly ISystemSettingsService _settings;
 
         private CancellationTokenSource? _searchCts;
 
@@ -42,6 +43,18 @@ namespace Savdonoma.ViewModels
 
         [ObservableProperty]
         private bool inventoryEnabled;
+
+        [ObservableProperty]
+        private SaleCartItem? selectedCartItem;
+
+        [ObservableProperty]
+        private bool isQuantityEntryMode = true;
+
+        [ObservableProperty]
+        private bool isAlphabeticKeyboard;
+
+        [ObservableProperty]
+        private string keypadInput = "";
 
         public string SessionTitle { get; set; } = "";
         public bool CanWrite => _license.Current.IsActive;
@@ -77,18 +90,14 @@ namespace Savdonoma.ViewModels
             }
         }
 
-        public SaleViewModel(
-            IProductService productService,
-            ISaleService saleService,
-            ISystemSettingsService settings,
-            ILicenseService license)
+        public SaleViewModel(IProductService productService, ISaleService saleService, ISystemSettingsService settings, ILicenseService license)
         {
             _productService = productService;
             _saleService = saleService;
             _settings = settings;
             _license = license;
-            _license.StatusChanged += LicenseStatusChanged;
 
+            _license.StatusChanged += LicenseStatusChanged;
             _ = LoadInventoryModeAsync();
             _ = LoadProductsAsync();
         }
@@ -134,6 +143,9 @@ namespace Savdonoma.ViewModels
 
         partial void OnSearchTextChanged(string value)
         {
+            if (!IsQuantityEntryMode)
+                KeypadInput = value;
+
             _ = LoadProductsAsync();
         }
 
@@ -147,17 +159,33 @@ namespace Savdonoma.ViewModels
             SelectedProduct = null;
         }
 
+        partial void OnSelectedCartItemChanged(SaleCartItem? value)
+        {
+            KeypadInput = "";
+            if (value != null)
+            {
+                IsQuantityEntryMode = true;
+                IsAlphabeticKeyboard = false;
+            }
+        }
+
+        partial void OnKeypadInputChanged(string value)
+        {
+            if (!IsQuantityEntryMode && SearchText != value)
+                SearchText = value;
+        }
+
         private void AddToCart(ProductDto product)
         {
             ErrorMessage = "";
 
-            var existing = CartItems.FirstOrDefault(
-                x => x.ProductId == product.Id);
+            var existing = CartItems.FirstOrDefault(x => x.ProductId == product.Id);
 
             if (existing != null)
             {
                 existing.Quantity++;
                 existing.Refresh();
+                SelectedCartItem = existing;
             }
             else
             {
@@ -182,8 +210,11 @@ namespace Savdonoma.ViewModels
                 };
 
                 CartItems.Add(item);
+                SelectedCartItem = item;
             }
 
+            IsQuantityEntryMode = true;
+            KeypadInput = "";
             OnPropertyChanged(nameof(TotalAmount));
         }
 
@@ -202,6 +233,8 @@ namespace Savdonoma.ViewModels
             if (item.Quantity <= 1)
             {
                 CartItems.Remove(item);
+                if (SelectedCartItem == item)
+                    SelectedCartItem = CartItems.LastOrDefault();
             }
             else
             {
@@ -216,7 +249,114 @@ namespace Savdonoma.ViewModels
         private void RemoveItem(SaleCartItem item)
         {
             CartItems.Remove(item);
+            if (SelectedCartItem == item)
+                SelectedCartItem = CartItems.LastOrDefault();
 
+            OnPropertyChanged(nameof(TotalAmount));
+        }
+
+        [RelayCommand]
+        private void SelectQuantityEntryMode()
+        {
+            IsQuantityEntryMode = true;
+            IsAlphabeticKeyboard = false;
+            KeypadInput = "";
+        }
+
+        [RelayCommand]
+        private void SelectSearchMode()
+        {
+            IsQuantityEntryMode = false;
+            IsAlphabeticKeyboard = false;
+            KeypadInput = SearchText;
+        }
+
+        [RelayCommand]
+        private void ToggleKeyboardLayout()
+        {
+            if (IsQuantityEntryMode)
+                SelectSearchMode();
+
+            IsAlphabeticKeyboard = !IsAlphabeticKeyboard;
+        }
+
+        [RelayCommand]
+        private void AddKey(string key)
+        {
+            ErrorMessage = "";
+
+            if (IsQuantityEntryMode)
+            {
+                if (SelectedCartItem == null)
+                {
+                    ErrorMessage = "Miqdor kiritish uchun savatdan mahsulot tanlang.";
+                    return;
+                }
+
+                if (key == "." && SelectedCartItem.Unit != Unit.Kg)
+                    return;
+
+                if (key == "." && KeypadInput.Contains('.'))
+                    return;
+
+                if (key.Length != 1 || (!char.IsDigit(key[0]) && key != "."))
+                    return;
+
+                KeypadInput += key;
+                return;
+            }
+
+            SearchText += key;
+            KeypadInput = SearchText;
+        }
+
+        [RelayCommand]
+        private void BackspaceKeypadInput()
+        {
+            if (IsQuantityEntryMode)
+            {
+                if (KeypadInput.Length > 0)
+                    KeypadInput = KeypadInput[..^1];
+                return;
+            }
+
+            if (SearchText.Length > 0)
+                SearchText = SearchText[..^1];
+            KeypadInput = SearchText;
+        }
+
+        [RelayCommand]
+        private void ClearKeypadInput()
+        {
+            if (IsQuantityEntryMode)
+                KeypadInput = "";
+            else
+            {
+                SearchText = "";
+                KeypadInput = "";
+            }
+        }
+
+        [RelayCommand]
+        private void ApplyKeypadInput()
+        {
+            if (!IsQuantityEntryMode)
+                return;
+
+            if (SelectedCartItem == null)
+            {
+                ErrorMessage = "Miqdor kiritish uchun savatdan mahsulot tanlang.";
+                return;
+            }
+
+            if (!SelectedCartItem.TrySetQuantity(KeypadInput))
+            {
+                ErrorMessage = "Miqdorni to'g'ri kiriting.";
+                return;
+            }
+
+            ErrorMessage = "";
+            KeypadInput = "";
             OnPropertyChanged(nameof(TotalAmount));
         }
 
@@ -259,6 +399,43 @@ namespace Savdonoma.ViewModels
                     ex.InnerException?.Message ?? ex.Message;
             }
         }
+
+        public async Task ProcessScannedBarcodeAsync(string code)
+        {
+            var normalizedCode = code.Trim();
+            if (normalizedCode.Length == 0)
+            {
+                ErrorMessage = "Shtrix-kod bo'sh.";
+                return;
+            }
+
+            try
+            {
+                var product = await _productService.FindByBarcodeAsync(normalizedCode);
+                if (product == null)
+                {
+                    ErrorMessage = $"Mahsulot topilmadi: {normalizedCode}";
+                    return;
+                }
+
+                AddToCart(new ProductDto
+                {
+                    Id = product.Id,
+                    Unit = product.Unit,
+                    Name = product.Name,
+                    NameSearch = product.NameSearch,
+                    Price = product.Price,
+                    IsActive = product.IsActive,
+                    Barcode = product.Barcode,
+                    Quantity = product.Quantity,
+                    CategoryId = product.CategoryId
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Shtrix-kodni tekshirishda xatolik: {ex.InnerException?.Message ?? ex.Message}";
+            }
+        }
     }
 
     public partial class SaleCartItem : ObservableObject
@@ -288,20 +465,21 @@ namespace Savdonoma.ViewModels
 
             set
             {
-                if (!TryParseQuantity(value, out var parsed))
-                {
-                    // Noto'g'ri qiymat (bo'sh, manfiy, 0 yoki harf) —
-                    // eski qiymatni qaytarib ko'rsatamiz.
+                if (!TrySetQuantity(value))
                     OnPropertyChanged(nameof(QuantityText));
-                    return;
-                }
-
-                if (parsed != Quantity)
-                    Quantity = parsed;
-
-                // Kiritilgan matnni normallashtirish ("1,50" -> "1,5")
-                OnPropertyChanged(nameof(QuantityText));
             }
+        }
+
+        public bool TrySetQuantity(string? text)
+        {
+            if (!TryParseQuantity(text, out var parsed))
+                return false;
+
+            if (parsed != Quantity)
+                Quantity = parsed;
+
+            OnPropertyChanged(nameof(QuantityText));
+            return true;
         }
 
         partial void OnQuantityChanged(decimal value)
@@ -328,7 +506,7 @@ namespace Savdonoma.ViewModels
                 return false;
 
             if (Unit != Unit.Kg)
-                parsed = Math.Round(parsed);
+                parsed = Math.Round(parsed, MidpointRounding.AwayFromZero);
 
             if (parsed <= 0)
                 return false;

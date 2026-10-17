@@ -1,24 +1,25 @@
-﻿using System.IO;
-using Savdonoma.Data;
-using System.Windows;
-using Savdonoma.Views;
-using Savdonoma.Services;
-using Savdonoma.ViewModels;
-using Savdonoma.Import;
-using Microsoft.Data.Sqlite;
-using System.Windows.Markup;
+﻿using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Savdonoma.BarcodeService;
 using Savdonoma.Core.Licensing;
 using Savdonoma.Core.Logic;
+using Savdonoma.Data;
 using Savdonoma.Data.Licensing;
-using Microsoft.EntityFrameworkCore;
-using Savdonoma.Data.Services.Sales;
-using Savdonoma.Data.Services.Reports;
-using Savdonoma.Data.Services.Products;
-using Savdonoma.Data.Services.Categories;
 using Savdonoma.Data.Services.Authservice;
-using Savdonoma.Data.Services.UserService;
+using Savdonoma.Data.Services.Categories;
+using Savdonoma.Data.Services.Products;
+using Savdonoma.Data.Services.Reports;
+using Savdonoma.Data.Services.Sales;
 using Savdonoma.Data.Services.SystemSetting;
-using Microsoft.Extensions.DependencyInjection;
+using Savdonoma.Data.Services.UserService;
+using Savdonoma.Import;
+using Savdonoma.Services;
+using Savdonoma.ViewModels;
+using Savdonoma.Views;
+using System.IO;
+using System.Windows;
+using System.Windows.Markup;
 
 namespace Savdonoma
 {
@@ -72,32 +73,34 @@ namespace Savdonoma
                 o.UseSqlite(connectionString));
 
             // Servislar
-            sc.AddTransient<IProductService, ProductService>();
-            sc.AddTransient<ISaleService, SaleService>();
-            sc.AddTransient<IReportService, ReportService>();
-            sc.AddTransient<ICategoryService, CategoryService>();
-            sc.AddSingleton<IMachineIdProvider, MachineIdProvider>();
-            sc.AddSingleton<ILicenseService, LicenseService>();
-            sc.AddTransient<IAuthservice, AuthService>();
-            sc.AddTransient<IUserService, UserService>();
             sc.AddSingleton<CurrentUserService>();
-            sc.AddTransient<ISystemSettingsService, SystemSettingsService>();
+            sc.AddSingleton<ILicenseService, LicenseService>();
+            sc.AddSingleton<IMachineIdProvider, MachineIdProvider>();
+            sc.AddSingleton<IBarcodeScannerService, BarcodeScannerService>();
+
             sc.AddTransient<ProductReader>();
             sc.AddTransient<ProductImportService>();
+            sc.AddTransient<IAuthservice, AuthService>();
+            sc.AddTransient<IUserService, UserService>();
+            sc.AddTransient<ISaleService, SaleService>();
+            sc.AddTransient<IReportService, ReportService>();
+            sc.AddTransient<IProductService, ProductService>();
+            sc.AddTransient<ICategoryService, CategoryService>();
+            sc.AddTransient<ISystemSettingsService, SystemSettingsService>();
 
             // ViewModel'lar
             sc.AddSingleton<MainViewModel>();
             sc.AddTransient<SaleViewModel>();
-            sc.AddSingleton<ProductsViewModel>();
+            sc.AddTransient<AuthViewModel>();
             sc.AddSingleton<ReportsViewModel>();
             sc.AddSingleton<LicenseViewModel>();
-            sc.AddTransient<AuthViewModel>();
+            sc.AddSingleton<ProductsViewModel>();
             sc.AddTransient<EmployeesViewModel>();
 
             // Oynalar
-            sc.AddTransient<ActivationWindow>();
             sc.AddTransient<AuthWindow>();
             sc.AddTransient<MainWindow>();
+            sc.AddTransient<ActivationWindow>();
 
             Services = sc.BuildServiceProvider();
 

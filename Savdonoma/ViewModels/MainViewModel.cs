@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Savdonoma.Services;
 using Savdonoma.Data.Services.SystemSetting;
+using Savdonoma.BarcodeService;
 
 namespace Savdonoma.ViewModels
 {
@@ -15,6 +16,7 @@ namespace Savdonoma.ViewModels
         private readonly ILicenseService _license;
         private readonly CurrentUserService _currentUser;
         private readonly ISystemSettingsService _settings;
+        private readonly IBarcodeScannerService _barcodeScanner;
         private int _saleSessionNumber;
 
         public ObservableCollection<SaleViewModel> SaleSessions { get; } = new();
@@ -47,6 +49,9 @@ namespace Savdonoma.ViewModels
         [ObservableProperty]
         private bool isEmployeesActive;
 
+        [ObservableProperty]
+        private bool isMainMenuExpanded = true;
+
         public bool IsOwner => _currentUser.IsOwner;
 
         // Litsenziya banneri va yon menyudagi qisqa holat
@@ -74,12 +79,15 @@ namespace Savdonoma.ViewModels
             IServiceProvider sp,
             ILicenseService license,
             CurrentUserService currentUser,
-            ISystemSettingsService settings)
+            ISystemSettingsService settings,
+            IBarcodeScannerService barcodeScanner)
         {
             _sp = sp;
             _license = license;
             _currentUser = currentUser;
             _settings = settings;
+            _barcodeScanner = barcodeScanner;
+            _barcodeScanner.BarcodeScanned += OnBarcodeScanned;
 
             // StatusChanged fon oqimidan keladi, shuning uchun Dispatcher kerak
             _license.StatusChanged += (_, _) =>
@@ -88,6 +96,24 @@ namespace Savdonoma.ViewModels
             UpdateLicenseInfo();
             _ = LoadInventoryModeAsync();
             AddSaleSession();
+        }
+
+        private void OnBarcodeScanned(string code)
+        {
+            if (Application.Current.Dispatcher.CheckAccess())
+            {
+                _ = ProcessBarcodeAsync(code);
+                return;
+            }
+
+            Application.Current.Dispatcher.BeginInvoke(
+                new Action(() => _ = ProcessBarcodeAsync(code)));
+        }
+
+        private async Task ProcessBarcodeAsync(string code)
+        {
+            if (IsSaleActive && CurrentSaleSession is { } session)
+                await session.ProcessScannedBarcodeAsync(code);
         }
 
         private async Task LoadInventoryModeAsync()
@@ -145,6 +171,12 @@ namespace Savdonoma.ViewModels
             IsReportsActive = reports;
             IsLicenseActive = license;
             IsEmployeesActive = employees;
+        }
+
+        [RelayCommand]
+        private void ToggleMainMenu()
+        {
+            IsMainMenuExpanded = !IsMainMenuExpanded;
         }
 
         partial void OnCurrentSaleSessionChanged(SaleViewModel? value)

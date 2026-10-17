@@ -4,7 +4,6 @@ using Savdonoma.Core.Entity;
 using Savdonoma.Core.Licensing;
 using Microsoft.EntityFrameworkCore;
 using Savdonoma.Data.Services.SystemSetting;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Savdonoma.Data.Services.Products
 {
@@ -15,11 +14,7 @@ namespace Savdonoma.Data.Services.Products
         private readonly CurrentUserService _currentUser;
         private readonly ILicenseService _license;
 
-        public ProductService(
-            IDbContextFactory<AppDbContext> factory,
-            CurrentUserService currentUser,
-            ISystemSettingsService system,
-            ILicenseService license)
+        public ProductService(IDbContextFactory<AppDbContext> factory, CurrentUserService currentUser, ISystemSettingsService system, ILicenseService license)
         {
             _factory = factory;
             _currentUser = currentUser;
@@ -28,7 +23,7 @@ namespace Savdonoma.Data.Services.Products
         }
         public async Task<List<ProductDto>> GetListAsync(CancellationToken cancellation)
         {
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync();
 
             var products = db.Products
                 .Where(x => x.IsActive != false);
@@ -174,6 +169,21 @@ namespace Savdonoma.Data.Services.Products
         {
             if (!_currentUser.IsOwner)
                 throw new UnauthorizedAccessException("Mahsulotlarni faqat do‘kon egasi boshqara oladi.");
+        }
+
+        public async Task<Product?> FindByBarcodeAsync(string code)
+        {
+            var barcode = code?.Trim();
+            if (string.IsNullOrEmpty(barcode))
+                return null;
+
+            await using var db = await _factory.CreateDbContextAsync();
+
+            var result = await db.Products
+                .AsNoTracking()
+                .SingleOrDefaultAsync(p => p.IsActive && p.Barcode == barcode);
+
+            return result;
         }
 
         // Yordamichi funksiyalar

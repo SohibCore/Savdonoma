@@ -22,31 +22,91 @@
             <Setter Property="Margin" Value="0,0,0,6" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="12" Padding="{TemplateBinding Padding}">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12" Padding="{TemplateBinding Padding}">
                             <ContentPresenter VerticalAlignment="Center" />
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMainMenuExpanded}" Value="False">
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                </DataTrigger>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#1E293B" />
                     <Setter Property="Foreground" Value="#FFFFFF" />
                 </Trigger>
+                <DataTrigger Binding="{Binding IsMainMenuExpanded}" Value="False">
+                    <Setter Property="Height" Value="58" />
+                    <Setter Property="Margin" Value="0,0,0,8" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="NavIconStyle" TargetType="Border">
+            <Setter Property="Width" Value="30" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMainMenuExpanded}" Value="False">
+                    <Setter Property="Width" Value="44" />
+                    <Setter Property="Height" Value="44" />
+                </DataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsMainMenuExpanded}" Value="False" />
+                        <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}"
+                                   Value="True" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="#263653" />
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsMainMenuExpanded}" Value="False" />
+                        <Condition Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=Button}}"
+                                   Value="True" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Background" Value="#2563EB" />
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="NavLabelStyle" TargetType="TextBlock">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMainMenuExpanded}" Value="False">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
             </Style.Triggers>
         </Style>
     </ui:FluentWindow.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="272" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <!-- Yon menyu -->
-        <Border Grid.Column="0" Padding="20,14,20,18">
+        <Border Grid.Column="0">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Width" Value="272" />
+                    <Setter Property="Padding" Value="20,14,20,18" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsMainMenuExpanded}" Value="False">
+                            <Setter Property="Width" Value="88" />
+                            <Setter Property="Padding" Value="12,14,12,18" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                     <GradientStop Color="#0F172A" Offset="0" />
@@ -63,6 +123,16 @@
 
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,4,0,0">
                     <Border Width="52" Height="52" CornerRadius="15">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Margin" Value="0" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsMainMenuExpanded}" Value="False">
+                                        <Setter Property="Margin" Value="6,0,0,0" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                                 <GradientStop Color="#38BDF6" Offset="0" />
@@ -72,87 +142,161 @@
                         <TextBlock Text="S" Foreground="White" FontSize="26" FontWeight="ExtraBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Savdonoma" Foreground="White" FontSize="21" FontWeight="Bold" />
-                        <TextBlock Text="Savdo boshqaruvi" Foreground="#94A3B8" FontSize="12" Margin="0,3,0,0" />
+                        <TextBlock Text="Savdonoma" Foreground="White" FontSize="21" FontWeight="Bold"
+                                   Style="{StaticResource NavLabelStyle}" />
+                        <TextBlock Text="Savdo boshqaruvi" Foreground="#94A3B8" FontSize="12" Margin="0,3,0,0"
+                                   Style="{StaticResource NavLabelStyle}" />
                     </StackPanel>
                 </StackPanel>
 
-                <StackPanel Grid.Row="1" Margin="0,30,0,0">
-                    <TextBlock Text="ASOSIY MENYU" Foreground="#64748B" FontSize="11" FontWeight="Bold" Margin="12,0,0,10" HorizontalAlignment="Center"/>
+                <StackPanel Grid.Row="1" Margin="0,18,0,0">
+                    <Button Command="{Binding ToggleMainMenuCommand}" Height="42" Margin="0,0,0,10"
+                            ToolTip="Asosiy menyuni ochish yoki yopish"
+                            BorderThickness="0" FocusVisualStyle="{x:Null}">
+                        <Button.Style>
+                            <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
+                                <Setter Property="Foreground" Value="#CBD5E1" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsMainMenuExpanded}" Value="False">
+                                        <Setter Property="Height" Value="48" />
+                                    </DataTrigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#1E293B" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <Grid>
+                            <TextBlock Text="ASOSIY MENYU" Foreground="#64748B" FontSize="11"
+                                       FontWeight="Bold" Margin="12,0,0,0" HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" Style="{StaticResource NavLabelStyle}" />
+                            <TextBlock Text="‹" Foreground="#94A3B8" FontSize="22" FontWeight="SemiBold"
+                                       HorizontalAlignment="Right" VerticalAlignment="Center"
+                                       Style="{StaticResource NavLabelStyle}" />
+                            <TextBlock Text="☰" Foreground="#94A3B8" FontSize="18"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsMainMenuExpanded}" Value="False">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Button>
 
-                    <Button Command="{Binding ShowSaleCommand}">
+                    <Button Command="{Binding ShowSaleCommand}" Tag="{Binding IsSaleActive}" ToolTip="Sotuv">
                         <Button.Style>
                             <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsSaleActive}" Value="True">
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsMainMenuExpanded}" Value="True" />
+                                            <Condition Binding="{Binding IsSaleActive}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="Background" Value="#2563EB" />
                                         <Setter Property="Foreground" Value="#FFFFFF" />
-                                    </DataTrigger>
+                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="S" FontSize="16" FontWeight="Bold" Width="30" TextAlignment="Center" VerticalAlignment="Center" />
-                            <TextBlock Text="Sotuv" FontSize="15" FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center" />
+                            <Border Style="{StaticResource NavIconStyle}">
+                                <TextBlock Text="S" FontSize="16" FontWeight="Bold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Sotuv" FontSize="15" FontWeight="SemiBold" Margin="10,0,0,0"
+                                       VerticalAlignment="Center" Style="{StaticResource NavLabelStyle}" />
                         </StackPanel>
                     </Button>
                     <Button Command="{Binding ShowProductsCommand}"
-                            Visibility="{Binding IsOwner, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            Visibility="{Binding IsOwner, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Tag="{Binding IsProductsActive}" ToolTip="Mahsulotlar">
                         <Button.Style>
                             <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsProductsActive}" Value="True">
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsMainMenuExpanded}" Value="True" />
+                                            <Condition Binding="{Binding IsProductsActive}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="Background" Value="#2563EB" />
                                         <Setter Property="Foreground" Value="#FFFFFF" />
-                                    </DataTrigger>
+                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="M" FontSize="16" FontWeight="Bold" Width="30" TextAlignment="Center" VerticalAlignment="Center" />
-                            <TextBlock Text="Mahsulotlar" FontSize="15" FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center" />
+                            <Border Style="{StaticResource NavIconStyle}">
+                                <TextBlock Text="M" FontSize="16" FontWeight="Bold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Mahsulotlar" FontSize="15" FontWeight="SemiBold" Margin="10,0,0,0"
+                                       VerticalAlignment="Center" Style="{StaticResource NavLabelStyle}" />
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding ShowReportsCommand}">
+                    <Button Command="{Binding ShowReportsCommand}" Tag="{Binding IsReportsActive}" ToolTip="Hisobotlar">
                         <Button.Style>
                             <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsReportsActive}" Value="True">
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsMainMenuExpanded}" Value="True" />
+                                            <Condition Binding="{Binding IsReportsActive}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="Background" Value="#2563EB" />
                                         <Setter Property="Foreground" Value="#FFFFFF" />
-                                    </DataTrigger>
+                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="H" FontSize="16" FontWeight="Bold" Width="30" TextAlignment="Center" VerticalAlignment="Center" />
-                            <TextBlock Text="Hisobot" FontSize="15" FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center" />
+                            <Border Style="{StaticResource NavIconStyle}">
+                                <TextBlock Text="H" FontSize="16" FontWeight="Bold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Hisobot" FontSize="15" FontWeight="SemiBold" Margin="10,0,0,0"
+                                       VerticalAlignment="Center" Style="{StaticResource NavLabelStyle}" />
                         </StackPanel>
                     </Button>
                     <Button Command="{Binding ShowEmployeesCommand}"
-                            Visibility="{Binding IsOwner, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            Visibility="{Binding IsOwner, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Tag="{Binding IsEmployeesActive}" ToolTip="Xodimlar">
                         <Button.Style>
                             <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsEmployeesActive}" Value="True">
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsMainMenuExpanded}" Value="True" />
+                                            <Condition Binding="{Binding IsEmployeesActive}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="Background" Value="#2563EB" />
                                         <Setter Property="Foreground" Value="#FFFFFF" />
-                                    </DataTrigger>
+                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="X" FontSize="16" FontWeight="Bold" Width="30"
-                                       TextAlignment="Center" VerticalAlignment="Center" />
+                            <Border Style="{StaticResource NavIconStyle}">
+                                <TextBlock Text="X" FontSize="16" FontWeight="Bold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
                             <TextBlock Text="Xodimlar" FontSize="15" FontWeight="SemiBold"
-                                       Margin="10,0,0,0" VerticalAlignment="Center" />
+                                       Margin="10,0,0,0" VerticalAlignment="Center"
+                                       Style="{StaticResource NavLabelStyle}" />
                         </StackPanel>
                     </Button>
                 </StackPanel>
 
                 <!-- Menyu pastida: Litsenziya -->
                 <StackPanel Grid.Row="3">
-                    <Button Click="ContactButton_Click" Height="44" Margin="0,0,0,0">
+                    <Button Click="ContactButton_Click" Height="44" Margin="0,0,0,0"
+                            ToolTip="Bog'lanish" Tag="Contact">
                         <Button.Style>
                             <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
                                 <Setter Property="Background" Value="#0F766E" />
@@ -166,36 +310,58 @@
                             </Style>
                         </Button.Style>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="@" FontSize="16" FontWeight="Bold" Width="30"
-                                       TextAlignment="Center" VerticalAlignment="Center" />
+                            <Border Style="{StaticResource NavIconStyle}">
+                                <TextBlock Text="@" FontSize="16" FontWeight="Bold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
                             <TextBlock Text="Bog'lanish" FontSize="15" FontWeight="SemiBold"
-                                       Margin="10,0,0,0" VerticalAlignment="Center" />
+                                       Margin="10,0,0,0" VerticalAlignment="Center"
+                                       Style="{StaticResource NavLabelStyle}" />
                         </StackPanel>
                     </Button>
                     <StackPanel x:Name="ContactDetailsPanel" Visibility="Collapsed"
                                 Margin="12,2,0,8">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsMainMenuExpanded}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
                         <TextBlock Text="Telefon: +998771577730"
                                    Foreground="#CBD5E1" FontSize="12"
                                    Margin="0,0,0,4" />
                         <TextBlock Text="Telegram: @bekmurodv_s"
                                    Foreground="#CBD5E1" FontSize="12" />
                     </StackPanel>
-                    <Button Command="{Binding ShowLicenseCommand}" Height="58">
+                    <Button Command="{Binding ShowLicenseCommand}" Height="58"
+                            Tag="{Binding IsLicenseActive}" ToolTip="Litsenziya">
                         <Button.Style>
                             <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsLicenseActive}" Value="True">
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsMainMenuExpanded}" Value="True" />
+                                            <Condition Binding="{Binding IsLicenseActive}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="Background" Value="#2563EB" />
                                         <Setter Property="Foreground" Value="#FFFFFF" />
-                                    </DataTrigger>
+                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="L" FontSize="16" FontWeight="Bold" Width="30" TextAlignment="Center" VerticalAlignment="Center" />
+                            <Border Style="{StaticResource NavIconStyle}">
+                                <TextBlock Text="L" FontSize="16" FontWeight="Bold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
                             <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Litsenziya" FontSize="15" FontWeight="SemiBold" />
-                                <TextBlock Text="{Binding LicenseSummary}" FontSize="11" Opacity="0.8" Margin="0,2,0,0" />
+                                <TextBlock Text="Litsenziya" FontSize="15" FontWeight="SemiBold"
+                                           Style="{StaticResource NavLabelStyle}" />
+                                <TextBlock Text="{Binding LicenseSummary}" FontSize="11" Opacity="0.8" Margin="0,2,0,0"
+                                           Style="{StaticResource NavLabelStyle}" />
                             </StackPanel>
                         </StackPanel>
                     </Button>

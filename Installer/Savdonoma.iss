@@ -3,7 +3,7 @@
 ; Non-commercial use only.
 
 #define MyAppName "Savdonoma"
-#define MyAppVersion "1.0.4"
+#define MyAppVersion "1.0.5"
 #define MyAppPublisher "Bekmurodov Sohib"
 #define MyAppURL "https://t.me/bekmurodv_s"
 #define MyAppExeName "Savdonoma.exe"

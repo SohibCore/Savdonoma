@@ -6,15 +6,15 @@ namespace Savdonoma.Core.Entity
     public class Product
     {
         public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public string NameSearch { get; set; } = null!;
         public Unit Unit { get; set; }
         public long Price { get; set; }
         public bool IsActive { get; set; }
         public int? CategoryId { get; set; }
         public string? Barcode { get; set; }
-        public DateTime? UpdatedAt { get; set; }
         public DateTime? CreatedAt { get; set; }
-        public string Name { get; set; } = null!;
-        public string NameSearch { get; set; } = null!;
+        public DateTime? UpdatedAt { get; set; }
         public decimal Quantity { get; set; }
 
         //Navigation property

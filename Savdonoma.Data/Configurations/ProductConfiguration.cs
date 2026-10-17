@@ -49,6 +49,7 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnName("BARCODE")
                 .HasColumnOrder(5)
                 .IsRequired(false);
+            builder.HasIndex(x => x.Barcode).IsUnique(true);
 
             builder.Property(x => x.Name)
                 .HasColumnType("varchar(200)")

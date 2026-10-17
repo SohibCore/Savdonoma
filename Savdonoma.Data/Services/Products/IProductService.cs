@@ -1,4 +1,6 @@
-﻿namespace Savdonoma.Data.Services.Products
+﻿using Savdonoma.Core.Entity;
+
+namespace Savdonoma.Data.Services.Products
 {
     public interface IProductService
     {
@@ -8,5 +10,6 @@
         Task<ProductDto> CreateAsync(CreateProductDto dto, CancellationToken cancellation);
         Task<ProductDto> UpdateAsync(UpdateProductDto dto, CancellationToken cancellation);
         Task DeactivateAsync(int Id, CancellationToken cancellation);
+        public Task<Product?> FindByBarcodeAsync(string code);
     }
 }

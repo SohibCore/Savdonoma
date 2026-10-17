@@ -1,4 +1,5 @@
-﻿using Savdonoma.ViewModels;
+﻿using Savdonoma.BarcodeService;
+using Savdonoma.ViewModels;
 using System.Windows;
 
 namespace Savdonoma
@@ -8,10 +9,11 @@ namespace Savdonoma
     /// </summary>
     public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
     {
-        public MainWindow(MainViewModel vm)
+        public MainWindow(MainViewModel vm, IBarcodeScannerService scanner)
         {
             DataContext = vm;
             InitializeComponent();
+            scanner.Attach(this);
         }
 
         private void ContactButton_Click(object sender, RoutedEventArgs e)
