@@ -1,4 +1,5 @@
 ﻿using Savdonoma.ViewModels;
+using System.Windows;
 
 namespace Savdonoma
 {
@@ -11,6 +12,14 @@ namespace Savdonoma
         {
             DataContext = vm;
             InitializeComponent();
+        }
+
+        private void ContactButton_Click(object sender, RoutedEventArgs e)
+        {
+            ContactDetailsPanel.Visibility =
+                ContactDetailsPanel.Visibility == Visibility.Visible
+                    ? Visibility.Collapsed
+                    : Visibility.Visible;
         }
     }
 }
