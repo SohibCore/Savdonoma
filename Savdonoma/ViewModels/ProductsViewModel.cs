@@ -8,6 +8,7 @@ using Savdonoma.Data.Services.SystemSetting;
 using Savdonoma.Import;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Globalization;
 
@@ -302,6 +303,44 @@ namespace Savdonoma.ViewModels
 
             if (entries.Count > 8)
                 lines.Add($"- ... yana {entries.Count - 8} ta");
+        }
+
+        [RelayCommand]
+        private void DownloadExcelTemplate()
+        {
+            var dialog = new SaveFileDialog
+            {
+                Title = "Excel shablonini saqlash",
+                FileName = "Savdonoma mahsulot import shabloni.xlsx",
+                Filter = "Excel fayli (*.xlsx)|*.xlsx",
+                DefaultExt = ".xlsx",
+                AddExtension = true,
+                OverwritePrompt = true
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            try
+            {
+                var resourceUri = new Uri(
+                    "pack://application:,,,/Savdonoma;component/wwwroot/default%20import%20file.xlsx",
+                    UriKind.Absolute);
+                var resource = Application.GetResourceStream(resourceUri)
+                    ?? throw new FileNotFoundException("Excel shabloni ilova resurslaridan topilmadi.");
+
+                using (resource.Stream)
+                using (var output = new FileStream(dialog.FileName, FileMode.Create, FileAccess.Write))
+                    resource.Stream.CopyTo(output);
+
+                ImportStatus = $"Shablon saqlandi: {dialog.FileName}";
+            }
+            catch (Exception ex)
+            {
+                var message = ex.InnerException?.Message ?? ex.Message;
+                MessageBox.Show(message, "Excel shablonini saqlashda xatolik",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         [RelayCommand]

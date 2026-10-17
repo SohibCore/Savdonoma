@@ -108,6 +108,12 @@
 
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <ui:Button Content="Shablonni yuklab olish"
+                                       Command="{Binding DownloadExcelTemplateCommand}"
+                                       ToolTip="Mahsulot importi uchun Excel shablonini saqlash"
+                                       MinHeight="40"
+                                       Padding="12,0"
+                                       Margin="0,0,8,0"/>
                             <ui:Button Content="Yangilash"
                                        Command="{Binding RefreshProductsCommand}"
                                        IsEnabled="{Binding CanRefreshProducts}"
