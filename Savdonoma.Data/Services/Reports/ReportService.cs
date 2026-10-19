@@ -23,7 +23,7 @@ namespace Savdonoma.Data.Services.Reports
         public async Task<SalesSummaryDto> GetSummaryAsync(DateTime from, DateTime to, CancellationToken cancellation)
         {
             var (fromUtc, toUtc) = ToUtcRange(from, to);
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
             var rows = await db.Sales.AsNoTracking()
                 .Where(s => s.CreatedAt >= fromUtc && s.CreatedAt < toUtc)
@@ -51,19 +51,20 @@ namespace Savdonoma.Data.Services.Reports
         public async Task<List<SaleRowDto>> GetSalesAsync(DateTime from, DateTime to, CancellationToken cancellation)
         {
             var (fromUtc, toUtc) = ToUtcRange(from, to);
-            using var db = _factory.CreateDbContext();
+            using var db = await _factory.CreateDbContextAsync(cancellation);
 
             var rows = await db.Sales.AsNoTracking()
                 .Where(s => s.CreatedAt >= fromUtc && s.CreatedAt < toUtc)
                 .OrderByDescending(s => s.CreatedAt)
-                .Select(s => new 
-                { 
-                    s.Id, 
-                    s.Number, 
-                    s.CreatedAt, 
-                    s.PaymentMethod, 
-                    s.TotalAmount, 
-                    s.SaleStatus })
+                .Select(s => new
+                {
+                    s.Id,
+                    s.Number,
+                    s.CreatedAt,
+                    s.PaymentMethod,
+                    s.TotalAmount,
+                    s.SaleStatus
+                })
                 .ToListAsync(cancellation);
 
             return rows.Select(r => new SaleRowDto
@@ -80,7 +81,7 @@ namespace Savdonoma.Data.Services.Reports
         public async Task<List<TopProductDto>> GetTopProductsAsync(DateTime from, DateTime to, CancellationToken cancellation, int take = 10)
         {
             var (fromUtc, toUtc) = ToUtcRange(from, to);
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
             var rows = await db.SaleItems.AsNoTracking()
                 .Where(i => i.Sale.SaleStatus == SaleStatus.Completed

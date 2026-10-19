@@ -16,7 +16,7 @@ namespace Savdonoma.Data.Services.Categories
 
         public async Task<List<CategroyDto>> GetListAsync(CancellationToken cancellation)
         {
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
             var categories = await db.Categories
                 .Where(x => x.IsActive)
@@ -32,7 +32,7 @@ namespace Savdonoma.Data.Services.Categories
 
         public async Task<CategroyDto> GetAsync(int Id, CancellationToken cancellation)
         {
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
             var product = await db.Categories
                 .Where(x => x.Id == Id && x.IsActive)
@@ -53,7 +53,7 @@ namespace Savdonoma.Data.Services.Categories
         {
             _license.EnsureCanWrite();
             CreateValidateDto(dto);
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
             var category = new Category
             {
@@ -77,9 +77,10 @@ namespace Savdonoma.Data.Services.Categories
         public async Task<CategroyDto> UpdateAsync(UpdateCategoryDto dto, CancellationToken cancellation)
         {
             _license.EnsureCanWrite();
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
-            var category = db.Categories.SingleOrDefault(x => x.Id == dto.Id && x.IsActive) ?? throw new Exception("Categoriya topilmadi.");
+            var category = db.Categories
+                .SingleOrDefault(x => x.Id == dto.Id && x.IsActive) ?? throw new Exception("Categoriya topilmadi.");
 
             if (!string.IsNullOrWhiteSpace(dto.Name))
                 category.Name = dto.Name;
@@ -98,7 +99,7 @@ namespace Savdonoma.Data.Services.Categories
         public async Task<bool> Delete(int id, CancellationToken cancellation)
         {
             _license.EnsureCanWrite();
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
             var category = await db.Categories.SingleOrDefaultAsync(x => x.Id == id, cancellation) ?? throw new Exception("Categoriya topilmadi.");
 

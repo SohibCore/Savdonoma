@@ -23,7 +23,7 @@ namespace Savdonoma.Data.Services.Products
         }
         public async Task<List<ProductDto>> GetListAsync(CancellationToken cancellation)
         {
-            await using var db = await _factory.CreateDbContextAsync();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
             var products = db.Products
                 .Where(x => x.IsActive != false);
@@ -44,7 +44,7 @@ namespace Savdonoma.Data.Services.Products
 
         public async Task<ProductDto> GetAsync(int Id, CancellationToken cancellation)
         {
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
             var product = await db.Products
                 .AsNoTracking()
@@ -55,7 +55,7 @@ namespace Savdonoma.Data.Services.Products
 
         public async Task<List<ProductDto>> SearchAsync(string? text, CancellationToken cancellation, int take = 50)
         {
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
             var product = db.Products
                 .AsNoTracking()
@@ -97,7 +97,7 @@ namespace Savdonoma.Data.Services.Products
             if (inventoryEnabled is null)
                 throw new InvalidOperationException("Qoldiq rejimi hali tanlanmagan.");
 
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
             var barcode = CleanBarcode(dto.Barcode);
             var now = DateTime.UtcNow;
@@ -131,7 +131,7 @@ namespace Savdonoma.Data.Services.Products
         {
             EnsureOwner();
             _license.EnsureCanWrite();
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
             var product = await db.Products.FirstOrDefaultAsync(p => p.Id == Id, cancellation) ?? throw new Exception("Mahsulot topilmadi");
 
@@ -152,7 +152,8 @@ namespace Savdonoma.Data.Services.Products
             if (inventoryEnabled.Value && dto.Quantity < 0)
                 throw new ArgumentException("Mahsulot qoldig'i manfiy bo'lishi mumkin.", nameof(dto.Quantity));
 
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
+
             var product = await db.Products.FirstOrDefaultAsync(x => x.Id == dto.Id, cancellation) ?? throw new Exception("Mahsulot topilmadi");
 
             product.Price = price;

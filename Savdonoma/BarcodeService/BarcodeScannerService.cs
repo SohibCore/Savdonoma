@@ -10,25 +10,25 @@ public sealed class BarcodeScannerService : IBarcodeScannerService
     private const int MaxGapMs = 50;   // belgilar orasidagi eng katta masofa
     private const int MinLength = 4;   // bundan qisqa kod emas
 
+    private long _lastTick;
+    private UIElement? _root;
     private readonly StringBuilder _buffer = new();
     private readonly Stopwatch _clock = Stopwatch.StartNew();
-    private UIElement? _attachedRoot;
-    private long _lastTick;
 
     public event Action<string>? BarcodeScanned;
 
     public void Attach(UIElement root)
     {
-        if (ReferenceEquals(_attachedRoot, root))
+        if (ReferenceEquals(_root, root))
             return;
 
-        if (_attachedRoot != null)
+        if (_root != null)
         {
-            _attachedRoot.PreviewTextInput -= OnTextInput;
-            _attachedRoot.PreviewKeyDown -= OnKeyDown;
+            _root.PreviewTextInput -= OnTextInput;
+            _root.PreviewKeyDown -= OnKeyDown;
         }
 
-        _attachedRoot = root;
+        _root = root;
         root.PreviewTextInput += OnTextInput;
         root.PreviewKeyDown += OnKeyDown;
     }
@@ -39,7 +39,7 @@ public sealed class BarcodeScannerService : IBarcodeScannerService
     {
         long now = _clock.ElapsedMilliseconds;
 
-        if (e.Text.Length == 0 || e.Text.Any(character => !char.IsDigit(character)))
+        if (e.Text.Length == 0 || e.Text.Any(x => !char.IsDigit(x)))
         {
             _buffer.Clear();
             _lastTick = now;
@@ -56,7 +56,8 @@ public sealed class BarcodeScannerService : IBarcodeScannerService
 
     private void OnKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key != Key.Enter) return;
+        if (e.Key != Key.Enter)
+            return;
 
         long now = _clock.ElapsedMilliseconds;
         bool isScan = _buffer.Length >= MinLength && now - _lastTick <= MaxGapMs;

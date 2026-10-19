@@ -64,7 +64,7 @@ namespace Savdonoma.Data.Services.Sales
                 throw new InvalidOperationException("Qoldiq rejimi hali tanlanmagan.");
             }
 
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
             await using var transaction = await db.Database.BeginTransactionAsync(cancellation);
 
             var product = dto.Items
@@ -158,7 +158,7 @@ namespace Savdonoma.Data.Services.Sales
 
         public async Task<List<SaleDto>> GetTodayAsync(CancellationToken cancellation)
         {
-            using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
             var startUtc = DateTime.Now.Date.ToUniversalTime();   // mahalliy "bugun" boshlanishi
 

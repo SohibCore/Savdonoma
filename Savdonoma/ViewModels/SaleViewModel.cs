@@ -1,33 +1,31 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Savdonoma.Core.Entity;
-using Savdonoma.Core.Enums;
-using Savdonoma.Core.Licensing;
-using Savdonoma.Data.Services.Products;
-using Savdonoma.Data.Services.Sales;
-using Savdonoma.Data.Services.Sales.SaleItems;
-using Savdonoma.Data.Services.SystemSetting;
-using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Windows;
+using Savdonoma.Core.Enums;
+using System.Globalization;
+using Savdonoma.Core.Licensing;
+using CommunityToolkit.Mvvm.Input;
+using Savdonoma.Data.Services.Sales;
+using System.Collections.ObjectModel;
+using Savdonoma.Data.Services.Products;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Savdonoma.Data.Services.SystemSetting;
+using Savdonoma.Data.Services.Sales.SaleItems;
 
 namespace Savdonoma.ViewModels
 {
     public partial class SaleViewModel : ObservableObject, IDisposable
     {
         private readonly ILicenseService _license;
-        private readonly ISaleService _saleService;
-        private readonly IProductService _productService;
+        private readonly ISaleService _sale;
+        private readonly IProductService _product;
         private readonly ISystemSettingsService _settings;
 
-        private CancellationTokenSource? _searchCts;
+        private CancellationTokenSource? _search;
 
         [ObservableProperty]
         private ObservableCollection<ProductDto> products = new();
         public ObservableCollection<SaleCartItem> CartItems { get; } = new();
 
-        public Array PaymentMethods { get; } =
-            Enum.GetValues(typeof(PaymentMethod));
+        public Array PaymentMethods { get; } = Enum.GetValues(typeof(PaymentMethod));
 
         [ObservableProperty]
         private string searchText = "";
@@ -57,43 +55,34 @@ namespace Savdonoma.ViewModels
         private string keypadInput = "";
 
         public string SessionTitle { get; set; } = "";
-        public bool CanWrite => _license.Current.IsActive;
 
-        public decimal TotalAmount =>
-            CartItems.Sum(x => x.LineTotal);
-
-        private async Task LoadProductsAsync()
+        public bool CanWrite()
         {
-            _searchCts?.Cancel();
+            return _license.Current.IsActive;
+        }
 
-            var cts = _searchCts = new CancellationTokenSource();
+        public decimal TotalAmount()
+        {
+            return CartItems.Sum(x => x.LineTotal);
+        }
 
-            try
-            {
-                await Task.Delay(200, cts.Token);
+        private bool _disposed;
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
 
-                var products = await _productService.SearchAsync(SearchText ?? "", cts.Token, take: 100);
-                cts.Token.ThrowIfCancellationRequested();
-
-                var selectedProductId = SelectedProduct?.Id;
-                SelectedProduct = null;
-                Products = new ObservableCollection<ProductDto>(products);
-                if (selectedProductId.HasValue)
-                    SelectedProduct = Products.FirstOrDefault(x => x.Id == selectedProductId.Value);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
-            }
+            _disposed = true;
+            _search?.Cancel();
+            _search?.Dispose();
+            _search = null;
+            _license.StatusChanged -= LicenseStatusChanged;
         }
 
         public SaleViewModel(IProductService productService, ISaleService saleService, ISystemSettingsService settings, ILicenseService license)
         {
-            _productService = productService;
-            _saleService = saleService;
+            _product = productService;
+            _sale = saleService;
             _settings = settings;
             _license = license;
 
@@ -102,11 +91,43 @@ namespace Savdonoma.ViewModels
             _ = LoadProductsAsync();
         }
 
+        private async Task LoadProductsAsync() // bazaga qidiruvdagi mahsulotni olib kelish uchun request tayyorlaydi
+        {
+            _search?.Cancel(); //eskisini bekor qiladi
+
+            var cancel = _search = new CancellationTokenSource(); // yangisini oladi
+
+            try
+            {
+                await Task.Delay(200, cancel.Token); // 200ms kutib turadi
+
+                // dastlabki 50 ta productni olib keladi
+                var products = await _product.SearchAsync(SearchText ?? "", cancel.Token, take: 50);
+
+                cancel.Token.ThrowIfCancellationRequested();
+
+                var selectedProductId = SelectedProduct?.Id;
+                SelectedProduct = null;
+                Products = new ObservableCollection<ProductDto>(products);
+                if (selectedProductId.HasValue)
+                    SelectedProduct = Products.FirstOrDefault(x => x.Id == selectedProductId.Value);
+            }
+            catch (OperationCanceledException ex)
+            {
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
+            }
+        }
+
         private async Task LoadInventoryModeAsync()
         {
             try
             {
                 var inventoryEnabled = await _settings.GetInventoryEnabledAsync(CancellationToken.None);
+
                 if (inventoryEnabled is null)
                     throw new InvalidOperationException("Qoldiq rejimi hali tanlanmagan.");
 
@@ -116,20 +137,6 @@ namespace Savdonoma.ViewModels
             {
                 ErrorMessage = ex.InnerException?.Message ?? ex.Message;
             }
-        }
-        private bool _disposed;
-
-        public void Dispose()
-        {
-            if (_disposed)
-                return;
-
-            _disposed = true;
-
-            _searchCts?.Cancel();
-            _searchCts?.Dispose();
-            _searchCts = null;
-            _license.StatusChanged -= LicenseStatusChanged;
         }
 
         private void LicenseStatusChanged(object? sender, LicenseState state)
@@ -177,7 +184,7 @@ namespace Savdonoma.ViewModels
 
         private void AddToCart(ProductDto product)
         {
-            ErrorMessage = "";
+            ErrorMessage = default!;
 
             var existing = CartItems.FirstOrDefault(x => x.ProductId == product.Id);
 
@@ -217,6 +224,7 @@ namespace Savdonoma.ViewModels
             KeypadInput = "";
             OnPropertyChanged(nameof(TotalAmount));
         }
+
 
         [RelayCommand]
         private void IncreaseQuantity(SaleCartItem item)
@@ -383,7 +391,7 @@ namespace Savdonoma.ViewModels
                     }).ToList()
                 };
 
-                var result = await _saleService.CreateAsync(
+                var result = await _sale.CreateAsync(
                     dto,
                     CancellationToken.None);
 
@@ -411,7 +419,7 @@ namespace Savdonoma.ViewModels
 
             try
             {
-                var product = await _productService.FindByBarcodeAsync(normalizedCode);
+                var product = await _product.FindByBarcodeAsync(normalizedCode);
                 if (product == null)
                 {
                     ErrorMessage = $"Mahsulot topilmadi: {normalizedCode}";

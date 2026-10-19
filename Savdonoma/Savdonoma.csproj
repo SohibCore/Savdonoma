@@ -46,4 +46,8 @@
     <ProjectReference Include="..\Savdonoma.Import\Savdonoma.Import.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
 </Project>
