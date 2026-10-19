@@ -488,4 +488,47 @@ obj/
 .vs/
 *.user
 *.suo
-**/LicenseKeys.cs
+
+# =========================
+# Savdonoma - local secrets
+# =========================
+
+# Private/public key files generated locally
+*.key
+
+# Issued license files
+*.lic
+
+# Locally generated license registry
+RegisteredMarkets.csv
+
+# =========================
+# Local databases and backups
+# =========================
+
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.sqlite-shm
+*.sqlite-wal
+
+# Database backups
+*.bak
+*.backup
+
+# =========================
+# Publish and installer output
+# =========================
+
+/Publish/
+/Installer/Output/
+
+# =========================
+# Logs and temporary files
+# =========================
+
+*.log
+*.tmp
+*.old
