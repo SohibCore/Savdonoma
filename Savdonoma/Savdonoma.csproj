@@ -6,7 +6,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>Savdonoma.ico</ApplicationIcon>
+    <AssemblyName>TijoratUz</AssemblyName>
+    <AssemblyTitle>TijoratUz</AssemblyTitle>
+    <Product>TijoratUz</Product>
+    <ApplicationIcon>TijoratUz.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,11 +20,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Savdonoma.ico" />
+    <None Remove="TijoratUz.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Savdonoma.ico" />
+    <Resource Include="TijoratUz.ico" />
+    <Resource Include="TijoratUzLogo.png" />
     <None Remove="wwwroot\default import file.xlsx" />
     <Resource Include="wwwroot\default import file.xlsx" />
   </ItemGroup>
@@ -42,6 +46,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Savdonoma.Data\Savdonoma.Data.csproj" />
+    <ProjectReference Include="..\Savdonoma.Printing\Savdonoma.Printing.csproj" />
     <ProjectReference Include="..\SavdonomaCore\Savdonoma.Core.csproj" />
     <ProjectReference Include="..\Savdonoma.Import\Savdonoma.Import.csproj" />
   </ItemGroup>

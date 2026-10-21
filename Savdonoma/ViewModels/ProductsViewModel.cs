@@ -311,7 +311,7 @@ namespace Savdonoma.ViewModels
             var dialog = new SaveFileDialog
             {
                 Title = "Excel shablonini saqlash",
-                FileName = "Savdonoma mahsulot import shabloni.xlsx",
+                FileName = "TijoratUz mahsulot import shabloni.xlsx",
                 Filter = "Excel fayli (*.xlsx)|*.xlsx",
                 DefaultExt = ".xlsx",
                 AddExtension = true,
@@ -324,7 +324,7 @@ namespace Savdonoma.ViewModels
             try
             {
                 var resourceUri = new Uri(
-                    "pack://application:,,,/Savdonoma;component/wwwroot/default%20import%20file.xlsx",
+                    "pack://application:,,,/TijoratUz;component/wwwroot/default%20import%20file.xlsx",
                     UriKind.Absolute);
                 var resource = Application.GetResourceStream(resourceUri)
                     ?? throw new FileNotFoundException("Excel shabloni ilova resurslaridan topilmadi.");
@@ -430,7 +430,7 @@ namespace Savdonoma.ViewModels
             if (EditingId == null) return;
 
             var answer = MessageBox.Show("Bu mahsulotni ro'yxatdan olib tashlaymizmi?",
-                "Savdonoma", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                "TijoratUz", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (answer != MessageBoxResult.Yes) return;
 
             try

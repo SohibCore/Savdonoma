@@ -1,4 +1,6 @@
-﻿namespace Savdonoma.Data.Services.SystemSetting
+﻿using Savdonoma.Core.Entity;
+
+namespace Savdonoma.Data.Services.SystemSetting
 {
     public interface ISystemSettingsService
     {
@@ -7,5 +9,7 @@
         Task SaveAsync(bool inventoryEnabled, CancellationToken cancellation);
 
         Task<bool?> GetInventoryEnabledAsync(CancellationToken cancellation);
+
+        Task<SystemSettings> GetSystemSettings(int settingsId, CancellationToken cancellation);
     }
 }

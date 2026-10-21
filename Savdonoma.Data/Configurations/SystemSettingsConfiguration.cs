@@ -30,6 +30,30 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnName("UPDATED_AT")
                 .HasColumnOrder(2)
                 .IsRequired(false);
+
+            builder.Property(x => x.ShopName)
+                .HasColumnName("ORG_NAME")
+                .HasColumnOrder(3)
+                .HasColumnType("text")
+                .IsRequired(false);
+
+            builder.Property(x => x.Address)
+                .HasColumnName("ADDRESS")
+                .HasColumnOrder(4)
+                .HasColumnType("text")
+                .IsRequired(false);
+
+            builder.Property(x => x.PrinterName)
+                .HasColumnName("PRINTER_NAME")
+                .HasColumnOrder(5)
+                .HasColumnType("text")
+                .IsRequired(false);
+
+            builder.Property(x => x.CheckLength)
+                .HasColumnName("CHECK_LENGTH")
+                .HasColumnOrder(6)
+                .HasColumnType("integer")
+                .IsRequired(false);
         }
     }
 }

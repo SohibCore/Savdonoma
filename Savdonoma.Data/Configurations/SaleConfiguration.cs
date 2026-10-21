@@ -55,12 +55,18 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnType("timestamp with time zone")
                 .HasColumnOrder(9)
                 .HasColumnName("CREATED_AT")
-                .IsRequired(false);
+                .IsRequired();
 
             builder.Property(x => x.UpdatedAt)
                 .HasColumnType("timestamp with time zone")
                 .HasColumnOrder(10)
                 .HasColumnName("UPDATED_AT")
+                .IsRequired(false);
+
+            builder.Property(x => x.UserId)
+                .HasColumnName("USER_ID")
+                .HasColumnOrder(11)
+                .HasColumnType("integer")
                 .IsRequired(false);
 
             builder.HasIndex(x => x.CreatedAt);

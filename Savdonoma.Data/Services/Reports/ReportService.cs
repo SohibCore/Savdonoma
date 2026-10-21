@@ -71,7 +71,7 @@ namespace Savdonoma.Data.Services.Reports
             {
                 Id = r.Id,
                 Number = r.Number,
-                Time = (r.CreatedAt ?? DateTime.UtcNow).ToLocalTime(),
+                Time = (r.CreatedAt).ToLocalTime(),
                 PaymentMethod = r.PaymentMethod,
                 TotalAmount = r.TotalAmount,
                 Status = r.SaleStatus

@@ -1,6 +1,4 @@
-﻿using Savdonoma.Data.Services.UserService;
-
-namespace Savdonoma.Data.Services.Authservice
+﻿namespace Savdonoma.Data.Services.Authservice
 {
     public interface IAuthservice
     {

@@ -4,10 +4,12 @@ using System.Windows;
 using Savdonoma.Views;
 using Savdonoma.Import;
 using Savdonoma.Services;
+using Savdonoma.Printing;
 using Savdonoma.ViewModels;
 using Savdonoma.Core.Logic;
 using System.Windows.Markup;
 using Microsoft.Data.Sqlite;
+using Savdonoma.Core.Printer;
 using Savdonoma.BarcodeService;
 using Savdonoma.Core.Licensing;
 using Savdonoma.Data.Licensing;
@@ -38,7 +40,7 @@ namespace Savdonoma
 
             _instanceMutex = new Mutex(
                 initiallyOwned: true,
-                name: @"Local\Savdonoma",
+                name: @"Local\TijoratUz",
                 createdNew: out _ownsInstanceMutex);
 
             if (!_ownsInstanceMutex)
@@ -46,8 +48,8 @@ namespace Savdonoma
                 _instanceMutex.Dispose();
                 _instanceMutex = null;
                 MessageBox.Show(
-                    "Savdonoma allaqachon ishga tushgan. Bitta nusxadan foydalaning.",
-                    "Savdonoma",
+                    "TijoratUz allaqachon ishga tushgan. Bitta nusxadan foydalaning.",
+                    "TijoratUz",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 Shutdown();
@@ -84,6 +86,7 @@ namespace Savdonoma
             sc.AddTransient<IUserService, UserService>();
             sc.AddTransient<ISaleService, SaleService>();
             sc.AddTransient<IReportService, ReportService>();
+            sc.AddTransient<IReceiptPrinter>(_ => new ReceiptPrinter("Xprinter XP-80C"));
             sc.AddTransient<IProductService, ProductService>();
             sc.AddTransient<ICategoryService, CategoryService>();
             sc.AddTransient<ISystemSettingsService, SystemSettingsService>();
@@ -111,8 +114,8 @@ namespace Savdonoma
             catch (Exception ex)
             {
                 var message = IsDatabaseLocked(ex)
-                    ? "Baza boshqa dastur yoki Savdonoma nusxasi tomonidan band. " +
-                      "Boshqa Savdonoma oynalari va bazani ishlatayotgan dasturlarni yoping, keyin qayta ishga tushiring."
+                    ? "Baza boshqa dastur yoki TijoratUz nusxasi tomonidan band. " +
+                      "Boshqa TijoratUz oynalari va bazani ishlatayotgan dasturlarni yoping, keyin qayta ishga tushiring."
                     : ex.ToString();
                 MessageBox.Show(message, "Bazani yaratishda xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
 

@@ -1,10 +1,12 @@
 ﻿using Savdonoma.Core.Enums;
-using Savdonoma.Core.Logic; // Ensure the correct namespace for SaleItem is included
+using Savdonoma.Core.Logic;
 using Microsoft.Data.Sqlite;
 using Savdonoma.Core.Entity;
-using Microsoft.EntityFrameworkCore;
-using Savdonoma.Data.Services.SystemSetting;
+using Savdonoma.Core.Printer;
 using Savdonoma.Core.Licensing;
+using Microsoft.EntityFrameworkCore;
+using Savdonoma.Data.Services.Authservice;
+using Savdonoma.Data.Services.SystemSetting;
 
 namespace Savdonoma.Data.Services.Sales
 {
@@ -14,14 +16,15 @@ namespace Savdonoma.Data.Services.Sales
         private readonly IDbContextFactory<AppDbContext> _factory;
         private readonly ISystemSettingsService _settings;
         private readonly ILicenseService _license;
-        public SaleService(
-            IDbContextFactory<AppDbContext> factory,
-            ISystemSettingsService system,
-            ILicenseService license)
+        private readonly IReceiptPrinter _print;
+        private readonly IAuthservice _service;
+        public SaleService(IDbContextFactory<AppDbContext> factory, ISystemSettingsService system, ILicenseService license, IReceiptPrinter print, IAuthservice servcie)
         {
+            _print = print;
             _factory = factory;
             _settings = system;
             _license = license;
+            _service = servcie;
         }
 
         public async Task<SaleDto> CreateAsync(CreateSaleDto dto, CancellationToken cancellation)
@@ -120,7 +123,6 @@ namespace Savdonoma.Data.Services.Sales
                     CreatedAt = now,
                 });
             }
-
             var sale = new Sale
             {
                 Number = await NextNumberAsync(db, cancellation),
@@ -128,7 +130,8 @@ namespace Savdonoma.Data.Services.Sales
                 SaleStatus = SaleStatus.Completed,
                 TotalAmount = SaleCalculator.TotolSale(items.Select(x => x.LineTotal)),
                 CreatedAt = now,
-                SaleItems = items
+                UserId = dto.UserId,
+                SaleItems = items,
             };
 
             await db.Sales.AddAsync(sale, cancellation);
@@ -142,6 +145,42 @@ namespace Savdonoma.Data.Services.Sales
                 TotalAmount = sale.TotalAmount,
                 PaymentMethod = sale.PaymentMethod,
             };
+        }
+
+        public async Task<ReceiptModel> GetReceipt(int saleId, CancellationToken cancellation)
+        {
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
+
+            var sale = await db.Sales
+                .Include(s => s.SaleItems)
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.Id == saleId, cancellation);
+
+            if (sale == null)
+                throw new Exception("Sotuv topilmadi");
+
+            var shopName = sale.User?.OrgName;
+            var receipt = new ReceiptModel
+            {
+                ReceiptNumber = sale.Id,
+                Date = sale.CreatedAt,
+                Cashier = sale.User?.FullName ?? "Noma'lum sotuvchi",
+                PaymentType = sale.PaymentMethod,
+                Paid = sale.SaleItems.Sum(i => i.Quantity * i.UnitPrice), // vaqtincha = jami
+
+                ShopName = string.IsNullOrWhiteSpace(shopName)
+                    ? "Noma'lum do'kon"
+                    : shopName.Trim(),
+
+                Items = sale.SaleItems.Select(i => new ReceiptItem
+                {
+                    Name = i.ProductName,
+                    Quantity = i.Quantity,
+                    Price = i.UnitPrice
+                }).ToList()
+            };
+
+            return receipt;
         }
 
         private static bool IsDatabaseLocked(Exception exception)

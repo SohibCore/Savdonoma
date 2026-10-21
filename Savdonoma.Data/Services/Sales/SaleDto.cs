@@ -1,4 +1,5 @@
-﻿using Savdonoma.Core.Enums;
+﻿using Savdonoma.Core.Entity;
+using Savdonoma.Core.Enums;
 
 public class SaleDto
 {
@@ -8,4 +9,6 @@ public class SaleDto
     public long TotalAmount { get; set; }
     public PaymentMethod PaymentMethod { get; set; }
     public SaleStatus Status { get; set; }
+    public int? UserId { get; set; }
+    public User? User { get; set; }
 }

@@ -77,7 +77,7 @@ namespace Savdonoma.ViewModels
         {
             var dialog = new OpenFileDialog // Windows fayl tanlash oynasi.
             { 
-                Filter = "Savdonoma litsenziyasi (*.lic)|*.lic",
+                Filter = "TijoratUz litsenziyasi (*.lic)|*.lic",
                 DefaultExt = ".lic",
                 CheckFileExists = true
             };

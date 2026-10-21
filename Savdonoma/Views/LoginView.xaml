@@ -10,7 +10,7 @@
                 BorderBrush="#E2E8F0" BorderThickness="3"
                 HorizontalAlignment="Center" VerticalAlignment="Center">
             <StackPanel>
-                <TextBlock Text="Savdonoma" FontSize="28" FontWeight="Bold"
+                <TextBlock Text="TijoratUz" FontSize="28" FontWeight="Bold"
                            Foreground="#0F172A" HorizontalAlignment="Center" />
                 <TextBlock Text="Do‘kon egasini ro‘yxatdan o‘tkazish"
                            FontSize="20" FontWeight="SemiBold" Foreground="#0F172A"

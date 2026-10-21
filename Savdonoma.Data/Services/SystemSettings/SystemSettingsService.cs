@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Savdonoma.Core.Entity;
+﻿using Savdonoma.Core.Entity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Savdonoma.Data.Services.SystemSetting
 {
@@ -20,6 +20,24 @@ namespace Savdonoma.Data.Services.SystemSetting
                 .FirstOrDefaultAsync(cancellation);
 
             return setting?.InventoryEnabled;
+        }
+
+        public async Task<SystemSettings> GetSystemSettings(int settingsId, CancellationToken cancellation)
+        {
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
+            var printerInfo = await db.SysSettings
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == settingsId, cancellation) ?? throw new Exception("Printer topilmadi.");
+
+            var printer = new SystemSettings
+            {
+                ShopName = printerInfo.ShopName,
+                Address = printerInfo.Address,
+                PrinterName = printerInfo.PrinterName,
+                CheckLength = printerInfo.CheckLength,
+            };
+
+            return printer;
         }
 
         public async Task<bool> ReadExist(CancellationToken cancellation)

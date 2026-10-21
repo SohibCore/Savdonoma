@@ -6,6 +6,7 @@ namespace Savdonoma.Data.Services.Sales
     public class CreateSaleDto
     {
         public PaymentMethod PaymentMethod { get; set; }
+        public int? UserId { get; set; }
         public List<CreateSaleItemDto> Items { get; set; } = new List<CreateSaleItemDto>();
     }
 }

@@ -1,4 +1,5 @@
 using System.Windows;
+using Savdonoma.Services;
 using Savdonoma.Core.Enums;
 using System.Globalization;
 using Savdonoma.Core.Licensing;
@@ -18,6 +19,7 @@ namespace Savdonoma.ViewModels
         private readonly ISaleService _sale;
         private readonly IProductService _product;
         private readonly ISystemSettingsService _settings;
+        private readonly CurrentUserService _currentUser;
 
         private CancellationTokenSource? _search;
 
@@ -79,12 +81,18 @@ namespace Savdonoma.ViewModels
             _license.StatusChanged -= LicenseStatusChanged;
         }
 
-        public SaleViewModel(IProductService productService, ISaleService saleService, ISystemSettingsService settings, ILicenseService license)
+        public SaleViewModel(
+            IProductService productService,
+            ISaleService saleService,
+            ISystemSettingsService settings,
+            ILicenseService license,
+            CurrentUserService currentUser)
         {
             _product = productService;
             _sale = saleService;
             _settings = settings;
             _license = license;
+            _currentUser = currentUser;
 
             _license.StatusChanged += LicenseStatusChanged;
             _ = LoadInventoryModeAsync();
@@ -384,6 +392,7 @@ namespace Savdonoma.ViewModels
                 var dto = new CreateSaleDto
                 {
                     PaymentMethod = SelectedPaymentMethod,
+                    UserId = _currentUser.UserId,
                     Items = CartItems.Select(x => new CreateSaleItemDto
                     {
                         ProductId = x.ProductId,

@@ -12,7 +12,7 @@ namespace Savdonoma.Data.Services.Authservice
 
         public async Task<AuthResultDto> Login(LoginDto dto, CancellationToken cancellation)
         {
-            await using var db = _factory.CreateDbContext();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
 
             if (string.IsNullOrWhiteSpace(dto.UserName) || string.IsNullOrEmpty(dto.Password))
                 throw new UnauthorizedAccessException("Login yoki parol noto‘g‘ri.");

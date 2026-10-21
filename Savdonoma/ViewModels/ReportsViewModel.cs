@@ -113,7 +113,7 @@ namespace Savdonoma.ViewModels
             }
 
             var answer = MessageBox.Show($"{SelectedSale.Number} chekni bekor qilamizmi?",
-                "Savdonoma", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                "TijoratUz", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (answer != MessageBoxResult.Yes) return;
 
             try

@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Savdonoma.LicenseGen", "Sav
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Savdonoma.Import", "Savdonoma.Import\Savdonoma.Import.csproj", "{EE935C28-E41D-4377-A18D-2FE280A4137F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Savdonoma.Printing", "Savdonoma.Printing\Savdonoma.Printing.csproj", "{E5481F03-0E65-4DB1-96D5-A8CD9CE3B911}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{EE935C28-E41D-4377-A18D-2FE280A4137F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE935C28-E41D-4377-A18D-2FE280A4137F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE935C28-E41D-4377-A18D-2FE280A4137F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5481F03-0E65-4DB1-96D5-A8CD9CE3B911}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5481F03-0E65-4DB1-96D5-A8CD9CE3B911}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5481F03-0E65-4DB1-96D5-A8CD9CE3B911}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5481F03-0E65-4DB1-96D5-A8CD9CE3B911}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

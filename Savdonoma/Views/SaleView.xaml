@@ -35,9 +35,9 @@
             <Setter Property="BorderThickness" Value="0,0,0,1" />
         </Style>
         <Style x:Key="KeypadButtonStyle" TargetType="Button">
-            <Setter Property="MinHeight" Value="38" />
+            <Setter Property="MinHeight" Value="48" />
             <Setter Property="Margin" Value="3" />
-            <Setter Property="FontSize" Value="17" />
+            <Setter Property="FontSize" Value="28" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Background" Value="#F1F5F9" />
             <Setter Property="Foreground" Value="#0F172A" />
@@ -125,7 +125,8 @@
             <RowDefinition Height="1.4*" />
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,10,8">
+        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CardStyle}"
+                Background="#E2E8F0" Margin="0,0,10,8">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -215,7 +216,8 @@
             </Grid>
         </Border>
 
-        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,10,0">
+        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardStyle}"
+                Background="#E2E8F0" Margin="0,0,10,0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -227,7 +229,8 @@
                         <TextBlock Text="Mahsulotlar" FontSize="19" FontWeight="Bold"
                                    Foreground="{StaticResource PrimaryText}" />
                         <TextBlock Text="Ro'yxatdan mahsulot tanlab savatga qo'shing"
-                                   FontSize="12" Foreground="{StaticResource SecondaryText}" Margin="0,2,0,0" />
+                                   FontSize="12" FontWeight="SemiBold"
+                                   Foreground="{StaticResource SecondaryText}" Margin="0,2,0,0" />
                     </StackPanel>
                 </StackPanel>
                 <ui:TextBox Grid.Row="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
@@ -235,7 +238,8 @@
                             FontSize="13" MinHeight="38" Margin="0,0,0,8" />
                 <ListView x:Name="SaleProductsList" Grid.Row="2" ItemsSource="{Binding Products}"
                           SelectedItem="{Binding SelectedProduct, Mode=TwoWay}" SelectionMode="Single"
-                          FontSize="13" BorderThickness="0" Padding="0" Background="Transparent"
+                          FontSize="14" FontWeight="SemiBold"
+                          BorderThickness="0" Padding="0" Background="Transparent"
                           ItemContainerStyle="{StaticResource TableRowStyle}"
                           SizeChanged="SaleProductsList_SizeChanged">
                     <ListView.View>
@@ -297,7 +301,8 @@
             </Grid>
         </Border>
 
-        <Border Grid.RowSpan="2" Grid.Column="1" Style="{StaticResource CardStyle}" Padding="12">
+        <Border Grid.RowSpan="2" Grid.Column="1" Style="{StaticResource CardStyle}"
+                Background="#E2E8F0" Padding="12">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />

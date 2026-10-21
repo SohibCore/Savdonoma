@@ -189,7 +189,7 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("CANCELLED_AT")
                         .HasColumnOrder(8);
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("CREATED_AT")
                         .HasColumnOrder(9);
@@ -220,11 +220,18 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("UPDATED_AT")
                         .HasColumnOrder(10);
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("USER_ID")
+                        .HasColumnOrder(11);
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt");
 
                     b.HasIndex("Number");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("SYS_SALES", (string)null);
                 });
@@ -303,6 +310,16 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("ID")
                         .HasColumnOrder(0);
 
+                    b.Property<string>("Address")
+                        .HasColumnType("text")
+                        .HasColumnName("ADDRESS")
+                        .HasColumnOrder(4);
+
+                    b.Property<int?>("CheckLength")
+                        .HasColumnType("integer")
+                        .HasColumnName("CHECK_LENGTH")
+                        .HasColumnOrder(6);
+
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("UPDATED_AT")
@@ -312,6 +329,16 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("INVENTORY_ENABLED")
                         .HasColumnOrder(1);
+
+                    b.Property<string>("PrinterName")
+                        .HasColumnType("text")
+                        .HasColumnName("PRINTER_NAME")
+                        .HasColumnOrder(5);
+
+                    b.Property<string>("ShopName")
+                        .HasColumnType("text")
+                        .HasColumnName("ORG_NAME")
+                        .HasColumnOrder(3);
 
                     b.HasKey("Id");
 
@@ -400,6 +427,15 @@ namespace Savdonoma.Data.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Savdonoma.Core.Entity.Sale", b =>
+                {
+                    b.HasOne("Savdonoma.Core.Entity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Savdonoma.Core.Entity.SaleItem", b =>

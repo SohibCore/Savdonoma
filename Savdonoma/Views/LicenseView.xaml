@@ -49,7 +49,7 @@
                                    VerticalAlignment="Center" />
                     </Border>
                     <StackPanel VerticalAlignment="Center" Margin="14,0,0,0">
-                        <TextBlock Text="Savdonoma"
+                        <TextBlock Text="TijoratUz"
                                    Foreground="{StaticResource LicenseTextPrimary}"
                                    FontSize="23"
                                    FontWeight="Bold" />
