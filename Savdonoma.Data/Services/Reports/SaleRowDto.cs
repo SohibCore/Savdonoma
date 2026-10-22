@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Reflection;
 using Savdonoma.Core.Enums;
 using System.Runtime.CompilerServices;
+using Savdonoma.Data.Services.Sales;
 
 namespace Savdonoma.Data.Services.Reports
 {
@@ -29,6 +30,48 @@ namespace Savdonoma.Data.Services.Reports
                     return;
 
                 _isExpanded = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private SaleDetailDto? _detail;
+        public SaleDetailDto? Detail
+        {
+            get => _detail;
+            set
+            {
+                if (ReferenceEquals(_detail, value))
+                    return;
+
+                _detail = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isLoadingDetail;
+        public bool IsLoadingDetail
+        {
+            get => _isLoadingDetail;
+            set
+            {
+                if (_isLoadingDetail == value)
+                    return;
+
+                _isLoadingDetail = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _detailError = "";
+        public string DetailError
+        {
+            get => _detailError;
+            set
+            {
+                if (_detailError == value)
+                    return;
+
+                _detailError = value;
                 OnPropertyChanged();
             }
         }

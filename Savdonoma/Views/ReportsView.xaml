@@ -12,7 +12,6 @@
     <UserControl.Resources>
 
         <conv:MoneyConverter x:Key="Money" />
-
         <SolidColorBrush x:Key="ReportCardBackground"
                          Color="#FFFFFF" />
 
@@ -37,11 +36,86 @@
         <SolidColorBrush x:Key="ReportDangerText"
                          Color="#DC2626" />
 
+        <Style x:Key="ReportColumnCell"
+               TargetType="Border">
+            <Setter Property="BorderBrush"
+                    Value="#DCE3EC" />
+            <Setter Property="BorderThickness"
+                    Value="0,0,1,1" />
+            <Setter Property="Padding"
+                    Value="12,8" />
+        </Style>
+
+        <Style x:Key="ReportDetailHeaderCell"
+               TargetType="Border"
+               BasedOn="{StaticResource ReportColumnCell}">
+            <Setter Property="Background"
+                    Value="#E9EEF5" />
+            <Setter Property="BorderBrush"
+                    Value="#D5DDE8" />
+        </Style>
+
+        <Style x:Key="ReportRowToggleStyle"
+               TargetType="ToggleButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Center" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ReportDetailsPanelStyle"
+               TargetType="Border">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Setter Property="Opacity" Value="0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                 From="0" To="1"
+                                                 Duration="0:0:0.18" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ReportSaleRowItemStyle"
+               TargetType="ListViewItem"
+               BasedOn="{StaticResource TableRowStyle}">
+            <Setter Property="HorizontalContentAlignment"
+                    Value="Stretch" />
+            <Setter Property="Padding"
+                    Value="0" />
+            <Setter Property="Background"
+                    Value="White" />
+            <Setter Property="BorderThickness"
+                    Value="0" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background"
+                            Value="#F5F7FA" />
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background"
+                            Value="White" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="ReportCard"
                TargetType="Border">
 
             <Setter Property="Background"
-                    Value="{StaticResource ReportCardBackground}" />
+                    Value="#E2E8F0" />
 
             <Setter Property="BorderBrush"
                     Value="{StaticResource ReportBorderBrush}" />
@@ -444,81 +518,174 @@
                 </Grid>
 
 
-                <Grid Grid.Row="1" MinHeight="42" Background="#F8FAFC">
+                <Grid Grid.Row="1" MinHeight="42" Background="#E9EEF5"
+                      Width="{Binding ActualWidth, ElementName=SalesList}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.1*" />
                         <ColumnDefinition Width="1.1*" />
                         <ColumnDefinition Width="0.7*" />
                         <ColumnDefinition Width="0.8*" />
                         <ColumnDefinition Width="0.8*" />
+                        <ColumnDefinition Width="38" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="CHEK RAQAMI" FontWeight="SemiBold"
-                               Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center"
-                               Padding="8,8" />
-                    <TextBlock Grid.Column="1" Text="SANA VA VAQT" FontWeight="SemiBold"
-                               Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center"
-                               Padding="8,8" />
-                    <TextBlock Grid.Column="2" Text="TO'LOV" FontWeight="SemiBold"
-                               Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center"
-                               Padding="8,8" />
-                    <TextBlock Grid.Column="3" Text="SUMMA" FontWeight="SemiBold"
-                               Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center"
-                               Padding="8,8" />
-                    <TextBlock Grid.Column="4" Text="HOLAT" FontWeight="SemiBold"
-                               Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center"
-                               Padding="8,8" />
+                    <Border Grid.Column="0" Style="{StaticResource ReportDetailHeaderCell}">
+                        <TextBlock Text="CHEK RAQAMI" FontWeight="SemiBold"
+                                   Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource ReportDetailHeaderCell}">
+                        <TextBlock Text="SANA VA VAQT" FontWeight="SemiBold"
+                                   Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource ReportDetailHeaderCell}">
+                        <TextBlock Text="TO'LOV" FontWeight="SemiBold"
+                                   Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="3" Style="{StaticResource ReportDetailHeaderCell}">
+                        <TextBlock Text="SUMMA" FontWeight="SemiBold"
+                                   Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="4" Style="{StaticResource ReportDetailHeaderCell}">
+                        <TextBlock Text="HOLAT" FontWeight="SemiBold"
+                                   Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="5" Style="{StaticResource ReportDetailHeaderCell}" />
                 </Grid>
 
-                <ListView Grid.Row="2"
+                <ListView x:Name="SalesList" Grid.Row="2"
                           ItemsSource="{Binding Sales}"
                           SelectedItem="{Binding SelectedSale, Mode=TwoWay}"
                           SelectionMode="Single"
                           Background="Transparent"
                           BorderThickness="0"
                           Padding="0"
-                          FontSize="14">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem" BasedOn="{StaticResource TableRowStyle}">
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                            <Setter Property="Padding" Value="0" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
+                          FontSize="14"
+                          ItemContainerStyle="{StaticResource ReportSaleRowItemStyle}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Expander IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
-                                      HorizontalAlignment="Stretch">
-                                <Expander.Header>
-                                    <Grid MinHeight="44" HorizontalAlignment="Stretch">
+                            <StackPanel>
+                                <ToggleButton IsChecked="{Binding IsExpanded, Mode=TwoWay}"
+                                              Style="{StaticResource ReportRowToggleStyle}">
+                                    <Grid MinHeight="44" HorizontalAlignment="Stretch"
+                                          Width="{Binding ActualWidth, ElementName=SalesList}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="1.1*" />
                                             <ColumnDefinition Width="1.1*" />
                                             <ColumnDefinition Width="0.7*" />
                                             <ColumnDefinition Width="0.8*" />
                                             <ColumnDefinition Width="0.8*" />
+                                            <ColumnDefinition Width="38" />
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding Number}"
-                                                   Style="{StaticResource CancelledAwareText}"
-                                                   FontWeight="SemiBold" VerticalAlignment="Center"
-                                                   Padding="8,8" />
-                                        <TextBlock Grid.Column="1"
-                                                   Text="{Binding Time, StringFormat={}{0:dd.MM.yyyy HH:mm}}"
-                                                   Style="{StaticResource CancelledAwareText}"
-                                                   VerticalAlignment="Center" Padding="8,8" />
-                                        <TextBlock Grid.Column="2" Text="{Binding PaymentMethod}"
-                                                   Style="{StaticResource CancelledAwareText}"
-                                                   VerticalAlignment="Center" Padding="8,8" />
-                                        <TextBlock Grid.Column="3"
-                                                   Text="{Binding TotalAmount, Converter={StaticResource Money}}"
-                                                   Style="{StaticResource CancelledAwareText}"
-                                                   FontWeight="SemiBold" VerticalAlignment="Center"
-                                                   Padding="8,8" />
-                                        <TextBlock Grid.Column="4" Text="{Binding StatusDisplay}"
-                                                   Style="{StaticResource CancelledAwareText}"
-                                                   VerticalAlignment="Center" Padding="8,8" />
+                                        <Border Grid.Column="0" Style="{StaticResource ReportColumnCell}">
+                                            <TextBlock Text="{Binding Number}"
+                                                       Style="{StaticResource CancelledAwareText}"
+                                                       FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        </Border>
+                                        <Border Grid.Column="1" Style="{StaticResource ReportColumnCell}">
+                                            <TextBlock Text="{Binding Time, StringFormat={}{0:dd.MM.yyyy HH:mm}}"
+                                                       Style="{StaticResource CancelledAwareText}"
+                                                       VerticalAlignment="Center" />
+                                        </Border>
+                                        <Border Grid.Column="2" Style="{StaticResource ReportColumnCell}">
+                                            <TextBlock Text="{Binding PaymentMethod}"
+                                                       Style="{StaticResource CancelledAwareText}"
+                                                       VerticalAlignment="Center" />
+                                        </Border>
+                                        <Border Grid.Column="3" Style="{StaticResource ReportColumnCell}">
+                                            <TextBlock Text="{Binding TotalAmount, Converter={StaticResource Money}}"
+                                                       Style="{StaticResource CancelledAwareText}"
+                                                       FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        </Border>
+                                        <Border Grid.Column="4" Style="{StaticResource ReportColumnCell}">
+                                            <Border CornerRadius="14" Padding="9,4"
+                                                    HorizontalAlignment="Left">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="#E7F8F0" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                                                <Setter Property="Background" Value="#FEF2F2" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Border Width="16" Height="16"
+                                                    CornerRadius="8"
+                                                            VerticalAlignment="Center">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background" Value="#10A37F" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                                                        <Setter Property="Background" Value="#DC2626" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="✓" Foreground="White"
+                                                                   FontSize="10" FontWeight="Bold"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Text" Value="✓" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                                                            <Setter Property="Text" Value="!" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding StatusDisplay}" FontSize="12"
+                                                               VerticalAlignment="Center" Margin="7,0,0,0">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground" Value="#07815F" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                                                        <Setter Property="Foreground" Value="#B91C1C" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Border>
+                                        </Border>
+                                        <Border Grid.Column="5" Style="{StaticResource ReportColumnCell}"
+                                                HorizontalAlignment="Stretch">
+                                            <TextBlock Text="⌄" FontSize="18"
+                                                       Foreground="{StaticResource ReportSecondaryText}"
+                                                       HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               RenderTransformOrigin="0.5,0.5">
+                                                <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <RotateTransform Angle="0" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                                                        <Setter Property="RenderTransform">
+                                                                    <Setter.Value>
+                                                                        <RotateTransform Angle="180" />
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
                                     </Grid>
-                                </Expander.Header>
+                                </ToggleButton>
                                 <Border Background="#F8FAFC" BorderBrush="{StaticResource ReportBorderBrush}"
-                                        BorderThickness="0,1,0,0" Padding="12">
+                                        BorderThickness="0,1,0,0" Padding="12"
+                                        Style="{StaticResource ReportDetailsPanelStyle}">
                                     <StackPanel>
                                         <Grid Margin="0,0,0,4">
                                             <Grid.ColumnDefinitions>
@@ -527,19 +694,27 @@
                                                 <ColumnDefinition Width="1.2*" />
                                                 <ColumnDefinition Width="1.2*" />
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="Mahsulot" FontWeight="SemiBold"
-                                                       Foreground="{StaticResource ReportSecondaryText}" Padding="6,6" />
-                                            <TextBlock Grid.Column="1" Text="Narx" FontWeight="SemiBold"
-                                                       Foreground="{StaticResource ReportSecondaryText}"
-                                                       TextAlignment="Right" Padding="6,6" />
-                                            <TextBlock Grid.Column="2" Text="Miqdor" FontWeight="SemiBold"
-                                                       Foreground="{StaticResource ReportSecondaryText}"
-                                                       TextAlignment="Right" Padding="6,6" />
-                                            <TextBlock Grid.Column="3" Text="Summa" FontWeight="SemiBold"
-                                                       Foreground="{StaticResource ReportSecondaryText}"
-                                                       TextAlignment="Right" Padding="6,6" />
+                                            <Border Grid.Column="0" Style="{StaticResource ReportColumnCell}">
+                                                <TextBlock Text="Mahsulot" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource ReportSecondaryText}" />
+                                            </Border>
+                                            <Border Grid.Column="1" Style="{StaticResource ReportColumnCell}">
+                                                <TextBlock Text="Narx" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource ReportSecondaryText}"
+                                                           TextAlignment="Right" />
+                                            </Border>
+                                            <Border Grid.Column="2" Style="{StaticResource ReportColumnCell}">
+                                                <TextBlock Text="Miqdor" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource ReportSecondaryText}"
+                                                           TextAlignment="Right" />
+                                            </Border>
+                                            <Border Grid.Column="3" Style="{StaticResource ReportColumnCell}">
+                                                <TextBlock Text="Summa" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource ReportSecondaryText}"
+                                                           TextAlignment="Right" />
+                                            </Border>
                                         </Grid>
-                                        <ItemsControl ItemsSource="{Binding DataContext.SelectedSaleDetail.Items, RelativeSource={RelativeSource AncestorType=ListView}}">
+                                        <ItemsControl ItemsSource="{Binding Detail.Items}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Grid MinHeight="36">
@@ -549,51 +724,56 @@
                                                             <ColumnDefinition Width="1.2*" />
                                                             <ColumnDefinition Width="1.2*" />
                                                         </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding ProductName}"
-                                                                   VerticalAlignment="Center" Padding="6,6" />
-                                                        <TextBlock Grid.Column="1"
-                                                                   Text="{Binding UnitPrice, Converter={StaticResource Money}}"
-                                                                   VerticalAlignment="Center" TextAlignment="Right"
-                                                                   Padding="6,6" />
-                                                        <StackPanel Grid.Column="2" Orientation="Horizontal"
-                                                                    HorizontalAlignment="Right"
-                                                                    VerticalAlignment="Center">
-                                                            <TextBlock Text="{Binding Quantity, StringFormat={}{0:0.###}}" />
-                                                            <TextBlock Text="{Binding Unit}" Margin="4,0,0,0" />
-                                                        </StackPanel>
-                                                        <TextBlock Grid.Column="3"
-                                                                   Text="{Binding LineTotal, Converter={StaticResource Money}}"
-                                                                   VerticalAlignment="Center" TextAlignment="Right"
-                                                                   FontWeight="SemiBold" Padding="6,6" />
+                                                        <Border Grid.Column="0" Style="{StaticResource ReportColumnCell}">
+                                                            <TextBlock Text="{Binding ProductName}" VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <Border Grid.Column="1" Style="{StaticResource ReportColumnCell}">
+                                                            <TextBlock Text="{Binding UnitPrice, Converter={StaticResource Money}}"
+                                                                       VerticalAlignment="Center" TextAlignment="Right" />
+                                                        </Border>
+                                                        <Border Grid.Column="2" Style="{StaticResource ReportColumnCell}">
+                                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                                <TextBlock Text="{Binding Quantity, StringFormat={}{0:0.###}}" />
+                                                                <TextBlock Text="{Binding Unit}" Margin="4,0,0,0" />
+                                                            </StackPanel>
+                                                        </Border>
+                                                        <Border Grid.Column="3" Style="{StaticResource ReportColumnCell}">
+                                                            <TextBlock Text="{Binding LineTotal, Converter={StaticResource Money}}"
+                                                                       VerticalAlignment="Center" TextAlignment="Right"
+                                                                       FontWeight="SemiBold" />
+                                                        </Border>
                                                     </Grid>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
                                         <UniformGrid Columns="3" Margin="0,10,0,0">
-                                            <Border Background="{StaticResource ReportCardBackground}"
+                                            <Border Background="#F1F5F9" BorderBrush="{StaticResource ReportBorderBrush}"
+                                                    BorderThickness="1"
                                                     CornerRadius="8" Padding="12" Margin="0,0,8,0">
                                                 <StackPanel>
                                                     <TextBlock Text="Jami" Style="{StaticResource ReportCardLabel}" />
-                                                    <TextBlock Text="{Binding DataContext.SelectedSaleDetail.TotalAmount, Converter={StaticResource Money}, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                    <TextBlock Text="{Binding Detail.TotalAmount, Converter={StaticResource Money}}"
                                                                FontSize="20" FontWeight="SemiBold"
                                                                Foreground="{StaticResource ReportPrimaryText}" />
                                                 </StackPanel>
                                             </Border>
-                                            <Border Background="{StaticResource ReportCardBackground}"
+                                            <Border Background="#F1F5F9" BorderBrush="{StaticResource ReportBorderBrush}"
+                                                    BorderThickness="1"
                                                     CornerRadius="8" Padding="12" Margin="4,0">
                                                 <StackPanel>
                                                     <TextBlock Text="Mijozdan olingan"
                                                                Style="{StaticResource ReportCardLabel}" />
-                                                    <TextBlock Text="{Binding DataContext.SelectedSaleDetail.ReceivedAmount, Converter={StaticResource Money}, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                    <TextBlock Text="{Binding Detail.ReceivedAmount, Converter={StaticResource Money}}"
                                                                FontSize="20" FontWeight="SemiBold"
                                                                Foreground="{StaticResource ReportPrimaryText}" />
                                                 </StackPanel>
                                             </Border>
-                                            <Border Background="{StaticResource ReportCardBackground}"
+                                            <Border Background="#F1F5F9" BorderBrush="{StaticResource ReportBorderBrush}"
+                                                    BorderThickness="1"
                                                     CornerRadius="8" Padding="12" Margin="8,0,0,0">
                                                 <StackPanel>
                                                     <TextBlock Text="Qaytim" Style="{StaticResource ReportCardLabel}" />
-                                                    <TextBlock Text="{Binding DataContext.SelectedSaleDetail.ChangeAmount, Converter={StaticResource Money}, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                    <TextBlock Text="{Binding Detail.ChangeAmount, Converter={StaticResource Money}}"
                                                                FontSize="20" FontWeight="SemiBold"
                                                                Foreground="{StaticResource ReportSuccessText}" />
                                                 </StackPanel>
@@ -601,7 +781,7 @@
                                         </UniformGrid>
                                         <TextBlock Margin="0,10,0,0">
                                             <Run Text="To'lov turi: " />
-                                            <Run Text="{Binding DataContext.SelectedSaleDetail.PaymentMethod, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                                            <Run Text="{Binding Detail.PaymentMethod}" />
                                         </TextBlock>
                                         <TextBlock Text="Sotuv ma'lumotlari yuklanmoqda..."
                                                    Foreground="{StaticResource ReportSecondaryText}"
@@ -610,7 +790,7 @@
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Visibility" Value="Collapsed" />
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding DataContext.IsLoadingSaleDetail, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                        <DataTrigger Binding="{Binding IsLoadingDetail}"
                                                                      Value="True">
                                                             <Setter Property="Visibility" Value="Visible" />
                                                         </DataTrigger>
@@ -618,18 +798,18 @@
                                                 </Style>
                                             </TextBlock.Style>
                                         </TextBlock>
-                                        <TextBlock Text="{Binding DataContext.SaleDetailError, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                        <TextBlock Text="{Binding DetailError}"
                                                    Foreground="{StaticResource ReportDangerText}"
                                                    TextWrapping="Wrap" Margin="0,8,0,0">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Visibility" Value="Visible" />
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding DataContext.SaleDetailError, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                        <DataTrigger Binding="{Binding DetailError}"
                                                                      Value="">
                                                             <Setter Property="Visibility" Value="Collapsed" />
                                                         </DataTrigger>
-                                                        <DataTrigger Binding="{Binding DataContext.SaleDetailError, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                        <DataTrigger Binding="{Binding DetailError}"
                                                                      Value="{x:Null}">
                                                             <Setter Property="Visibility" Value="Collapsed" />
                                                         </DataTrigger>
@@ -639,7 +819,7 @@
                                         </TextBlock>
                                     </StackPanel>
                                 </Border>
-                            </Expander>
+                            </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>

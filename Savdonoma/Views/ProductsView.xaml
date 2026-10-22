@@ -70,6 +70,7 @@
 
         <Border Grid.Column="0"
                 Style="{StaticResource CardStyle}"
+                Background="#E2E8F0"
                 Margin="0,0,16,0">
 
             <Grid>
@@ -256,6 +257,7 @@
 
         <Border Grid.Column="1"
                 Style="{StaticResource CardStyle}"
+                Background="#E2E8F0"
                 BorderThickness="0,1,1,1">
 
             <Grid>
@@ -381,6 +383,14 @@
                                     HorizontalAlignment="Stretch"
                                     Margin="0,8,0,0">
 
+                            <!-- Save -->
+                            <ui:Button Content="Saqlash"
+                                       Command="{Binding SaveCommand}"
+                                       Appearance="Primary"
+                                       MinHeight="46"
+                                       HorizontalAlignment="Stretch"
+                                       Margin="0,0,0,8"/>
+
                             <!-- New product -->
                             <ui:Button Content="Yangi mahsulot"
                                        Command="{Binding NewProductCommand}"
@@ -394,13 +404,6 @@
                                        MinHeight="44"
                                        HorizontalAlignment="Stretch"
                                        Margin="0,0,0,8"/>
-
-                            <!-- Save -->
-                            <ui:Button Content="Saqlash"
-                                       Command="{Binding SaveCommand}"
-                                       Appearance="Primary"
-                                       MinHeight="46"
-                                       HorizontalAlignment="Stretch"/>
 
                         </StackPanel>
 

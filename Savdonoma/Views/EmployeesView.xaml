@@ -11,7 +11,7 @@
             <ColumnDefinition Width="340" />
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0" Background="White" BorderBrush="#E2E8F0"
+        <Border Grid.Column="0" Background="#E2E8F0" BorderBrush="#E2E8F0"
                 BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,16,0">
             <Grid>
                 <Grid.RowDefinitions>
@@ -27,7 +27,27 @@
                 <DataGrid Grid.Row="1" ItemsSource="{Binding Employees}"
                           AutoGenerateColumns="False" IsReadOnly="True"
                           CanUserAddRows="False" HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal" BorderThickness="0">
+                          GridLinesVisibility="All"
+                          HorizontalGridLinesBrush="#111827" VerticalGridLinesBrush="#111827"
+                          Background="Transparent" RowBackground="Transparent"
+                          AlternatingRowBackground="#CBD5E1" BorderThickness="0">
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#CBD5E1" />
+                            <Setter Property="Foreground" Value="#0F172A" />
+                            <Setter Property="BorderBrush" Value="#111827" />
+                            <Setter Property="BorderThickness" Value="0,0,1,1" />
+                            <Setter Property="Padding" Value="10,8" />
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="BorderBrush" Value="#111827" />
+                            <Setter Property="BorderThickness" Value="0,0,1,1" />
+                            <Setter Property="Padding" Value="8,6" />
+                        </Style>
+                    </DataGrid.CellStyle>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Ism-familiya" Binding="{Binding FullName}" Width="*" />
                         <DataGridTextColumn Header="Login" Binding="{Binding UserName}" Width="*" />
@@ -37,7 +57,7 @@
             </Grid>
         </Border>
 
-        <Border Grid.Column="1" Background="White" BorderBrush="#E2E8F0"
+        <Border Grid.Column="1" Background="#E2E8F0" BorderBrush="#E2E8F0"
                 BorderThickness="1" CornerRadius="12" Padding="20">
             <StackPanel>
                 <TextBlock Text="Xodim yaratish" FontSize="20" FontWeight="Bold"

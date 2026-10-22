@@ -14,7 +14,6 @@ namespace Savdonoma.ViewModels
         private readonly IReportService _reports;
         private readonly ISaleService _sales;
         private CancellationTokenSource? _cts;
-        private CancellationTokenSource? _detailCts;
 
         [ObservableProperty] private ObservableCollection<SaleRowDto> sales = new();
 
@@ -29,9 +28,6 @@ namespace Savdonoma.ViewModels
         [ObservableProperty] private int cancelledCount;
 
         [ObservableProperty] private SaleRowDto? selectedSale;
-        [ObservableProperty] private SaleDetailDto? selectedSaleDetail;
-        [ObservableProperty] private bool isLoadingSaleDetail;
-        [ObservableProperty] private string saleDetailError = "";
         [ObservableProperty] private string errorMessage = "";
 
         public ReportsViewModel(IReportService reports, ISaleService sales)
@@ -46,7 +42,6 @@ namespace Savdonoma.ViewModels
         public async Task LoadAsync()
         {
             _cts?.Cancel();
-            _detailCts?.Cancel();
             var cts = _cts = new CancellationTokenSource();
             var ct = cts.Token;
 
@@ -77,9 +72,6 @@ namespace Savdonoma.ViewModels
                 if (selectedSaleId.HasValue)
                     SelectedSale = Sales.FirstOrDefault(x => x.Id == selectedSaleId.Value);
 
-                SelectedSaleDetail = null;
-                SaleDetailError = "";
-                IsLoadingSaleDetail = false;
                 ErrorMessage = "";
             }
             catch (OperationCanceledException) { }
@@ -97,56 +89,33 @@ namespace Savdonoma.ViewModels
 
             if (sale.IsExpanded)
             {
-                _ = LoadSaleDetailAsync(sale);
-                return;
-            }
+                SelectedSale = sale;
+                foreach (var otherSale in Sales.Where(x => x.Id != sale.Id && x.IsExpanded))
+                    otherSale.IsExpanded = false;
 
-            if (SelectedSale?.Id == sale.Id)
-            {
-                _detailCts?.Cancel();
-                SelectedSaleDetail = null;
-                SaleDetailError = "";
-                IsLoadingSaleDetail = false;
+                if (sale.Detail == null && !sale.IsLoadingDetail)
+                    _ = LoadSaleDetailAsync(sale);
             }
         }
 
         private async Task LoadSaleDetailAsync(SaleRowDto sale)
         {
-            _detailCts?.Cancel();
-            var cts = _detailCts = new CancellationTokenSource();
-            var cancellation = cts.Token;
-
-            SelectedSale = sale;
-            foreach (var otherSale in Sales.Where(x => x.Id != sale.Id && x.IsExpanded))
-                otherSale.IsExpanded = false;
-
-            SelectedSaleDetail = null;
-            SaleDetailError = "";
-            IsLoadingSaleDetail = true;
+            sale.IsLoadingDetail = true;
+            sale.DetailError = "";
 
             try
             {
-                var details = await _sales.GetDetailAsync(sale.Id, cancellation);
-                cancellation.ThrowIfCancellationRequested();
-                SelectedSaleDetail = details.FirstOrDefault()
+                var details = await _sales.GetDetailAsync(sale.Id, CancellationToken.None);
+                sale.Detail = details.FirstOrDefault()
                     ?? throw new InvalidOperationException("Sotuv tafsilotlari topilmadi.");
-            }
-            catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
-            {
             }
             catch (Exception ex)
             {
-                SaleDetailError = ex.InnerException?.Message ?? ex.Message;
+                sale.DetailError = ex.InnerException?.Message ?? ex.Message;
             }
             finally
             {
-                if (ReferenceEquals(_detailCts, cts))
-                {
-                    IsLoadingSaleDetail = false;
-                    _detailCts = null;
-                }
-
-                cts.Dispose();
+                sale.IsLoadingDetail = false;
             }
         }
 
