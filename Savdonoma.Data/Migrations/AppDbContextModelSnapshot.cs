@@ -189,6 +189,11 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("CANCELLED_AT")
                         .HasColumnOrder(8);
 
+                    b.Property<decimal?>("ChangeAmount")
+                        .HasColumnType("decimal")
+                        .HasColumnName("CHANGE_AMOUNT")
+                        .HasColumnOrder(13);
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("CREATED_AT")
@@ -206,6 +211,11 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("PAYMENT_METHOD")
                         .HasColumnOrder(3);
+
+                    b.Property<decimal?>("ReceivedAmount")
+                        .HasColumnType("decimal")
+                        .HasColumnName("RECEIVED_AMOUNT")
+                        .HasColumnOrder(12);
 
                     b.Property<int>("SaleStatus")
                         .HasColumnType("INTEGER");
@@ -276,10 +286,16 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("SALE_ID")
                         .HasColumnOrder(1);
 
-                    b.Property<long>("TotalAmount")
+                    b.Property<decimal>("TotalAmount")
                         .HasColumnType("bigint")
                         .HasColumnName("TOTAL_AMOUNT")
                         .HasColumnOrder(7);
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("UNIT")
+                        .HasColumnOrder(10);
 
                     b.Property<long>("UnitPrice")
                         .HasColumnType("bigint")

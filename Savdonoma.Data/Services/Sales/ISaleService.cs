@@ -6,5 +6,7 @@
         Task<List<SaleDto>> GetTodayAsync(CancellationToken cancellation);
         Task CancelAsync(int saleId, string? reason, CancellationToken cancellation);
         Task<ReceiptModel> GetReceipt(int saleId, CancellationToken cancellation);
+
+        Task<List<SaleDetailDto>> GetDetailAsync(int saleId, CancellationToken cancellation);
     }
 }

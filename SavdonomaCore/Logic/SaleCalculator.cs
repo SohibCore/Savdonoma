@@ -6,7 +6,7 @@
         {
             return (long)Math.Round(price * quantity, MidpointRounding.AwayFromZero);
         }
-        public static long TotolSale(IEnumerable<long> lineSum)
+        public static long TotalSale(IEnumerable<long> lineSum)
         {
             return (long)lineSum.Sum();
         }

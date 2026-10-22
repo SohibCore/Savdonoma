@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using Savdonoma.Core.Enums;
 
 namespace Savdonoma.Core.Entity
 {
@@ -7,11 +8,12 @@ namespace Savdonoma.Core.Entity
         public int Id { get; set; }
         public int SaleId { get; set; }
         public int ProductId { get; set; }
+        public Unit Unit { get; set; }
         public string ProductName { get; set; } = null!;
         public long UnitPrice { get; set; }
         public decimal Quantity { get; set; }
         public long LineTotal { get; set; }
-        public long TotalAmount { get; set; }
+        public decimal TotalAmount { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 

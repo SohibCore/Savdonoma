@@ -75,6 +75,13 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnType("timestamp with time zone")
                 .IsRequired(false);
 
+            builder.Property(x => x.Unit)
+                .HasColumnName("UNIT")
+                .HasColumnOrder(10)
+                .HasColumnType("text")
+                .HasConversion<string>()
+                .IsRequired();
+
             builder.HasOne(x => x.Sale)
                 .WithMany(x => x.SaleItems)
                 .HasForeignKey(x => x.SaleId)

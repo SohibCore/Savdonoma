@@ -69,6 +69,18 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnType("integer")
                 .IsRequired(false);
 
+            builder.Property(x => x.ReceivedAmount)
+                .HasColumnName("RECEIVED_AMOUNT")
+                .HasColumnOrder(12)
+                .HasColumnType("decimal")
+                .IsRequired(false);
+
+            builder.Property(x => x.ChangeAmount)
+                .HasColumnName("CHANGE_AMOUNT")
+                .HasColumnOrder(13)
+                .HasColumnType("decimal")
+                .IsRequired(false);
+
             builder.HasIndex(x => x.CreatedAt);
         }
     }

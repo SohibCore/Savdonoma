@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 using System.Reflection;
 using Savdonoma.Core.Enums;
+using System.Runtime.CompilerServices;
 
 namespace Savdonoma.Data.Services.Reports
 {
-    public class SaleRowDto
+    public class SaleRowDto : INotifyPropertyChanged
     {
         public int Id { get; set; }
         public string Number { get; set; } = "";
@@ -16,5 +18,24 @@ namespace Savdonoma.Data.Services.Reports
             .GetField(Status.ToString())?
             .GetCustomAttribute<DisplayAttribute>()?
             .GetName() ?? Status.ToString();
+
+        private bool _isExpanded;
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set
+            {
+                if (_isExpanded == value)
+                    return;
+
+                _isExpanded = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

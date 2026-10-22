@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.ComponentModel;
 using Savdonoma.Core.Enums;
 using CommunityToolkit.Mvvm.Input;
 using Savdonoma.Data.Services.Sales;
@@ -13,6 +14,7 @@ namespace Savdonoma.ViewModels
         private readonly IReportService _reports;
         private readonly ISaleService _sales;
         private CancellationTokenSource? _cts;
+        private CancellationTokenSource? _detailCts;
 
         [ObservableProperty] private ObservableCollection<SaleRowDto> sales = new();
 
@@ -27,6 +29,9 @@ namespace Savdonoma.ViewModels
         [ObservableProperty] private int cancelledCount;
 
         [ObservableProperty] private SaleRowDto? selectedSale;
+        [ObservableProperty] private SaleDetailDto? selectedSaleDetail;
+        [ObservableProperty] private bool isLoadingSaleDetail;
+        [ObservableProperty] private string saleDetailError = "";
         [ObservableProperty] private string errorMessage = "";
 
         public ReportsViewModel(IReportService reports, ISaleService sales)
@@ -41,6 +46,7 @@ namespace Savdonoma.ViewModels
         public async Task LoadAsync()
         {
             _cts?.Cancel();
+            _detailCts?.Cancel();
             var cts = _cts = new CancellationTokenSource();
             var ct = cts.Token;
 
@@ -63,16 +69,84 @@ namespace Savdonoma.ViewModels
 
                 var selectedSaleId = SelectedSale?.Id;
                 SelectedSale = null;
+                foreach (var sale in Sales)
+                    sale.PropertyChanged -= SaleRow_PropertyChanged;
                 Sales = new ObservableCollection<SaleRowDto>(rows);
+                foreach (var sale in Sales)
+                    sale.PropertyChanged += SaleRow_PropertyChanged;
                 if (selectedSaleId.HasValue)
                     SelectedSale = Sales.FirstOrDefault(x => x.Id == selectedSaleId.Value);
 
+                SelectedSaleDetail = null;
+                SaleDetailError = "";
+                IsLoadingSaleDetail = false;
                 ErrorMessage = "";
             }
             catch (OperationCanceledException) { }
             catch (Exception ex)
             {
                 ErrorMessage = ex.InnerException?.Message ?? ex.Message;
+            }
+        }
+
+        private void SaleRow_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(SaleRowDto.IsExpanded)
+                || sender is not SaleRowDto sale)
+                return;
+
+            if (sale.IsExpanded)
+            {
+                _ = LoadSaleDetailAsync(sale);
+                return;
+            }
+
+            if (SelectedSale?.Id == sale.Id)
+            {
+                _detailCts?.Cancel();
+                SelectedSaleDetail = null;
+                SaleDetailError = "";
+                IsLoadingSaleDetail = false;
+            }
+        }
+
+        private async Task LoadSaleDetailAsync(SaleRowDto sale)
+        {
+            _detailCts?.Cancel();
+            var cts = _detailCts = new CancellationTokenSource();
+            var cancellation = cts.Token;
+
+            SelectedSale = sale;
+            foreach (var otherSale in Sales.Where(x => x.Id != sale.Id && x.IsExpanded))
+                otherSale.IsExpanded = false;
+
+            SelectedSaleDetail = null;
+            SaleDetailError = "";
+            IsLoadingSaleDetail = true;
+
+            try
+            {
+                var details = await _sales.GetDetailAsync(sale.Id, cancellation);
+                cancellation.ThrowIfCancellationRequested();
+                SelectedSaleDetail = details.FirstOrDefault()
+                    ?? throw new InvalidOperationException("Sotuv tafsilotlari topilmadi.");
+            }
+            catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+            {
+            }
+            catch (Exception ex)
+            {
+                SaleDetailError = ex.InnerException?.Message ?? ex.Message;
+            }
+            finally
+            {
+                if (ReferenceEquals(_detailCts, cts))
+                {
+                    IsLoadingSaleDetail = false;
+                    _detailCts = null;
+                }
+
+                cts.Dispose();
             }
         }
 

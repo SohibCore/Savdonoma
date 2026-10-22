@@ -11,6 +11,7 @@ namespace Savdonoma.Converters
             {
                 long l => Format(l),
                 int i => Format(i),
+                decimal d => Format(d),
                 _ => value ?? ""
             };
         }
@@ -20,6 +21,9 @@ namespace Savdonoma.Converters
 
         // 35750 -> "35 750"
         private static string Format(long v)
+            => v.ToString("N0", CultureInfo.InvariantCulture).Replace(',', '\u00A0');
+
+        private static string Format(decimal v)
             => v.ToString("N0", CultureInfo.InvariantCulture).Replace(',', '\u00A0');
     }
 }

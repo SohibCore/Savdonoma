@@ -7,6 +7,8 @@ namespace Savdonoma.Core.Entity
         public int Id { get; set; }
         public long TotalAmount { get; set; }
         public string? CancelReason { get; set; }
+        public decimal? ReceivedAmount { get; set; }
+        public decimal? ChangeAmount { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public SaleStatus SaleStatus { get; set; }

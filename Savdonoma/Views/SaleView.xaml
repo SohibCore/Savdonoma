@@ -311,16 +311,40 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <StackPanel Margin="0,0,0,10">
-                    <TextBlock Text="Savdo amallari" FontSize="18" FontWeight="Bold"
-                               Foreground="{StaticResource PrimaryText}" />
-                    <TextBlock Text="Klaviatura, to'lov va summa"
-                               FontSize="11" Foreground="{StaticResource SecondaryText}" Margin="0,3,0,0" />
-                </StackPanel>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Savdo amallari" FontSize="18" FontWeight="Bold"
+                                   Foreground="{StaticResource PrimaryText}" />
+                        <TextBlock Text="Klaviatura, to'lov va summa"
+                                   FontSize="11" Foreground="{StaticResource SecondaryText}" Margin="0,3,0,0" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Command="{Binding ToggleKeyboardLayoutCommand}"
+                            MinWidth="48" MinHeight="32" Padding="6,2" VerticalAlignment="Center"
+                            ToolTip="Harfli klaviaturani yoqish yoki o'chirish">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Content" Value="ABC" />
+                                <Setter Property="Background" Value="#F1F5F9" />
+                                <Setter Property="BorderBrush" Value="#E2E8F0" />
+                                <Setter Property="Cursor" Value="Hand" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAlphabeticKeyboard}" Value="True">
+                                        <Setter Property="Content" Value="123" />
+                                        <Setter Property="Background" Value="#EDE9FE" />
+                                        <Setter Property="Foreground" Value="#6D28D9" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
 
                 <Grid Grid.Row="1" Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
@@ -380,41 +404,91 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                    <Button Grid.Column="3" Command="{Binding ToggleKeyboardLayoutCommand}"
-                            MinHeight="44" Padding="4,7">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Background" Value="#F1F5F9" />
-                                <Setter Property="BorderBrush" Value="#E2E8F0" />
-                                <Setter Property="Cursor" Value="Hand" />
+                </Grid>
+
+                <Grid Grid.Row="2" Margin="0,0,0,5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{StaticResource SecondaryText}" Margin="0,0,0,4">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="MIQDOR / QIDIRUV" />
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsAlphabeticKeyboard}" Value="True">
-                                        <Setter Property="Background" Value="#EDE9FE" />
-                                        <Setter Property="Foreground" Value="#6D28D9" />
+                                    <DataTrigger Binding="{Binding IsReceivedAmountEntryMode}" Value="True">
+                                        <Setter Property="Text" Value="MIJOZDAN OLINGAN SUMMA" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </Button.Style>
-                        <TextBlock FontSize="14" FontWeight="Bold">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Text" Value="ABC" />
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="42" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Text="{Binding KeypadInput, UpdateSourceTrigger=PropertyChanged}"
+                                 FontSize="17" FontWeight="SemiBold" MinHeight="40" Padding="10,5"
+                                 HorizontalContentAlignment="Right" VerticalContentAlignment="Center"
+                                 BorderBrush="#CBD5E1" ToolTip="Miqdor yoki qidiruv matni">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Visibility" Value="Visible" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsAlphabeticKeyboard}" Value="True">
-                                            <Setter Property="Text" Value="123" />
+                                        <DataTrigger Binding="{Binding IsReceivedAmountEntryMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </Button>
+                            </TextBox.Style>
+                        </TextBox>
+                        <TextBox Grid.Column="0" Text="{Binding ReceivedAmountText, UpdateSourceTrigger=PropertyChanged}"
+                                 FontSize="17" FontWeight="SemiBold" MinHeight="40" Padding="10,5"
+                                 HorizontalContentAlignment="Right" VerticalContentAlignment="Center"
+                                 BorderBrush="#CBD5E1" ToolTip="Mijoz bergan naqd pul miqdori">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsReceivedAmountEntryMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                        <Button Grid.Column="1" Content="⌫" FontSize="14" Margin="4,0,0,0"
+                                Command="{Binding BackspaceKeypadInputCommand}"
+                                ToolTip="Oxirgi belgini o'chirish">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsReceivedAmountEntryMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Grid.Column="1" Content="C" FontSize="14" Margin="4,0,0,0"
+                                Command="{Binding ClearKeypadInputCommand}"
+                                ToolTip="Mijoz kiritgan summani tozalash">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsReceivedAmountEntryMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
                 </Grid>
-
-                <TextBox Grid.Row="2" Text="{Binding KeypadInput, UpdateSourceTrigger=PropertyChanged}"
-                         FontSize="17" FontWeight="SemiBold" MinHeight="40" Padding="10,5"
-                         Margin="0,0,0,5" HorizontalContentAlignment="Right"
-                         VerticalContentAlignment="Center" BorderBrush="#CBD5E1"
-                         ToolTip="Miqdor yoki qidiruv matni" />
 
                 <Grid Grid.Row="3" Margin="0,0,0,6">
                     <Grid.Style>
@@ -447,9 +521,27 @@
                     <Button Grid.Row="2" Grid.Column="0" Content="1" Style="{StaticResource KeypadButtonStyle}" Command="{Binding AddKeyCommand}" CommandParameter="1" />
                     <Button Grid.Row="2" Grid.Column="1" Content="2" Style="{StaticResource KeypadButtonStyle}" Command="{Binding AddKeyCommand}" CommandParameter="2" />
                     <Button Grid.Row="2" Grid.Column="2" Content="3" Style="{StaticResource KeypadButtonStyle}" Command="{Binding AddKeyCommand}" CommandParameter="3" />
-                    <Button Grid.Row="3" Grid.Column="0" Content="⌫" FontSize="14" Style="{StaticResource KeypadButtonStyle}" Command="{Binding BackspaceKeypadInputCommand}" />
-                    <Button Grid.Row="3" Grid.Column="1" Content="0" Style="{StaticResource KeypadButtonStyle}" Command="{Binding AddKeyCommand}" CommandParameter="0" />
-                    <Button Grid.Row="3" Grid.Column="2" Content="." Style="{StaticResource KeypadButtonStyle}" Command="{Binding AddKeyCommand}" CommandParameter="." />
+                    <Button Grid.Row="3" Grid.Column="0" Content="C" FontSize="16"
+                            Style="{StaticResource KeypadButtonStyle}"
+                            Command="{Binding ClearKeypadInputCommand}" />
+                    <Button Grid.Row="3" Grid.Column="1" Content="0" Style="{StaticResource KeypadButtonStyle}"
+                            Command="{Binding AddKeyCommand}" CommandParameter="0" />
+                    <Button Grid.Row="3" Grid.Column="2" Command="{Binding AddKeyCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource KeypadButtonStyle}">
+                                <Setter Property="Content" Value="000" />
+                                <Setter Property="FontSize" Value="21" />
+                                <Setter Property="CommandParameter" Value="000" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsKgQuantityEntryMode}" Value="True">
+                                        <Setter Property="Content" Value="." />
+                                        <Setter Property="FontSize" Value="28" />
+                                        <Setter Property="CommandParameter" Value="." />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </Grid>
 
                 <StackPanel Grid.Row="3" Margin="0,0,0,6">
@@ -526,9 +618,44 @@
                     </Button>
                     <TextBlock Text="TO'LOV TURI" FontSize="10" FontWeight="SemiBold"
                                Foreground="{StaticResource SecondaryText}" Margin="0,0,0,5" />
-                    <ComboBox ItemsSource="{Binding PaymentMethods}"
-                              SelectedItem="{Binding SelectedPaymentMethod}"
-                              MinHeight="36" FontSize="13" Margin="0,0,0,8" />
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="Naqd" MinHeight="38" Margin="0,0,3,0"
+                                Command="{Binding SelectCashPaymentMethodCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#F1F5F9" />
+                                    <Setter Property="BorderBrush" Value="#E2E8F0" />
+                                    <Setter Property="Cursor" Value="Hand" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCash}" Value="True">
+                                            <Setter Property="Background" Value="#DBEAFE" />
+                                            <Setter Property="Foreground" Value="#1D4ED8" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Grid.Column="1" Content="Karta" MinHeight="38" Margin="3,0,0,0"
+                                Command="{Binding SelectCardPaymentMethodCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#F1F5F9" />
+                                    <Setter Property="BorderBrush" Value="#E2E8F0" />
+                                    <Setter Property="Cursor" Value="Hand" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCash}" Value="False">
+                                            <Setter Property="Background" Value="#DBEAFE" />
+                                            <Setter Property="Foreground" Value="#1D4ED8" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
                     <StackPanel Margin="0,0,0,8">
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
@@ -540,42 +667,39 @@
                                 </Style.Triggers>
                             </Style>
                         </StackPanel.Style>
-                        <TextBlock Text="MIJOZDAN OLINGAN SUMMA" FontSize="10" FontWeight="SemiBold"
-                                   Foreground="{StaticResource SecondaryText}" Margin="0,0,0,5" />
-                        <TextBox Text="{Binding ReceivedAmountText, UpdateSourceTrigger=PropertyChanged}"
-                                 MinHeight="36" FontSize="14" Padding="8,6"
-                                 ToolTip="Mijoz bergan naqd pul miqdorini kiriting" />
                         <Border Background="#ECFDF5" BorderBrush="#A7F3D0" BorderThickness="1"
-                                CornerRadius="8" Padding="8" Margin="0,6,0,0">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal">
+                                CornerRadius="8" Padding="8" Margin="0,0,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="Qaytim:" FontSize="12" FontWeight="SemiBold"
                                                Foreground="#047857" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <StackPanel.Style>
+                                            <Style TargetType="StackPanel">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsUnderpaid}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Style>
+                                        <TextBlock Text="Yetishmaydi:" FontSize="10" Foreground="#B45309" />
+                                        <TextBlock Text="{Binding RemainingAmount, StringFormat={}{0:N0}}"
+                                                   FontSize="10" FontWeight="SemiBold" Foreground="#B45309"
+                                                   Margin="4,0,0,0" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                            VerticalAlignment="Center">
                                     <TextBlock Text="{Binding Change, StringFormat={}{0:N0}}"
-                                               FontSize="12" FontWeight="Bold" Foreground="#047857"
-                                               Margin="6,0,0,0" />
-                                    <TextBlock Text="so'm" FontSize="12" FontWeight="Bold"
-                                               Foreground="#047857" Margin="4,0,0,0" />
+                                               FontSize="17" FontWeight="Bold" Foreground="#047857" />
                                 </StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <StackPanel.Style>
-                                        <Style TargetType="StackPanel">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsUnderpaid}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </StackPanel.Style>
-                                    <TextBlock Text="Yetishmaydi:" FontSize="11" Foreground="#B45309" />
-                                    <TextBlock Text="{Binding RemainingAmount, StringFormat={}{0:N0}}"
-                                               FontSize="11" FontWeight="SemiBold" Foreground="#B45309"
-                                               Margin="6,0,0,0" />
-                                    <TextBlock Text="so'm" FontSize="11" FontWeight="SemiBold"
-                                               Foreground="#B45309" Margin="4,0,0,0" />
-                                </StackPanel>
-                            </StackPanel>
+                            </Grid>
                         </Border>
                     </StackPanel>
                     <Border Background="#FEF2F2" BorderBrush="#FECACA" BorderThickness="1"
@@ -595,14 +719,21 @@
                     </Border>
                     <Border Background="{StaticResource LightBackground}" BorderBrush="{StaticResource BorderBrush}"
                             BorderThickness="1" CornerRadius="10" Padding="10" Margin="0,0,0,8">
-                        <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
                             <TextBlock Text="JAMI" FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{StaticResource SecondaryText}" />
-                            <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:N0}}"
-                                       FontSize="21" FontWeight="Bold" Foreground="{StaticResource PrimaryText}"
-                                       Margin="0,3,0,0" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Text="so'm" FontSize="11" Foreground="{StaticResource SecondaryText}" />
-                        </StackPanel>
+                                       Foreground="{StaticResource SecondaryText}" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:N0}}"
+                                           FontSize="21" FontWeight="Bold" Foreground="{StaticResource PrimaryText}"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text=" so'm" FontSize="11" Foreground="{StaticResource SecondaryText}"
+                                           VerticalAlignment="Center" Margin="4,0,0,0" />
+                            </StackPanel>
+                        </Grid>
                     </Border>
                     <ui:Button Content="SOTUVNI YAKUNLASH"
                            Command="{Binding CompleteSaleCommand}" Appearance="Primary"

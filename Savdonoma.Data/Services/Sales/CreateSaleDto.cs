@@ -7,6 +7,8 @@ namespace Savdonoma.Data.Services.Sales
     {
         public PaymentMethod PaymentMethod { get; set; }
         public int? UserId { get; set; }
+        public decimal? ReceivedAmount { get; set; }
+        public decimal? ChangeAmount { get; set; }
         public List<CreateSaleItemDto> Items { get; set; } = new List<CreateSaleItemDto>();
     }
 }

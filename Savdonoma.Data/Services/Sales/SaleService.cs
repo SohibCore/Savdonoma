@@ -2,10 +2,8 @@
 using Savdonoma.Core.Logic;
 using Microsoft.Data.Sqlite;
 using Savdonoma.Core.Entity;
-using Savdonoma.Core.Printer;
 using Savdonoma.Core.Licensing;
 using Microsoft.EntityFrameworkCore;
-using Savdonoma.Data.Services.Authservice;
 using Savdonoma.Data.Services.SystemSetting;
 
 namespace Savdonoma.Data.Services.Sales
@@ -82,9 +80,7 @@ namespace Savdonoma.Data.Services.Sales
             {
                 var requestedQuantities = dto.Items
                     .GroupBy(x => x.ProductId)
-                    .ToDictionary(
-                        group => group.Key,
-                        group => group.Sum(x => x.Quantity));
+                    .ToDictionary(group => group.Key, group => group.Sum(x => x.Quantity));
 
                 foreach (var request in requestedQuantities)
                 {
@@ -115,6 +111,7 @@ namespace Savdonoma.Data.Services.Sales
                     ProductName = p.Name,
                     UnitPrice = p.Price,
                     Quantity = line.Quantity,
+                    Unit = p.Unit,
                     LineTotal = SaleCalculator.RowSum(p.Price, line.Quantity),
                     CreatedAt = now,
                 });
@@ -124,10 +121,12 @@ namespace Savdonoma.Data.Services.Sales
                 Number = await NextNumberAsync(db, cancellation),
                 PaymentMethod = dto.PaymentMethod,
                 SaleStatus = SaleStatus.Completed,
-                TotalAmount = SaleCalculator.TotolSale(items.Select(x => x.LineTotal)),
+                TotalAmount = SaleCalculator.TotalSale(items.Select(x => x.LineTotal)),
                 CreatedAt = now,
                 UserId = dto.UserId,
                 SaleItems = items,
+                ReceivedAmount = dto.ReceivedAmount,
+                ChangeAmount = dto.ChangeAmount,
             };
 
             await db.Sales.AddAsync(sale, cancellation);
@@ -266,6 +265,31 @@ namespace Savdonoma.Data.Services.Sales
             {
                 SaleCreationLock.Release();
             }
+        }
+
+        public async Task<List<SaleDetailDto>> GetDetailAsync(int saleId, CancellationToken cancellation)
+        {
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
+
+            return await db.Sales
+                .AsNoTracking()
+                .Where(x => x.Id == saleId)
+                .Select(x => new SaleDetailDto
+                {
+                    Number = x.Number,
+                    PaymentMethod = x.PaymentMethod,
+                    TotalAmount = x.TotalAmount,
+                    ReceivedAmount = x.ReceivedAmount,
+                    ChangeAmount = x.ChangeAmount,
+                    Items = x.SaleItems.Select(i => new SaleItem
+                    {
+                        ProductName = i.ProductName,
+                        UnitPrice = i.UnitPrice,
+                        Quantity = i.Quantity,
+                        LineTotal = i.LineTotal,
+                        Unit = i.Unit,
+                    }).ToList()
+                }).ToListAsync(cancellation);
         }
         //20261005-0001
         private static async Task<string> NextNumberAsync(AppDbContext db, CancellationToken cancellation)

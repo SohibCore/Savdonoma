@@ -65,6 +65,9 @@ namespace Savdonoma.ViewModels
         [ObservableProperty]
         private string receivedAmountText = "";
 
+        private bool _isSettingReceivedAmountText;
+        private bool _hasManuallyEnteredReceivedAmount;
+
         public decimal ReceivedAmount => decimal.TryParse(new string(ReceivedAmountText.Where(char.IsDigit).ToArray()), out var v) ? v : 0m;
         public bool IsCash => SelectedPaymentMethod == PaymentMethod.Naqd;
         public decimal Change => Math.Max(0, ReceivedAmount - TotalAmount);
@@ -191,11 +194,38 @@ namespace Savdonoma.ViewModels
         partial void OnSelectedCartItemChanged(SaleCartItem? value)
         {
             KeypadInput = "";
+            OnPropertyChanged(nameof(IsKgQuantityEntryMode));
             if (value != null)
             {
                 IsQuantityEntryMode = true;
                 IsAlphabeticKeyboard = false;
             }
+        }
+
+        public bool IsKgQuantityEntryMode =>
+            IsQuantityEntryMode && SelectedCartItem?.Unit == Unit.Kg;
+
+        partial void OnIsQuantityEntryModeChanged(bool value)
+        {
+            OnPropertyChanged(nameof(IsKgQuantityEntryMode));
+        }
+
+        partial void OnReceivedAmountTextChanged(string value)
+        {
+            if (!_isSettingReceivedAmountText)
+                _hasManuallyEnteredReceivedAmount = true;
+        }
+
+        private void SetDefaultReceivedAmount()
+        {
+            if (_hasManuallyEnteredReceivedAmount)
+                return;
+
+            _isSettingReceivedAmountText = true;
+            ReceivedAmountText = TotalAmount > 0
+                ? TotalAmount.ToString(CultureInfo.InvariantCulture)
+                : "";
+            _isSettingReceivedAmountText = false;
         }
 
         partial void OnKeypadInputChanged(string value)
@@ -313,6 +343,24 @@ namespace Savdonoma.ViewModels
         }
 
         [RelayCommand]
+        private void SelectCashPaymentMethod()
+        {
+            SelectedPaymentMethod = PaymentMethod.Naqd;
+            SetDefaultReceivedAmount();
+        }
+
+        [RelayCommand]
+        private void SelectCardPaymentMethod()
+        {
+            SelectedPaymentMethod = PaymentMethod.Karta;
+            if (IsReceivedAmountEntryMode)
+            {
+                IsReceivedAmountEntryMode = false;
+                KeypadInput = SearchText;
+            }
+        }
+
+        [RelayCommand]
         private void ToggleKeyboardLayout()
         {
             if (IsReceivedAmountEntryMode)
@@ -331,7 +379,7 @@ namespace Savdonoma.ViewModels
 
             if (IsReceivedAmountEntryMode)
             {
-                if (key.Length == 1 && char.IsDigit(key[0]))
+                if (key == "000" || (key.Length == 1 && char.IsDigit(key[0])))
                     ReceivedAmountText += key;
                 return;
             }
@@ -350,7 +398,7 @@ namespace Savdonoma.ViewModels
                 if (key == "." && KeypadInput.Contains('.'))
                     return;
 
-                if (key.Length != 1 || (!char.IsDigit(key[0]) && key != "."))
+                if (key != "000" && (key.Length != 1 || (!char.IsDigit(key[0]) && key != ".")))
                     return;
 
                 KeypadInput += key;
@@ -439,6 +487,9 @@ namespace Savdonoma.ViewModels
                 {
                     PaymentMethod = SelectedPaymentMethod,
                     UserId = _currentUser.UserId,
+                    ReceivedAmount = paid,
+                    ChangeAmount = IsCash ? Change : 0m,
+
                     Items = CartItems.Select(x => new CreateSaleItemDto
                     {
                         ProductId = x.ProductId,
@@ -468,7 +519,8 @@ namespace Savdonoma.ViewModels
 
                 await LoadProductsAsync();
                 CartItems.Clear();
-                ReceivedAmountText = "";
+                _hasManuallyEnteredReceivedAmount = false;
+                SetDefaultReceivedAmount();
             }
             catch (Exception ex)
             {
@@ -520,6 +572,9 @@ namespace Savdonoma.ViewModels
             if (e.PropertyName is nameof(TotalAmount) or nameof(ReceivedAmountText)
                 or nameof(SelectedPaymentMethod))
             {
+                if (e.PropertyName == nameof(TotalAmount) && IsCash)
+                    SetDefaultReceivedAmount();
+
                 OnPropertyChanged(nameof(ReceivedAmount));
                 OnPropertyChanged(nameof(Change));
                 OnPropertyChanged(nameof(RemainingAmount));
