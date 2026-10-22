@@ -30,10 +30,7 @@
             <Setter Property="BorderThickness" Value="0,0,1,1" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
         </Style>
-        <Style x:Key="TableRowStyle" TargetType="ListViewItem">
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-            <Setter Property="BorderThickness" Value="0,0,0,1" />
-        </Style>
+        <!-- TableRowStyle global App.xaml dan keladi -->
         <Style x:Key="KeypadButtonStyle" TargetType="Button">
             <Setter Property="MinHeight" Value="48" />
             <Setter Property="Margin" Value="3" />
@@ -130,6 +127,7 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <Grid Margin="0,0,0,8">
@@ -148,70 +146,91 @@
                     </Border>
                 </Grid>
 
-                <ListView Grid.Row="1" ItemsSource="{Binding CartItems}"
+                <!-- Savat header -->
+                <Grid Grid.Row="1" MinHeight="38" Background="#E9EEF5"
+                      Width="{Binding ActualWidth, ElementName=CartList}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="1.2*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1.2*" />
+                        <ColumnDefinition Width="1.8*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
+                        <TextBlock Text="MAHSULOT" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="1" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
+                        <TextBlock Text="NARX" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="2" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
+                        <TextBlock Text="MIQDOR" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="3" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
+                        <TextBlock Text="SUMMA" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="4" BorderBrush="#D5DDE8" BorderThickness="0,0,0,1" Padding="8,6">
+                        <TextBlock Text="AMALLAR" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                </Grid>
+
+                <!-- Savat ro'yxati -->
+                <ListView x:Name="CartList" Grid.Row="2" ItemsSource="{Binding CartItems}"
                           SelectedItem="{Binding SelectedCartItem, Mode=TwoWay}" SelectionMode="Single"
                           FontSize="13"
                           BorderThickness="0" Background="Transparent" Padding="0"
+                          ScrollViewer.CanContentScroll="False"
+                          VirtualizingPanel.IsVirtualizing="False"
                           ItemContainerStyle="{StaticResource TableRowStyle}">
-                    <ListView.View>
-                        <GridView ColumnHeaderContainerStyle="{StaticResource TableHeaderStyle}">
-                            <GridViewColumn Header="MAHSULOT" Width="130">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding ProductName}" Padding="6,8"
-                                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="NARX" Width="75">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding UnitPrice, StringFormat={}{0:N0}}"
-                                                   Padding="4,8" VerticalAlignment="Center" TextAlignment="Right" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="MIQDOR" Width="65">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBox Text="{Binding QuantityText}"
-                                                 FontSize="13" MinWidth="54" Padding="3,4"
-                                                 VerticalAlignment="Center" TextAlignment="Center"
-                                                 BorderThickness="1" BorderBrush="#CBD5E1" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="SUMMA" Width="85">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding LineTotal, StringFormat={}{0:N0}}"
-                                                   Padding="4,8" VerticalAlignment="Center"
-                                                   TextAlignment="Right" FontWeight="SemiBold" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="AMALLAR" Width="120">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Button Content="−" Style="{StaticResource CartActionButtonStyle}"
-                                                    ToolTip="Miqdorni kamaytirish"
-                                                    Command="{Binding DataContext.DecreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                    CommandParameter="{Binding}" />
-                                            <Button Content="+" Style="{StaticResource CartActionButtonStyle}"
-                                                    ToolTip="Miqdorni oshirish"
-                                                    Command="{Binding DataContext.IncreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                    CommandParameter="{Binding}" />
-                                            <Button Content="×" Style="{StaticResource RemoveCartItemButtonStyle}"
-                                                    ToolTip="Mahsulotni savatdan olib tashlash"
-                                                    Command="{Binding DataContext.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                    CommandParameter="{Binding}" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                        </GridView>
-                    </ListView.View>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid MinHeight="40" Width="{Binding ActualWidth, ElementName=CartList}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="1.2*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1.2*" />
+                                    <ColumnDefinition Width="1.8*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,4">
+                                    <TextBlock Text="{Binding ProductName}" VerticalAlignment="Center"
+                                               HorizontalAlignment="Center" TextAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                </Border>
+                                <Border Grid.Column="1" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,4">
+                                    <TextBlock Text="{Binding UnitPrice, StringFormat={}{0:N0}}"
+                                               VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" />
+                                </Border>
+                                <Border Grid.Column="2" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="4,4">
+                                    <TextBox Text="{Binding QuantityText}"
+                                             FontSize="13" Padding="3,4"
+                                             HorizontalAlignment="Stretch"
+                                             VerticalAlignment="Center" TextAlignment="Center"
+                                             BorderThickness="1" BorderBrush="#CBD5E1" />
+                                </Border>
+                                <Border Grid.Column="3" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,4">
+                                    <TextBlock Text="{Binding LineTotal, StringFormat={}{0:N0}}"
+                                               VerticalAlignment="Center" HorizontalAlignment="Center"
+                                               TextAlignment="Center" FontWeight="SemiBold" />
+                                </Border>
+                                <Border Grid.Column="4" Padding="4,4">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Button Content="−" Style="{StaticResource CartActionButtonStyle}"
+                                                ToolTip="Miqdorni kamaytirish"
+                                                Command="{Binding DataContext.DecreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                CommandParameter="{Binding}" />
+                                        <Button Content="+" Style="{StaticResource CartActionButtonStyle}"
+                                                ToolTip="Miqdorni oshirish"
+                                                Command="{Binding DataContext.IncreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                CommandParameter="{Binding}" />
+                                        <Button Content="×" Style="{StaticResource RemoveCartItemButtonStyle}"
+                                                ToolTip="Mahsulotni savatdan olib tashlash"
+                                                Command="{Binding DataContext.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                CommandParameter="{Binding}" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
                 </ListView>
             </Grid>
         </Border>
@@ -222,81 +241,101 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                    <StackPanel>
-                        <TextBlock Text="Mahsulotlar" FontSize="19" FontWeight="Bold"
-                                   Foreground="{StaticResource PrimaryText}" />
-                        <TextBlock Text="Ro'yxatdan mahsulot tanlab savatga qo'shing"
-                                   FontSize="12" FontWeight="SemiBold"
-                                   Foreground="{StaticResource SecondaryText}" Margin="0,2,0,0" />
-                    </StackPanel>
+                <StackPanel Margin="0,0,0,8">
+                    <TextBlock Text="Mahsulotlar" FontSize="19" FontWeight="Bold"
+                               Foreground="{StaticResource PrimaryText}" />
+                    <TextBlock Text="Ro'yxatdan mahsulot tanlab savatga qo'shing"
+                               FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource SecondaryText}" Margin="0,2,0,0" />
                 </StackPanel>
                 <ui:TextBox Grid.Row="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                             PlaceholderText="Nomi yoki shtrix-kod bo'yicha qidirish"
                             FontSize="13" MinHeight="38" Margin="0,0,0,8" />
-                <ListView x:Name="SaleProductsList" Grid.Row="2" ItemsSource="{Binding Products}"
+
+                <!-- Mahsulotlar jadval header -->
+                <Grid Grid.Row="2" MinHeight="38" Background="#E9EEF5"
+                      Width="{Binding ActualWidth, ElementName=SaleProductsList}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2.5*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1.5*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
+                        <TextBlock Text="NOMI" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="1" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
+                        <TextBlock Text="QOLDIQ" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="2" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
+                        <TextBlock Text="NARX" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="3" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
+                        <TextBlock Text="BIRLIK" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="4" BorderBrush="#D5DDE8" BorderThickness="0,0,0,1" Padding="8,6">
+                        <TextBlock Text="SHTRIX-KOD" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                </Grid>
+
+                <!-- Mahsulotlar ro'yxati -->
+                <ListView x:Name="SaleProductsList" Grid.Row="3" ItemsSource="{Binding Products}"
                           SelectedItem="{Binding SelectedProduct, Mode=TwoWay}" SelectionMode="Single"
                           FontSize="14" FontWeight="SemiBold"
                           BorderThickness="0" Padding="0" Background="Transparent"
-                          ItemContainerStyle="{StaticResource TableRowStyle}"
-                          SizeChanged="SaleProductsList_SizeChanged">
-                    <ListView.View>
-                        <GridView ColumnHeaderContainerStyle="{StaticResource TableHeaderStyle}">
-                            <GridViewColumn Header="NOMI" Width="140">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Name}" Padding="6,8" VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="QOLDIQ" Width="60">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Padding="4,8" VerticalAlignment="Center" TextAlignment="Center">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Text" Value="{Binding Quantity, StringFormat={}{0:0.##}}" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding DataContext.InventoryEnabled, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                     Value="False">
-                                                            <Setter Property="Text" Value="—" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="NARX" Width="76">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Price, StringFormat={}{0:N0}}" Padding="4,8"
-                                                   VerticalAlignment="Center" TextAlignment="Right" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="BIRLIK" Width="50">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Unit}" Padding="4,8" VerticalAlignment="Center"
-                                                   TextAlignment="Center" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="SHtrix-kod" Width="100">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Barcode}" Padding="4,8" VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                        </GridView>
-                    </ListView.View>
+                          ScrollViewer.CanContentScroll="False"
+                          VirtualizingPanel.IsVirtualizing="False"
+                          ItemContainerStyle="{StaticResource TableRowStyle}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid MinHeight="38" Width="{Binding ActualWidth, ElementName=SaleProductsList}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2.5*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1.5*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1.5*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,4">
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
+                                               HorizontalAlignment="Center" TextAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                </Border>
+                                <Border Grid.Column="1" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,4">
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="{Binding Quantity, StringFormat={}{0:0.##}}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.InventoryEnabled, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                 Value="False">
+                                                        <Setter Property="Text" Value="—" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                                <Border Grid.Column="2" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,4">
+                                    <TextBlock Text="{Binding Price, StringFormat={}{0:N0}}"
+                                               VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" />
+                                </Border>
+                                <Border Grid.Column="3" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,4">
+                                    <TextBlock Text="{Binding Unit}"
+                                               VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" />
+                                </Border>
+                                <Border Grid.Column="4" Padding="8,4">
+                                    <TextBlock Text="{Binding Barcode}"
+                                               VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
                 </ListView>
             </Grid>
         </Border>

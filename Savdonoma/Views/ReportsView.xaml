@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Savdonoma.Views.ReportsView"
+<UserControl x:Class="Savdonoma.Views.ReportsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -55,35 +55,37 @@
                     Value="#D5DDE8" />
         </Style>
 
-        <Style x:Key="ReportRowToggleStyle"
-               TargetType="ToggleButton">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ToggleButton">
-                        <ContentPresenter Content="{TemplateBinding Content}"
-                                          HorizontalAlignment="Stretch"
-                                          VerticalAlignment="Center" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <Style x:Key="ReportDetailsPanelStyle"
                TargetType="Border">
             <Setter Property="Visibility" Value="Collapsed" />
             <Setter Property="Opacity" Value="0" />
+            <Setter Property="MaxHeight" Value="0" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsExpanded}" Value="True">
                     <Setter Property="Visibility" Value="Visible" />
+                    <Setter Property="MaxHeight" Value="9999" />
                     <DataTrigger.EnterActions>
                         <BeginStoryboard>
                             <Storyboard>
                                 <DoubleAnimation Storyboard.TargetProperty="Opacity"
                                                  From="0" To="1"
-                                                 Duration="0:0:0.18" />
+                                                 Duration="0:0:0.15">
+                                    <DoubleAnimation.EasingFunction>
+                                        <SineEase EasingMode="EaseOut" />
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
                             </Storyboard>
                         </BeginStoryboard>
                     </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                 To="0"
+                                                 Duration="0:0:0.1" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.ExitActions>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -99,14 +101,15 @@
                     Value="White" />
             <Setter Property="BorderThickness"
                     Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background"
-                            Value="#F5F7FA" />
+                            Value="#F0F4FF" />
                 </Trigger>
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="Background"
-                            Value="White" />
+                            Value="#EEF3FF" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -559,130 +562,152 @@
                           BorderThickness="0"
                           Padding="0"
                           FontSize="14"
+                          ScrollViewer.CanContentScroll="False"
+                          VirtualizingPanel.IsVirtualizing="False"
+                          PreviewMouseLeftButtonDown="SalesList_PreviewMouseLeftButtonDown"
                           ItemContainerStyle="{StaticResource ReportSaleRowItemStyle}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel>
-                                <ToggleButton IsChecked="{Binding IsExpanded, Mode=TwoWay}"
-                                              Style="{StaticResource ReportRowToggleStyle}">
-                                    <Grid MinHeight="44" HorizontalAlignment="Stretch"
-                                          Width="{Binding ActualWidth, ElementName=SalesList}">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="1.1*" />
-                                            <ColumnDefinition Width="1.1*" />
-                                            <ColumnDefinition Width="0.7*" />
-                                            <ColumnDefinition Width="0.8*" />
-                                            <ColumnDefinition Width="0.8*" />
-                                            <ColumnDefinition Width="38" />
-                                        </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" Style="{StaticResource ReportColumnCell}">
-                                            <TextBlock Text="{Binding Number}"
-                                                       Style="{StaticResource CancelledAwareText}"
-                                                       FontWeight="SemiBold" VerticalAlignment="Center" />
-                                        </Border>
-                                        <Border Grid.Column="1" Style="{StaticResource ReportColumnCell}">
-                                            <TextBlock Text="{Binding Time, StringFormat={}{0:dd.MM.yyyy HH:mm}}"
-                                                       Style="{StaticResource CancelledAwareText}"
-                                                       VerticalAlignment="Center" />
-                                        </Border>
-                                        <Border Grid.Column="2" Style="{StaticResource ReportColumnCell}">
-                                            <TextBlock Text="{Binding PaymentMethod}"
-                                                       Style="{StaticResource CancelledAwareText}"
-                                                       VerticalAlignment="Center" />
-                                        </Border>
-                                        <Border Grid.Column="3" Style="{StaticResource ReportColumnCell}">
-                                            <TextBlock Text="{Binding TotalAmount, Converter={StaticResource Money}}"
-                                                       Style="{StaticResource CancelledAwareText}"
-                                                       FontWeight="SemiBold" VerticalAlignment="Center" />
-                                        </Border>
-                                        <Border Grid.Column="4" Style="{StaticResource ReportColumnCell}">
-                                            <Border CornerRadius="14" Padding="9,4"
-                                                    HorizontalAlignment="Left">
-                                                <Border.Style>
-                                                    <Style TargetType="Border">
-                                                        <Setter Property="Background" Value="#E7F8F0" />
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding Status}" Value="Cancelled">
-                                                                <Setter Property="Background" Value="#FEF2F2" />
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </Border.Style>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Border Width="16" Height="16"
-                                                    CornerRadius="8"
-                                                            VerticalAlignment="Center">
-                                                        <Border.Style>
-                                                            <Style TargetType="Border">
-                                                                <Setter Property="Background" Value="#10A37F" />
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding Status}" Value="Cancelled">
-                                                                        <Setter Property="Background" Value="#DC2626" />
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </Border.Style>
-                                                        <TextBlock Text="✓" Foreground="White"
-                                                                   FontSize="10" FontWeight="Bold"
-                                                                   HorizontalAlignment="Center"
-                                                                   VerticalAlignment="Center">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Setter Property="Text" Value="✓" />
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding Status}" Value="Cancelled">
-                                                                            <Setter Property="Text" Value="!" />
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                        </TextBlock>
-                                                    </Border>
-                                                    <TextBlock Text="{Binding StatusDisplay}" FontSize="12"
-                                                               VerticalAlignment="Center" Margin="7,0,0,0">
+                                <!-- Row header — bitta click bilan ochiladi -->
+                                <Grid MinHeight="44" HorizontalAlignment="Stretch"
+                                      Width="{Binding ActualWidth, ElementName=SalesList}"
+                                      Background="Transparent">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.1*" />
+                                        <ColumnDefinition Width="1.1*" />
+                                        <ColumnDefinition Width="0.7*" />
+                                        <ColumnDefinition Width="0.8*" />
+                                        <ColumnDefinition Width="0.8*" />
+                                        <ColumnDefinition Width="38" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Style="{StaticResource ReportColumnCell}">
+                                        <TextBlock Text="{Binding Number}"
+                                                   Style="{StaticResource CancelledAwareText}"
+                                                   FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    </Border>
+                                    <Border Grid.Column="1" Style="{StaticResource ReportColumnCell}">
+                                        <TextBlock Text="{Binding Time, StringFormat={}{0:dd.MM.yyyy HH:mm}}"
+                                                   Style="{StaticResource CancelledAwareText}"
+                                                   VerticalAlignment="Center" />
+                                    </Border>
+                                    <Border Grid.Column="2" Style="{StaticResource ReportColumnCell}">
+                                        <TextBlock Text="{Binding PaymentMethod}"
+                                                   Style="{StaticResource CancelledAwareText}"
+                                                   VerticalAlignment="Center" />
+                                    </Border>
+                                    <Border Grid.Column="3" Style="{StaticResource ReportColumnCell}">
+                                        <TextBlock Text="{Binding TotalAmount, Converter={StaticResource Money}}"
+                                                   Style="{StaticResource CancelledAwareText}"
+                                                   FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    </Border>
+                                    <Border Grid.Column="4" Style="{StaticResource ReportColumnCell}">
+                                        <Border CornerRadius="14" Padding="9,4"
+                                                HorizontalAlignment="Left">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#E7F8F0" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                                            <Setter Property="Background" Value="#FEF2F2" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Width="16" Height="16"
+                                                        CornerRadius="8"
+                                                        VerticalAlignment="Center">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#10A37F" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                                                    <Setter Property="Background" Value="#DC2626" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock Text="✓" Foreground="White"
+                                                               FontSize="10" FontWeight="Bold"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
-                                                                <Setter Property="Foreground" Value="#07815F" />
+                                                                <Setter Property="Text" Value="✓" />
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding Status}" Value="Cancelled">
-                                                                        <Setter Property="Foreground" Value="#B91C1C" />
+                                                                        <Setter Property="Text" Value="!" />
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
                                                         </TextBlock.Style>
                                                     </TextBlock>
-                                                </StackPanel>
-                                            </Border>
+                                                </Border>
+                                                <TextBlock Text="{Binding StatusDisplay}" FontSize="12"
+                                                           VerticalAlignment="Center" Margin="7,0,0,0">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="#07815F" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                                                    <Setter Property="Foreground" Value="#B91C1C" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
                                         </Border>
-                                        <Border Grid.Column="5" Style="{StaticResource ReportColumnCell}"
-                                                HorizontalAlignment="Stretch">
-                                            <TextBlock Text="⌄" FontSize="18"
-                                                       Foreground="{StaticResource ReportSecondaryText}"
-                                                       HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"
-                                               RenderTransformOrigin="0.5,0.5">
-                                                <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="RenderTransform">
-                                                    <Setter.Value>
-                                                        <RotateTransform Angle="0" />
-                                                    </Setter.Value>
-                                                </Setter>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsExpanded}" Value="True">
-                                                        <Setter Property="RenderTransform">
-                                                                    <Setter.Value>
-                                                                        <RotateTransform Angle="180" />
-                                                                    </Setter.Value>
-                                                                </Setter>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                        </Border>
-                                    </Grid>
-                                </ToggleButton>
+                                    </Border>
+                                    <!-- Chevron icon -->
+                                    <Border Grid.Column="5" Style="{StaticResource ReportColumnCell}"
+                                            HorizontalAlignment="Stretch">
+                                        <TextBlock Text="⌄" FontSize="18"
+                                                   Foreground="{StaticResource ReportSecondaryText}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   RenderTransformOrigin="0.5,0.5">
+                                            <TextBlock.RenderTransform>
+                                                <RotateTransform x:Name="ChevronRotate" Angle="0" />
+                                            </TextBlock.RenderTransform>
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                                                            <DataTrigger.EnterActions>
+                                                                <BeginStoryboard>
+                                                                    <Storyboard>
+                                                                        <DoubleAnimation
+                                                                            Storyboard.TargetProperty="(TextBlock.RenderTransform).(RotateTransform.Angle)"
+                                                                            To="180" Duration="0:0:0.2">
+                                                                            <DoubleAnimation.EasingFunction>
+                                                                                <CubicEase EasingMode="EaseOut" />
+                                                                            </DoubleAnimation.EasingFunction>
+                                                                        </DoubleAnimation>
+                                                                    </Storyboard>
+                                                                </BeginStoryboard>
+                                                            </DataTrigger.EnterActions>
+                                                            <DataTrigger.ExitActions>
+                                                                <BeginStoryboard>
+                                                                    <Storyboard>
+                                                                        <DoubleAnimation
+                                                                            Storyboard.TargetProperty="(TextBlock.RenderTransform).(RotateTransform.Angle)"
+                                                                            To="0" Duration="0:0:0.2">
+                                                                            <DoubleAnimation.EasingFunction>
+                                                                                <CubicEase EasingMode="EaseOut" />
+                                                                            </DoubleAnimation.EasingFunction>
+                                                                        </DoubleAnimation>
+                                                                    </Storyboard>
+                                                                </BeginStoryboard>
+                                                            </DataTrigger.ExitActions>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+                                </Grid>
                                 <Border Background="#F8FAFC" BorderBrush="{StaticResource ReportBorderBrush}"
                                         BorderThickness="0,1,0,0" Padding="12"
                                         Style="{StaticResource ReportDetailsPanelStyle}">

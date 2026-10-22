@@ -24,8 +24,7 @@ namespace Savdonoma.Data
             var entries = ChangeTracker
                 .Entries()
                 .Where(x =>
-                x.State == EntityState.Modified ||
-                x.State == EntityState.Deleted).ToList();
+                x.State == EntityState.Modified || x.State == EntityState.Deleted).ToList();
 
             foreach (var item in entries)
             {
