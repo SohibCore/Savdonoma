@@ -73,15 +73,16 @@ namespace Savdonoma.ViewModels
         }
 
         [RelayCommand]
-        private void LoadFromFile()
+        private void LoadFromFile() // litsenziya uchun faylni yuklaydi
         {
             var dialog = new OpenFileDialog // Windows fayl tanlash oynasi.
-            { 
+            {
                 Filter = "TijoratUz litsenziyasi (*.lic)|*.lic",
                 DefaultExt = ".lic",
                 CheckFileExists = true
             };
-            if (dialog.ShowDialog() != true) return;
+            if (dialog.ShowDialog() != true)
+                return;
 
             try
             {

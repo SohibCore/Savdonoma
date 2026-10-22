@@ -56,7 +56,10 @@ namespace Savdonoma.Printing
 
             parts.Add(e.PrintLine(Line()));
             parts.Add(e.PrintLine(LeftRight("To'lov turi:", model.PaymentType.ToString())));
-            parts.Add(e.PrintLine(LeftRight("To'landi:", Money(model.Total) + " UZS")));
+            parts.Add(e.PrintLine(LeftRight("Jami:", Money(model.Total) + " UZS")));
+            parts.Add(e.PrintLine(LeftRight("To'landi:", Money(model.Paid) + " UZS")));
+            if (model.Change > 0)
+                parts.Add(e.PrintLine(LeftRight("Qaytim:", Money(model.Change) + " UZS")));
 
             parts.Add(e.PrintLine(Line()));
             parts.Add(e.FeedLines(3));

@@ -2,6 +2,8 @@ using System.Windows;
 using Savdonoma.Services;
 using Savdonoma.Core.Enums;
 using System.Globalization;
+using System.ComponentModel;
+using Savdonoma.Core.Printer;
 using Savdonoma.Core.Licensing;
 using CommunityToolkit.Mvvm.Input;
 using Savdonoma.Data.Services.Sales;
@@ -20,6 +22,7 @@ namespace Savdonoma.ViewModels
         private readonly IProductService _product;
         private readonly ISystemSettingsService _settings;
         private readonly CurrentUserService _currentUser;
+        private readonly IReceiptPrinter _printer;
 
         private CancellationTokenSource? _search;
 
@@ -51,10 +54,22 @@ namespace Savdonoma.ViewModels
         private bool isQuantityEntryMode = true;
 
         [ObservableProperty]
+        private bool isReceivedAmountEntryMode;
+
+        [ObservableProperty]
         private bool isAlphabeticKeyboard;
 
         [ObservableProperty]
         private string keypadInput = "";
+
+        [ObservableProperty]
+        private string receivedAmountText = "";
+
+        public decimal ReceivedAmount => decimal.TryParse(new string(ReceivedAmountText.Where(char.IsDigit).ToArray()), out var v) ? v : 0m;
+        public bool IsCash => SelectedPaymentMethod == PaymentMethod.Naqd;
+        public decimal Change => Math.Max(0, ReceivedAmount - TotalAmount);
+        public decimal RemainingAmount => Math.Max(0, TotalAmount - ReceivedAmount);
+        public bool IsUnderpaid => RemainingAmount > 0;
 
         public string SessionTitle { get; set; } = "";
 
@@ -63,10 +78,7 @@ namespace Savdonoma.ViewModels
             return _license.Current.IsActive;
         }
 
-        public decimal TotalAmount()
-        {
-            return CartItems.Sum(x => x.LineTotal);
-        }
+        public decimal TotalAmount => CartItems.Sum(x => x.LineTotal);
 
         private bool _disposed;
         public void Dispose()
@@ -86,13 +98,15 @@ namespace Savdonoma.ViewModels
             ISaleService saleService,
             ISystemSettingsService settings,
             ILicenseService license,
-            CurrentUserService currentUser)
+            CurrentUserService currentUser,
+            IReceiptPrinter printer)
         {
             _product = productService;
             _sale = saleService;
             _settings = settings;
             _license = license;
             _currentUser = currentUser;
+            _printer = printer;
 
             _license.StatusChanged += LicenseStatusChanged;
             _ = LoadInventoryModeAsync();
@@ -275,6 +289,7 @@ namespace Savdonoma.ViewModels
         private void SelectQuantityEntryMode()
         {
             IsQuantityEntryMode = true;
+            IsReceivedAmountEntryMode = false;
             IsAlphabeticKeyboard = false;
             KeypadInput = "";
         }
@@ -283,13 +298,26 @@ namespace Savdonoma.ViewModels
         private void SelectSearchMode()
         {
             IsQuantityEntryMode = false;
+            IsReceivedAmountEntryMode = false;
             IsAlphabeticKeyboard = false;
             KeypadInput = SearchText;
         }
 
         [RelayCommand]
+        private void SelectReceivedAmountEntryMode()
+        {
+            IsQuantityEntryMode = false;
+            IsReceivedAmountEntryMode = true;
+            IsAlphabeticKeyboard = false;
+            KeypadInput = ReceivedAmountText;
+        }
+
+        [RelayCommand]
         private void ToggleKeyboardLayout()
         {
+            if (IsReceivedAmountEntryMode)
+                return;
+
             if (IsQuantityEntryMode)
                 SelectSearchMode();
 
@@ -300,6 +328,13 @@ namespace Savdonoma.ViewModels
         private void AddKey(string key)
         {
             ErrorMessage = "";
+
+            if (IsReceivedAmountEntryMode)
+            {
+                if (key.Length == 1 && char.IsDigit(key[0]))
+                    ReceivedAmountText += key;
+                return;
+            }
 
             if (IsQuantityEntryMode)
             {
@@ -329,6 +364,13 @@ namespace Savdonoma.ViewModels
         [RelayCommand]
         private void BackspaceKeypadInput()
         {
+            if (IsReceivedAmountEntryMode)
+            {
+                if (ReceivedAmountText.Length > 0)
+                    ReceivedAmountText = ReceivedAmountText[..^1];
+                return;
+            }
+
             if (IsQuantityEntryMode)
             {
                 if (KeypadInput.Length > 0)
@@ -344,7 +386,9 @@ namespace Savdonoma.ViewModels
         [RelayCommand]
         private void ClearKeypadInput()
         {
-            if (IsQuantityEntryMode)
+            if (IsReceivedAmountEntryMode)
+                ReceivedAmountText = "";
+            else if (IsQuantityEntryMode)
                 KeypadInput = "";
             else
             {
@@ -376,10 +420,12 @@ namespace Savdonoma.ViewModels
             OnPropertyChanged(nameof(TotalAmount));
         }
 
-        [RelayCommand(CanExecute = nameof(CanWrite))]
-        private async Task CompleteSaleAsync()
+        private bool CanComplete() => CanWrite() && (!IsCash || ReceivedAmount >= TotalAmount);
+        [RelayCommand(CanExecute = nameof(CanComplete))]
+        private async Task CompleteSaleAsync(CancellationToken cancellation)
         {
             ErrorMessage = "";
+            var paid = IsCash ? ReceivedAmount : TotalAmount;
 
             if (CartItems.Count == 0)
             {
@@ -400,15 +446,29 @@ namespace Savdonoma.ViewModels
                     }).ToList()
                 };
 
-                var result = await _sale.CreateAsync(
-                    dto,
-                    CancellationToken.None);
+                var result = await _sale.CreateAsync(dto, CancellationToken.None);
+
+                try
+                {
+                    var receipt = await _sale.GetReceipt(result.Id, CancellationToken.None);
+                    receipt.Paid = paid;
+
+                    var ok = await Task.Run(() => _printer.PrintCheck(receipt, cancellation));
+                    if (!ok)
+                        ErrorMessage = "Sotuv saqlandi, lekin chek chiqmadi.";
+                }
+                catch (Exception)
+                {
+                    ErrorMessage = "Sotuv saqlandi, lekin chek chiqmadi.";
+                }
 
                 CartItems.Clear();
 
                 OnPropertyChanged(nameof(TotalAmount));
 
                 await LoadProductsAsync();
+                CartItems.Clear();
+                ReceivedAmountText = "";
             }
             catch (Exception ex)
             {
@@ -451,6 +511,21 @@ namespace Savdonoma.ViewModels
             catch (Exception ex)
             {
                 ErrorMessage = $"Shtrix-kodni tekshirishda xatolik: {ex.InnerException?.Message ?? ex.Message}";
+            }
+        }
+
+        protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            base.OnPropertyChanged(e);
+            if (e.PropertyName is nameof(TotalAmount) or nameof(ReceivedAmountText)
+                or nameof(SelectedPaymentMethod))
+            {
+                OnPropertyChanged(nameof(ReceivedAmount));
+                OnPropertyChanged(nameof(Change));
+                OnPropertyChanged(nameof(RemainingAmount));
+                OnPropertyChanged(nameof(IsUnderpaid));
+                OnPropertyChanged(nameof(IsCash));
+                CompleteSaleCommand.NotifyCanExecuteChanged();
             }
         }
     }

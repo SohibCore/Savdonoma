@@ -1,17 +1,17 @@
-﻿using Savdonoma.Core.Enums;
+﻿using System.Windows;
+using Savdonoma.Core.Enums;
 using Savdonoma.Core.Licensing;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
 using Savdonoma.Data.Services.UserService;
 using CommunityToolkit.Mvvm.ComponentModel;
-using System.Windows;
 
 namespace Savdonoma.ViewModels
 {
     public partial class EmployeesViewModel : ObservableObject
     {
-        private readonly IUserService _userService;
+        private readonly IUserService _user;
         private readonly ILicenseService _license;
         public bool CanWrite => _license.Current.IsActive;
 
@@ -39,9 +39,9 @@ namespace Savdonoma.ViewModels
         [ObservableProperty]
         private bool isBusy;
 
-        public EmployeesViewModel(IUserService userService, ILicenseService license)
+        public EmployeesViewModel(IUserService user, ILicenseService license)
         {
-            _userService = userService;
+            _user = user;
             _license = license;
             _license.StatusChanged += LicenseStatusChanged;
         }
@@ -61,7 +61,7 @@ namespace Savdonoma.ViewModels
             IsBusy = true;
             try
             {
-                var users = await _userService.GetListAsync(CancellationToken.None);
+                var users = await _user.GetListAsync(CancellationToken.None);
                 Employees.Clear();
                 foreach (var employee in users)
                     Employees.Add(employee);
@@ -87,15 +87,13 @@ namespace Savdonoma.ViewModels
             HasError = false;
             try
             {
-                await _userService.CreateEmployeeAsync(
-                    new CreateUserDto
-                    {
-                        FullName = FullName,
-                        UserName = UserName,
-                        Password = Password,
-                        UserRole = SelectedRole
-                    },
-                    CancellationToken.None);
+                await _user.CreateEmployeeAsync(new CreateUserDto
+                {
+                    FullName = FullName,
+                    UserName = UserName,
+                    Password = Password,
+                    UserRole = SelectedRole
+                }, CancellationToken.None);
 
                 FullName = "";
                 UserName = "";

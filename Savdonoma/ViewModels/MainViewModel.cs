@@ -1,12 +1,12 @@
 ﻿using System.Windows;
+using Savdonoma.Services;
+using Savdonoma.BarcodeService;
 using Savdonoma.Core.Licensing;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Extensions.DependencyInjection;
-using Savdonoma.Services;
 using Savdonoma.Data.Services.SystemSetting;
-using Savdonoma.BarcodeService;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Savdonoma.ViewModels
 {

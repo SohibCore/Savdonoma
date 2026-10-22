@@ -516,7 +516,7 @@
                             <GridViewColumn Header="HOLAT" Width="180">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Status}" Style="{StaticResource CancelledAwareText}"
+                                        <TextBlock Text="{Binding StatusDisplay}" Style="{StaticResource CancelledAwareText}"
                                                    VerticalAlignment="Center" HorizontalAlignment="Stretch"
                                                    TextAlignment="Center" Padding="6,10" />
                                     </DataTemplate>

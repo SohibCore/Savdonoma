@@ -16,15 +16,11 @@ namespace Savdonoma.Data.Services.Sales
         private readonly IDbContextFactory<AppDbContext> _factory;
         private readonly ISystemSettingsService _settings;
         private readonly ILicenseService _license;
-        private readonly IReceiptPrinter _print;
-        private readonly IAuthservice _service;
-        public SaleService(IDbContextFactory<AppDbContext> factory, ISystemSettingsService system, ILicenseService license, IReceiptPrinter print, IAuthservice servcie)
+        public SaleService(IDbContextFactory<AppDbContext> factory, ISystemSettingsService system, ILicenseService license)
         {
-            _print = print;
             _factory = factory;
             _settings = system;
             _license = license;
-            _service = servcie;
         }
 
         public async Task<SaleDto> CreateAsync(CreateSaleDto dto, CancellationToken cancellation)

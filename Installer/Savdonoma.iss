@@ -3,7 +3,7 @@
 ; Non-commercial use only.
 
 #define MyAppName "TijoratUz"
-#define MyAppVersion "1.0.6"
+#define MyAppVersion "1.0.7"
 #define MyAppPublisher "Bekmurodov Sohib"
 #define MyAppURL "https://t.me/bekmurodv_s"
 #define MyAppExeName "TijoratUz.exe"

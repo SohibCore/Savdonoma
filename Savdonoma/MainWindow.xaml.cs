@@ -23,5 +23,10 @@ namespace Savdonoma
                     ? Visibility.Collapsed
                     : Visibility.Visible;
         }
+
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
     }
 }

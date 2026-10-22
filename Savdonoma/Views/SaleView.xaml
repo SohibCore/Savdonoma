@@ -323,8 +323,9 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Content="Miqdor" MinHeight="44" Padding="4,7" FontSize="12"
+                    <Button Grid.Column="0" Content="Miqdor" MinHeight="44" Padding="4,7" FontSize="11"
                             Command="{Binding SelectQuantityEntryModeCommand}">
                         <Button.Style>
                             <Style TargetType="Button">
@@ -340,7 +341,7 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                    <Button Grid.Column="1" Content="Qidirish" MinHeight="44" Padding="4,7" FontSize="12"
+                    <Button Grid.Column="1" Content="Qidirish" MinHeight="44" Padding="4,7" FontSize="11"
                             ToolTip="Klaviatura orqali mahsulot nomi yoki shtrix-kodi bo'yicha qidirish"
                             Command="{Binding SelectSearchModeCommand}">
                         <Button.Style>
@@ -349,15 +350,37 @@
                                 <Setter Property="BorderBrush" Value="#E2E8F0" />
                                 <Setter Property="Cursor" Value="Hand" />
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsQuantityEntryMode}" Value="False">
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsQuantityEntryMode}" Value="False" />
+                                            <Condition Binding="{Binding IsReceivedAmountEntryMode}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="Background" Value="#DBEAFE" />
                                         <Setter Property="Foreground" Value="#1D4ED8" />
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Grid.Column="2" Content="To'lov" MinHeight="44" Padding="4,7" FontSize="11"
+                            Visibility="{Binding IsCash, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            ToolTip="Klaviatura orqali mijozdan olingan summani kiriting"
+                            Command="{Binding SelectReceivedAmountEntryModeCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#F1F5F9" />
+                                <Setter Property="BorderBrush" Value="#E2E8F0" />
+                                <Setter Property="Cursor" Value="Hand" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsReceivedAmountEntryMode}" Value="True">
+                                        <Setter Property="Background" Value="#DCFCE7" />
+                                        <Setter Property="Foreground" Value="#15803D" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
                     </Button>
-                    <Button Grid.Column="2" Command="{Binding ToggleKeyboardLayoutCommand}"
+                    <Button Grid.Column="3" Command="{Binding ToggleKeyboardLayoutCommand}"
                             MinHeight="44" Padding="4,7">
                         <Button.Style>
                             <Style TargetType="Button">
@@ -506,6 +529,55 @@
                     <ComboBox ItemsSource="{Binding PaymentMethods}"
                               SelectedItem="{Binding SelectedPaymentMethod}"
                               MinHeight="36" FontSize="13" Margin="0,0,0,8" />
+                    <StackPanel Margin="0,0,0,8">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsCash}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <TextBlock Text="MIJOZDAN OLINGAN SUMMA" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{StaticResource SecondaryText}" Margin="0,0,0,5" />
+                        <TextBox Text="{Binding ReceivedAmountText, UpdateSourceTrigger=PropertyChanged}"
+                                 MinHeight="36" FontSize="14" Padding="8,6"
+                                 ToolTip="Mijoz bergan naqd pul miqdorini kiriting" />
+                        <Border Background="#ECFDF5" BorderBrush="#A7F3D0" BorderThickness="1"
+                                CornerRadius="8" Padding="8" Margin="0,6,0,0">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Qaytim:" FontSize="12" FontWeight="SemiBold"
+                                               Foreground="#047857" />
+                                    <TextBlock Text="{Binding Change, StringFormat={}{0:N0}}"
+                                               FontSize="12" FontWeight="Bold" Foreground="#047857"
+                                               Margin="6,0,0,0" />
+                                    <TextBlock Text="so'm" FontSize="12" FontWeight="Bold"
+                                               Foreground="#047857" Margin="4,0,0,0" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsUnderpaid}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    <TextBlock Text="Yetishmaydi:" FontSize="11" Foreground="#B45309" />
+                                    <TextBlock Text="{Binding RemainingAmount, StringFormat={}{0:N0}}"
+                                               FontSize="11" FontWeight="SemiBold" Foreground="#B45309"
+                                               Margin="6,0,0,0" />
+                                    <TextBlock Text="so'm" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="#B45309" Margin="4,0,0,0" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                     <Border Background="#FEF2F2" BorderBrush="#FECACA" BorderThickness="1"
                             CornerRadius="8" Padding="8" Margin="0,0,0,8">
                         <Border.Style>

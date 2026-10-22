@@ -1,4 +1,6 @@
-﻿using Savdonoma.Core.Enums;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+using Savdonoma.Core.Enums;
 
 namespace Savdonoma.Data.Services.Reports
 {
@@ -10,5 +12,9 @@ namespace Savdonoma.Data.Services.Reports
         public PaymentMethod PaymentMethod { get; set; }
         public long TotalAmount { get; set; }
         public SaleStatus Status { get; set; }
+        public string StatusDisplay => typeof(SaleStatus)
+            .GetField(Status.ToString())?
+            .GetCustomAttribute<DisplayAttribute>()?
+            .GetName() ?? Status.ToString();
     }
 }
