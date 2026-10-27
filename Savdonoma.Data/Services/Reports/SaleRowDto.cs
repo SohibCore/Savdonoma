@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
-using System.Reflection;
+﻿using System.Reflection;
 using Savdonoma.Core.Enums;
-using System.Runtime.CompilerServices;
+using System.ComponentModel;
 using Savdonoma.Data.Services.Sales;
+using System.Runtime.CompilerServices;
+using System.ComponentModel.DataAnnotations;
 
 namespace Savdonoma.Data.Services.Reports
 {
@@ -15,6 +15,7 @@ namespace Savdonoma.Data.Services.Reports
         public PaymentMethod PaymentMethod { get; set; }
         public long TotalAmount { get; set; }
         public SaleStatus Status { get; set; }
+        public int? UserId { get; set; }
         public string StatusDisplay => typeof(SaleStatus)
             .GetField(Status.ToString())?
             .GetCustomAttribute<DisplayAttribute>()?

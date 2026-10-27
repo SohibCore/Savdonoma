@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
              d:DesignHeight="700" d:DesignWidth="1100">
     <Grid Margin="20">
@@ -11,6 +12,7 @@
             <ColumnDefinition Width="340" />
         </Grid.ColumnDefinitions>
 
+        <!-- ======== CHAP: Xodimlar jadvali ======== -->
         <Border Grid.Column="0" Background="#E2E8F0" BorderBrush="#E2E8F0"
                 BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,16,0">
             <Grid>
@@ -21,15 +23,17 @@
                 <StackPanel Margin="0,0,0,16">
                     <TextBlock Text="Xodimlar" FontSize="22" FontWeight="Bold"
                                Foreground="#0F172A" />
-                    <TextBlock Text="Do‘koningiz xodimlari ro‘yxati"
+                    <TextBlock Text="Do'koningiz xodimlari ro'yxati"
                                Foreground="#64748B" Margin="0,4,0,0" />
                 </StackPanel>
-                <!-- Xodimlar jadval header -->
+
+                <!-- Jadval header -->
                 <Grid MinHeight="42" Background="#E9EEF5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
                         <ColumnDefinition Width="1.5*" />
                         <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="110" />
                     </Grid.ColumnDefinitions>
                     <Border Grid.Column="0" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8">
                         <TextBlock Text="ISM-FAMILIYA" FontWeight="SemiBold" Foreground="#111827"
@@ -39,8 +43,12 @@
                         <TextBlock Text="LOGIN" FontWeight="SemiBold" Foreground="#111827"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="2" BorderBrush="#D5DDE8" BorderThickness="0,0,0,1" Padding="12,8">
+                    <Border Grid.Column="2" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8">
                         <TextBlock Text="ROL" FontWeight="SemiBold" Foreground="#111827"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="3" BorderBrush="#D5DDE8" BorderThickness="0,0,0,1" Padding="12,8">
+                        <TextBlock Text="AMALLAR" FontWeight="SemiBold" Foreground="#111827"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                 </Grid>
@@ -48,6 +56,7 @@
                 <!-- Xodimlar ro'yxati -->
                 <ListView x:Name="EmployeesList" Grid.Row="1"
                           ItemsSource="{Binding Employees}"
+                          SelectedItem="{Binding SelectedUser}"
                           SelectionMode="Single"
                           BorderThickness="0" Background="Transparent" Padding="0"
                           FontSize="14"
@@ -61,16 +70,23 @@
                                     <ColumnDefinition Width="2*" />
                                     <ColumnDefinition Width="1.5*" />
                                     <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="110" />
                                 </Grid.ColumnDefinitions>
+
+                                <!-- Ism-familiya -->
                                 <Border Grid.Column="0" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
                                     <TextBlock Text="{Binding FullName}" VerticalAlignment="Center"
                                                HorizontalAlignment="Center" TextAlignment="Center" />
                                 </Border>
+
+                                <!-- Login -->
                                 <Border Grid.Column="1" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
                                     <TextBlock Text="{Binding UserName}" VerticalAlignment="Center"
                                                HorizontalAlignment="Center" TextAlignment="Center" />
                                 </Border>
-                                <Border Grid.Column="2" Padding="12,8">
+
+                                <!-- Rol -->
+                                <Border Grid.Column="2" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
                                     <Border CornerRadius="12" Padding="8,3" HorizontalAlignment="Center">
                                         <Border.Style>
                                             <Style TargetType="Border">
@@ -82,6 +98,77 @@
                                                    FontSize="12" FontWeight="SemiBold" Foreground="#1D4ED8" />
                                     </Border>
                                 </Border>
+
+                                <!-- Amallar: Tahrirlash / O'chirish -->
+                                <Border Grid.Column="3" Padding="4,4">
+                                    <StackPanel Orientation="Horizontal"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center">
+                                        <!-- Tahrirlash tugmasi -->
+                                        <Button Cursor="Hand" Margin="0,0,6,0"
+                                                Command="{Binding DataContext.SelectEmployeeCommand,
+                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                ToolTip="Tahrirlash">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="BtnBorder" Background="Transparent"
+                                                            CornerRadius="8" Width="32" Height="32">
+                                                        <Viewbox Width="16" Height="16"
+                                                                 HorizontalAlignment="Center"
+                                                                 VerticalAlignment="Center">
+                                                            <Path x:Name="IconPath"
+                                                                  Data="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+                                                                  Fill="#64748B" />
+                                                        </Viewbox>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="BtnBorder" Property="Background" Value="#E0F2FE" />
+                                                            <Setter TargetName="IconPath" Property="Fill" Value="#2563EB" />
+                                                        </Trigger>
+                                                        <Trigger Property="IsPressed" Value="True">
+                                                            <Setter TargetName="BtnBorder" Property="Background" Value="#BFDBFE" />
+                                                            <Setter TargetName="IconPath" Property="Fill" Value="#1D4ED8" />
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+
+                                        <!-- O'chirish tugmasi -->
+                                        <Button Cursor="Hand"
+                                                Command="{Binding DataContext.DeleteCommand,
+                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                ToolTip="O'chirish">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="BtnBorder" Background="Transparent"
+                                                            CornerRadius="8" Width="32" Height="32">
+                                                        <Viewbox Width="16" Height="16"
+                                                                 HorizontalAlignment="Center"
+                                                                 VerticalAlignment="Center">
+                                                            <Path x:Name="IconPath"
+                                                                  Data="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                                                                  Fill="#94A3B8" />
+                                                        </Viewbox>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="BtnBorder" Property="Background" Value="#FEE2E2" />
+                                                            <Setter TargetName="IconPath" Property="Fill" Value="#EF4444" />
+                                                        </Trigger>
+                                                        <Trigger Property="IsPressed" Value="True">
+                                                            <Setter TargetName="BtnBorder" Property="Background" Value="#FECACA" />
+                                                            <Setter TargetName="IconPath" Property="Fill" Value="#DC2626" />
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -89,23 +176,41 @@
             </Grid>
         </Border>
 
+        <!-- ======== O'NG: Yaratish / Tahrirlash formasi ======== -->
         <Border Grid.Column="1" Background="#E2E8F0" BorderBrush="#E2E8F0"
                 BorderThickness="1" CornerRadius="12" Padding="20">
             <StackPanel>
-                <TextBlock Text="Xodim yaratish" FontSize="20" FontWeight="Bold"
-                           Foreground="#0F172A" Margin="0,0,0,18" />
+                <!-- Sarlavha: Yaratish yoki Tahrirlash -->
+                <TextBlock FontSize="20" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,18">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="Xodim yaratish" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                    <Setter Property="Text" Value="Xodimni tahrirlash" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
                 <TextBlock Text="Ism-familiya" Foreground="#475569" Margin="0,0,0,5" />
                 <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
                          Height="38" Padding="9,6" Margin="0,0,0,13" />
+
                 <TextBlock Text="Login" Foreground="#475569" Margin="0,0,0,5" />
                 <TextBox Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}"
                          Height="38" Padding="9,6" Margin="0,0,0,13" />
+
                 <TextBlock Text="Parol" Foreground="#475569" Margin="0,0,0,5" />
                 <PasswordBox x:Name="EmployeePassword" PasswordChanged="EmployeePassword_PasswordChanged"
                              Height="38" Padding="9,6" Margin="0,0,0,13" />
+
                 <TextBlock Text="Rol" Foreground="#475569" Margin="0,0,0,5" />
                 <ComboBox ItemsSource="{Binding Roles}" SelectedItem="{Binding SelectedRole}"
                           Height="38" Padding="8,5" Margin="0,0,0,18" />
+
+                <!-- Status xabar -->
                 <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap"
                            Margin="0,0,0,12">
                     <TextBlock.Style>
@@ -119,9 +224,20 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
+
+                <!-- ===== Yaratish rejimidagi tugma ===== -->
                 <Button Content="Xodimni saqlash" Command="{Binding CreateCommand}"
                         Height="42" Background="#2563EB" Foreground="White"
                         BorderThickness="0" FontWeight="SemiBold" Cursor="Hand">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="ButtonBorder"
@@ -146,6 +262,76 @@
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
+
+                <!-- ===== Tahrirlash rejimidagi tugmalar ===== -->
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <!-- Yangilash tugmasi -->
+                    <Button Content="Yangilash" Command="{Binding UpdateCommand}"
+                            Height="42" Background="#10B981" Foreground="White"
+                            BorderThickness="0" FontWeight="SemiBold" Cursor="Hand"
+                            Margin="0,0,0,8">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="ButtonBorder"
+                                        Background="{TemplateBinding Background}"
+                                        CornerRadius="6"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      TextElement.Foreground="{TemplateBinding Foreground}" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="ButtonBorder" Property="Background" Value="#059669" />
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="ButtonBorder" Property="Background" Value="#047857" />
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.55" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <!-- Bekor qilish tugmasi -->
+                    <Button Content="Bekor qilish" Command="{Binding CancelEditCommand}"
+                            Height="42" Background="#94A3B8" Foreground="White"
+                            BorderThickness="0" FontWeight="SemiBold" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="ButtonBorder"
+                                        Background="{TemplateBinding Background}"
+                                        CornerRadius="6"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      TextElement.Foreground="{TemplateBinding Foreground}" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="ButtonBorder" Property="Background" Value="#64748B" />
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="ButtonBorder" Property="Background" Value="#475569" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
             </StackPanel>
         </Border>
     </Grid>

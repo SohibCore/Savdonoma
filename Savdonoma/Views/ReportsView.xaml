@@ -771,7 +771,7 @@
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
-                                        <UniformGrid Columns="3" Margin="0,10,0,0">
+                                        <UniformGrid Columns="5" Margin="0,10,0,0">
                                             <Border Background="#F1F5F9" BorderBrush="{StaticResource ReportBorderBrush}"
                                                     BorderThickness="1"
                                                     CornerRadius="8" Padding="12" Margin="0,0,8,0">
@@ -803,11 +803,29 @@
                                                                Foreground="{StaticResource ReportSuccessText}" />
                                                 </StackPanel>
                                             </Border>
+                                            <Border Background="#F1F5F9" BorderBrush="{StaticResource ReportBorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="8" Padding="12" Margin="4,0">
+                                                <StackPanel>
+                                                    <TextBlock Text="To'lov turi" Style="{StaticResource ReportCardLabel}" />
+                                                    <TextBlock Text="{Binding Detail.PaymentMethod}"
+                                                               FontSize="18" FontWeight="SemiBold"
+                                                               Foreground="{StaticResource ReportPrimaryText}"
+                                                               VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </Border>
+                                            <Border Background="#F1F5F9" BorderBrush="{StaticResource ReportBorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="8" Padding="12" Margin="8,0,0,0">
+                                                <StackPanel>
+                                                    <TextBlock Text="Sotuvchi" Style="{StaticResource ReportCardLabel}" />
+                                                    <TextBlock Text="{Binding Detail.SellerName}"
+                                                               FontSize="18" FontWeight="SemiBold"
+                                                               Foreground="{StaticResource ReportPrimaryText}"
+                                                               TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Border>
                                         </UniformGrid>
-                                        <TextBlock Margin="0,10,0,0">
-                                            <Run Text="To'lov turi: " />
-                                            <Run Text="{Binding Detail.PaymentMethod}" />
-                                        </TextBlock>
                                         <TextBlock Text="Sotuv ma'lumotlari yuklanmoqda..."
                                                    Foreground="{StaticResource ReportSecondaryText}"
                                                    Margin="0,8,0,0">

@@ -4,113 +4,269 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="560" d:DesignWidth="460">
-    <Grid Background="#F1F5F9">
-        <Border Width="390" Padding="30" Background="White" CornerRadius="18"
-                BorderBrush="#E2E8F0" BorderThickness="3"
-                HorizontalAlignment="Center" VerticalAlignment="Center">
-            <StackPanel>
-                <TextBlock Text="TijoratUz" FontSize="28" FontWeight="Bold"
-                           Foreground="#0F172A" HorizontalAlignment="Center" />
-                <TextBlock Text="Do‘kon egasini ro‘yxatdan o‘tkazish"
-                           FontSize="20" FontWeight="SemiBold" Foreground="#0F172A"
-                           HorizontalAlignment="Center" Margin="0,8,0,22">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsRegistration}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                <TextBlock Text="Tizimga kirish"
-                           FontSize="20" FontWeight="SemiBold" Foreground="#0F172A"
-                           HorizontalAlignment="Center" Margin="0,8,0,22">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Visibility" Value="Visible" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsRegistration}" Value="True">
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
+             d:DesignHeight="650" d:DesignWidth="980">
+    <ScrollViewer Background="#F1F5F9" VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <Border MaxWidth="1040" Padding="28" Margin="24" Background="White"
+                CornerRadius="20" BorderBrush="#E2E8F0" BorderThickness="1"
+                HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.05*" />
+                    <ColumnDefinition Width="0.95*" />
+                </Grid.ColumnDefinitions>
 
-                <StackPanel Margin="0,0,0,12">
-                    <TextBlock Text="Do‘kon nomi" Foreground="#475569" Margin="0,0,0,5" />
-                    <TextBox Text="{Binding OrgName, UpdateSourceTrigger=PropertyChanged}"
-                             Height="38" Padding="9,6" />
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsRegistration}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
+                <StackPanel Grid.Column="0" Margin="0,0,28,0" MaxWidth="410"
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBox">
+                            <Setter Property="Height" Value="48" />
+                            <Setter Property="Padding" Value="12,6" />
+                            <Setter Property="FontSize" Value="16" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="BorderBrush" Value="#D5DFEA" />
+                            <Setter Property="Background" Value="White" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="TextBox">
+                                        <Border x:Name="InputBorder" Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="10">
+                                            <ScrollViewer x:Name="PART_ContentHost"
+                                                          Margin="{TemplateBinding Padding}"
+                                                          VerticalAlignment="Center" />
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#94A3B8" />
+                                            </Trigger>
+                                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#3B82F6" />
+                                                <Setter TargetName="InputBorder" Property="BorderThickness" Value="2" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
                         </Style>
-                    </StackPanel.Style>
+                        <Style TargetType="PasswordBox">
+                            <Setter Property="Height" Value="48" />
+                            <Setter Property="Padding" Value="12,6" />
+                            <Setter Property="FontSize" Value="16" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="BorderBrush" Value="#D5DFEA" />
+                            <Setter Property="Background" Value="White" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="PasswordBox">
+                                        <Border x:Name="InputBorder" Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="10">
+                                            <ScrollViewer x:Name="PART_ContentHost"
+                                                          Margin="{TemplateBinding Padding}"
+                                                          VerticalAlignment="Center" />
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#94A3B8" />
+                                            </Trigger>
+                                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#3B82F6" />
+                                                <Setter TargetName="InputBorder" Property="BorderThickness" Value="2" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </StackPanel.Resources>
+                    <TextBlock FontSize="36" FontWeight="Bold" Margin="0,0,0,8">
+                        <Run Text="Tijorat" Foreground="#0F172A" />
+                        <Run Text="Uz" Foreground="#2563EB" />
+                    </TextBlock>
+                    <TextBlock Text="Do‘kon egasini ro‘yxatdan o‘tkazish"
+                               FontSize="20" FontWeight="SemiBold" Foreground="#0F172A"
+                               Margin="0,0,0,18">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRegistration}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Text="Tizimga kirish" FontSize="20" FontWeight="SemiBold"
+                               Foreground="#0F172A" Margin="0,0,0,18">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Visible" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRegistration}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <StackPanel Margin="0,0,0,10">
+                        <TextBlock Text="Do‘kon nomi" Foreground="#475569" Margin="0,0,0,4" />
+                        <TextBox Text="{Binding OrgName, UpdateSourceTrigger=PropertyChanged}"
+                                Height="48" />
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRegistration}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,0,0,10">
+                        <TextBlock Text="Ism-familiya" Foreground="#475569" Margin="0,0,0,4" />
+                        <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
+                                Height="48" />
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRegistration}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                    </StackPanel>
+
+                    <TextBlock Text="Login" Foreground="#475569" Margin="0,0,0,4" />
+                    <TextBox Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}"
+                             Height="48" Margin="0,0,0,10" />
+                    <TextBlock Text="Parol" Foreground="#475569" Margin="0,0,0,4" />
+                    <PasswordBox x:Name="PasswordInput" PasswordChanged="PasswordInput_PasswordChanged"
+                                 Height="48" Margin="0,0,0,12" />
+
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626"
+                               TextWrapping="Wrap" Margin="0,0,0,10" />
+                    <Button Content="Davom etish" Command="{Binding SubmitCommand}"
+                            Height="48" Background="#2563EB" Foreground="White"
+                            BorderThickness="0" FontSize="17" FontWeight="SemiBold">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="IsEnabled" Value="True" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="SubmitBorder" Background="{TemplateBinding Background}"
+                                                    CornerRadius="10">
+                                                <Border.Effect>
+                                                    <DropShadowEffect Color="#2563EB" BlurRadius="14"
+                                                                      ShadowDepth="4" Opacity="0.2" />
+                                                </Border.Effect>
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center" />
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="SubmitBorder" Property="Background" Value="#1D4ED8" />
+                                                </Trigger>
+                                                <Trigger Property="IsPressed" Value="True">
+                                                    <Setter TargetName="SubmitBorder" Property="Opacity" Value="0.85" />
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter TargetName="SubmitBorder" Property="Opacity" Value="0.55" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <TextBlock Text="Birinchi kirishda do‘kon egasi avtomatik yaratiladi."
+                               Foreground="#64748B" FontSize="12" TextWrapping="Wrap"
+                               Margin="0,12,0,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRegistration}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </StackPanel>
 
-                <StackPanel Margin="0,0,0,12">
-                    <TextBlock Text="Ism-familiya" Foreground="#475569" Margin="0,0,0,5" />
-                    <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
-                             Height="38" Padding="9,6" />
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsRegistration}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>
-                </StackPanel>
-
-                <TextBlock Text="Login" Foreground="#475569" Margin="0,0,0,5" />
-                <TextBox Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}"
-                         Height="38" Padding="9,6" Margin="0,0,0,12" />
-                <TextBlock Text="Parol" Foreground="#475569" Margin="0,0,0,5" />
-                <PasswordBox x:Name="PasswordInput" PasswordChanged="PasswordInput_PasswordChanged"
-                             Height="38" Padding="9,6" Margin="0,0,0,16" />
-
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626"
-                           TextWrapping="Wrap" Margin="0,0,0,12" />
-                <Button Content="Davom etish" Command="{Binding SubmitCommand}"
-                        Height="42" Background="#2563EB" Foreground="White"
-                        BorderThickness="0" FontWeight="SemiBold">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="IsEnabled" Value="True" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsBusy}" Value="True">
-                                    <Setter Property="IsEnabled" Value="False" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-                <TextBlock Text="Birinchi kirishda do‘kon egasi avtomatik yaratiladi."
-                           Foreground="#64748B" FontSize="12" TextWrapping="Wrap"
-                           HorizontalAlignment="Center" Margin="0,14,0,0">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsRegistration}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-            </StackPanel>
+                <Border Grid.Column="1" Padding="36" CornerRadius="16"
+                        VerticalAlignment="Stretch">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#0F172A" Offset="0" />
+                            <GradientStop Color="#172554" Offset="0.55" />
+                            <GradientStop Color="#1D4ED8" Offset="1" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Border Width="58" Height="58" CornerRadius="16"
+                                Background="#FFFFFF" HorizontalAlignment="Left">
+                            <TextBlock Text="TU" FontSize="22" FontWeight="Bold"
+                                       Foreground="#1D4ED8" HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,36">
+                            <TextBlock Text="Biznesingiz uchun&#xA;qulay boshqaruv"
+                                       FontSize="32" FontWeight="Bold" Foreground="White"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="Savdo jarayonlarini sodda va tartibli boshqaring."
+                                       FontSize="16" Foreground="#DBEAFE" TextWrapping="Wrap"
+                                       Margin="0,16,0,28" />
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <TextBlock Text="✓" FontSize="16" FontWeight="Bold"
+                                               Foreground="White" Margin="0,0,12,0" />
+                                    <TextBlock Text="Savdo va cheklar nazorati"
+                                               FontSize="14" Foreground="White" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <TextBlock Text="✓" FontSize="16" FontWeight="Bold"
+                                               Foreground="White" Margin="0,0,12,0" />
+                                    <TextBlock Text="Mahsulotlar va ombor hisobi"
+                                               FontSize="14" Foreground="White" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="✓" FontSize="16" FontWeight="Bold"
+                                               Foreground="White" Margin="0,0,12,0" />
+                                    <TextBlock Text="Tushunarli hisobotlar"
+                                               FontSize="14" Foreground="White" />
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                        <TextBlock Grid.Row="2" Text="TijoratUz  ·  Savdo boshqaruvi"
+                                   FontSize="12" Foreground="#BFDBFE" />
+                    </Grid>
+                </Border>
+            </Grid>
         </Border>
-    </Grid>
+    </ScrollViewer>
 </UserControl>

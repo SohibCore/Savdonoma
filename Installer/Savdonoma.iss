@@ -3,7 +3,7 @@
 ; Non-commercial use only.
 
 #define MyAppName "TijoratUz"
-#define MyAppVersion "1.0.7"
+#define MyAppVersion "1.0.8"
 #define MyAppPublisher "Bekmurodov Sohib"
 #define MyAppURL "https://t.me/bekmurodv_s"
 #define MyAppExeName "TijoratUz.exe"
@@ -40,14 +40,10 @@ DisableProgramGroupPage=yes
 OutputDir=D:\RealProjects\Savdonoma\Installer\Output
 OutputBaseFilename=TijoratUz_Setup
 SetupIconFile=..\Savdonoma\TijoratUz.ico
-Password=savdonoma_setup
+Password=tijoratuz_setup
 Encryption=yes
 SolidCompression=yes
 WizardStyle=classic windows11
-
-[Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"
-Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked

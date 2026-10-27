@@ -277,10 +277,12 @@ namespace Savdonoma.Data.Services.Sales
                 .Select(x => new SaleDetailDto
                 {
                     Number = x.Number,
-                    PaymentMethod = x.PaymentMethod,
+                    UserId = x.UserId,
+                    SellerName = x.User != null ? x.User.FullName : "Noma'lum sotuvchi",
                     TotalAmount = x.TotalAmount,
-                    ReceivedAmount = x.ReceivedAmount,
                     ChangeAmount = x.ChangeAmount,
+                    PaymentMethod = x.PaymentMethod,
+                    ReceivedAmount = x.ReceivedAmount,
                     Items = x.SaleItems.Select(i => new SaleItem
                     {
                         ProductName = i.ProductName,

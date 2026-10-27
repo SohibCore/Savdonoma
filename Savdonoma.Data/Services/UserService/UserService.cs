@@ -127,9 +127,7 @@ namespace Savdonoma.Data.Services.UserService
             var orgName = _currentUser.OrgName!;
             await using var db = await _factory.CreateDbContextAsync(cancellation);
 
-            var user = await db.Users.SingleOrDefaultAsync(
-                x => x.Id == id && x.OrgName == orgName && x.UserRole != UserRole.Boshliq,
-                cancellation);
+            var user = await db.Users.SingleOrDefaultAsync(x => x.Id == id && x.OrgName == orgName && x.UserRole != UserRole.Boshliq, cancellation);
             if (user is null)
                 throw new InvalidOperationException("Xodim topilmadi.");
 
@@ -144,18 +142,14 @@ namespace Savdonoma.Data.Services.UserService
             var orgName = _currentUser.OrgName!;
             await using var db = await _factory.CreateDbContextAsync(cancellation);
 
-            var user = await db.Users.SingleOrDefaultAsync(
-                x => x.Id == dto.Id && x.OrgName == orgName && x.UserRole != UserRole.Boshliq,
-                cancellation);
+            var user = await db.Users.SingleOrDefaultAsync(x => x.Id == dto.Id && x.OrgName == orgName && x.UserRole != UserRole.Boshliq, cancellation);
             if (user is null)
                 throw new InvalidOperationException("Xodim topilmadi.");
 
             if (!string.IsNullOrWhiteSpace(dto.UserName))
             {
                 var userName = NormalizeUserName(dto.UserName);
-                if (await db.Users.AnyAsync(
-                    x => x.Id != dto.Id && x.UserName == userName,
-                    cancellation))
+                if (await db.Users.AnyAsync(x => x.Id != dto.Id && x.UserName == userName, cancellation))
                     throw new InvalidOperationException("Bu login band.");
                 user.UserName = userName;
             }
@@ -210,7 +204,8 @@ namespace Savdonoma.Data.Services.UserService
             FullName = user.FullName,
             UserName = user.UserName,
             OrgName = user.OrgName,
-            UserRole = user.UserRole
+            UserRole = user.UserRole,
+            Password = user.Password
         };
     }
 }

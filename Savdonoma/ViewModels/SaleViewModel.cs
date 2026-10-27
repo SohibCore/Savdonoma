@@ -596,8 +596,7 @@ namespace Savdonoma.ViewModels
         [ObservableProperty]
         private decimal quantity;
 
-        public decimal LineTotal =>
-            UnitPrice * Quantity;
+        public decimal LineTotal => UnitPrice * Quantity;
 
         /// <summary>
         /// MIQDOR katakchasi uchun matn: kg da sakkannoma (1.25),

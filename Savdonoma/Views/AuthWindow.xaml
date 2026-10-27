@@ -4,7 +4,7 @@
         xmlns:views="clr-namespace:Savdonoma.Views"
         Title="TijoratUz — tizimga kirish"
         Icon="pack://application:,,,/TijoratUz;component/TijoratUz.ico"
-        Width="520" Height="640" MinWidth="480" MinHeight="580"
-        WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+        Width="1200" Height="720" MinWidth="1100" MinHeight="600"
+        WindowStartupLocation="CenterScreen" ResizeMode="CanResize">
     <views:LoginView />
 </Window>
