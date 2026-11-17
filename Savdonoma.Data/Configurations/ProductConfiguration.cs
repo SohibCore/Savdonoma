@@ -84,6 +84,58 @@ namespace Savdonoma.Data.Configurations
                 .HasDefaultValue(0m)
                 .IsRequired();
 
+            builder.Property(x => x.CostPrice)
+                .HasColumnOrder(11)
+                .HasColumnName("COST_PRICE")
+                .HasColumnType("bigint")
+                .IsRequired();
+
+            builder.Property(x => x.MarkupPercent)
+                .HasColumnOrder(18)
+                .HasColumnName("MARKUP_PERCENT")
+                .HasColumnType("decimal")
+                .IsRequired(false);
+
+            builder.Property(x => x.MinQuantity)
+                .HasColumnOrder(12)
+                .HasColumnName("MIN_QUANTITY")
+                .HasColumnType("decimal")
+                .IsRequired(false);
+
+            builder.Property(x => x.ScaleCode)
+                .HasColumnOrder(13)
+                .HasColumnName("SCALE_CODE")
+                .HasColumnType("varchar(10)")
+                .HasMaxLength(10)
+                .IsRequired(false);
+            builder.HasIndex(x => x.ScaleCode).IsUnique();
+
+            builder.Property(x => x.MxikCode)
+                .HasColumnOrder(14)
+                .HasColumnName("MXIK_CODE")
+                .HasColumnType("varchar(20)")
+                .HasMaxLength(20)
+                .IsRequired(false);
+
+            builder.Property(x => x.PackageCode)
+                .HasColumnOrder(15)
+                .HasColumnName("PACKAGE_CODE")
+                .HasColumnType("varchar(20)")
+                .HasMaxLength(20)
+                .IsRequired(false);
+
+            builder.Property(x => x.VatPercent)
+                .HasColumnOrder(16)
+                .HasColumnName("VAT_PERCENT")
+                .HasColumnType("decimal")
+                .IsRequired(false);
+
+            builder.Property(x => x.IsMarked)
+                .HasColumnOrder(17)
+                .HasColumnName("IS_MARKED")
+                .HasColumnType("boolean")
+                .IsRequired();
+
             builder.HasOne(x => x.Category)
                 .WithMany(x => x.Products)
                 .HasForeignKey(x => x.CategoryId)

@@ -5,20 +5,23 @@ using Savdonoma.Core.Entity;
 using Savdonoma.Core.Licensing;
 using Microsoft.EntityFrameworkCore;
 using Savdonoma.Data.Services.SystemSetting;
+using Savdonoma.Data.Services.Stock;
+using Savdonoma.Services;
 
 namespace Savdonoma.Data.Services.Sales
 {
     public class SaleService : ISaleService
     {
-        private static readonly SemaphoreSlim SaleCreationLock = new(1, 1);
         private readonly IDbContextFactory<AppDbContext> _factory;
         private readonly ISystemSettingsService _settings;
         private readonly ILicenseService _license;
-        public SaleService(IDbContextFactory<AppDbContext> factory, ISystemSettingsService system, ILicenseService license)
+        private readonly CurrentUserService _currentUser;
+        public SaleService(IDbContextFactory<AppDbContext> factory, ISystemSettingsService system, ILicenseService license, CurrentUserService currentUser)
         {
             _factory = factory;
             _settings = system;
             _license = license;
+            _currentUser = currentUser;
         }
 
         public async Task<SaleDto> CreateAsync(CreateSaleDto dto, CancellationToken cancellation)
@@ -31,7 +34,7 @@ namespace Savdonoma.Data.Services.Sales
             if (dto.Items.Any(q => q.Quantity <= 0))
                 throw new Exception("Miqdor 0 dan katta bo'lilshi kerak.");
 
-            await SaleCreationLock.WaitAsync(cancellation);
+            await StockLedger.Lock.WaitAsync(cancellation);
             try
             {
                 for (var attempt = 0; ; attempt++)
@@ -48,7 +51,7 @@ namespace Savdonoma.Data.Services.Sales
             }
             finally
             {
-                SaleCreationLock.Release();
+                StockLedger.Lock.Release();
             }
         }
 
@@ -94,8 +97,6 @@ namespace Savdonoma.Data.Services.Sales
                             $"Mavjud: {p.Quantity}, " +
                             $"so'ralgan: {requestedQuantity}.");
                     }
-
-                    p.Quantity -= requestedQuantity;
                 }
             }
 
@@ -110,6 +111,7 @@ namespace Savdonoma.Data.Services.Sales
                     ProductId = p.Id,
                     ProductName = p.Name,
                     UnitPrice = p.Price,
+                    CostPrice = p.CostPrice,
                     Quantity = line.Quantity,
                     Unit = p.Unit,
                     LineTotal = SaleCalculator.RowSum(p.Price, line.Quantity),
@@ -130,6 +132,12 @@ namespace Savdonoma.Data.Services.Sales
             };
 
             await db.Sales.AddAsync(sale, cancellation);
+
+            // Qoldiq ikkala rejimda ham jurnal orqali kamayadi.
+            // Qoldiqsiz rejimda faqat yetishmovchilik tekshirilmaydi (yuqorida).
+            foreach (var line in dto.Items)
+                StockLedger.Apply(db, products[line.ProductId], -line.Quantity, StockMovementType.Sale, now, dto.UserId, sale: sale);
+
             await db.SaveChangesAsync(cancellation);
             await transaction.CommitAsync(cancellation);
 
@@ -196,8 +204,7 @@ namespace Savdonoma.Data.Services.Sales
 
             var startUtc = DateTime.Now.Date.ToUniversalTime();   // mahalliy "bugun" boshlanishi
 
-            var sales = await db.Sales
-                .AsNoTracking()
+            var sales = await VisibleSales(db)
                 .Where(s => s.CreatedAt >= startUtc)
                 .OrderByDescending(s => s.CreatedAt)
                 .ToListAsync(cancellation);
@@ -212,10 +219,24 @@ namespace Savdonoma.Data.Services.Sales
                 }).ToList();
         }
 
+        // Sotuvchi faqat o'z sotuvlarini ko'radi, rahbar va menejer hammasini
+        private IQueryable<Sale> VisibleSales(AppDbContext db)
+        {
+            var sales = db.Sales.AsNoTracking();
+            if (_currentUser.CanViewAllSales)
+                return sales;
+
+            var userId = _currentUser.UserId ?? -1;
+            return sales.Where(s => s.UserId == userId);
+        }
+
         public async Task CancelAsync(int saleId, string? reason, CancellationToken cancellation)
         {
+            if (!_currentUser.CanCancelSales)
+                throw new UnauthorizedAccessException("Chekni faqat rahbar yoki menejer bekor qila oladi.");
+
             _license.EnsureCanWrite();
-            await SaleCreationLock.WaitAsync(cancellation);
+            await StockLedger.Lock.WaitAsync(cancellation);
 
             try
             {
@@ -241,14 +262,16 @@ namespace Savdonoma.Data.Services.Sales
 
                 var now = DateTime.UtcNow;
 
-                // Qoldiq yoqilgan bo'lsa, mahsulotlarni qayta omborga qo'shamiz.
-                if (inventoryEnabled.Value)
+                // Jurnalda sotuv harakati bor bo'lsa, qoldiq doim qaytariladi.
+                // Jurnalgacha qilingan eski sotuvlarda esa qoldiq faqat qoldiq rejimida kamaygan edi.
+                var hasMovements = await db.StockMovements
+                    .AnyAsync(m => m.SaleId == sale.Id && m.Type == StockMovementType.Sale, cancellation);
+
+                if (hasMovements || inventoryEnabled.Value)
                 {
                     foreach (var item in sale.SaleItems)
-                    {
-                        item.Product.Quantity += item.Quantity;
-                        item.Product.UpdatedAt = now;
-                    }
+                        StockLedger.Apply(db, item.Product, item.Quantity, StockMovementType.SaleCancel, now,
+                            _currentUser.UserId, sale: sale, note: sale.CancelReason ?? reason?.Trim());
                 }
 
                 sale.SaleStatus = SaleStatus.Cancelled;
@@ -263,7 +286,7 @@ namespace Savdonoma.Data.Services.Sales
             }
             finally
             {
-                SaleCreationLock.Release();
+                StockLedger.Lock.Release();
             }
         }
 
@@ -271,8 +294,7 @@ namespace Savdonoma.Data.Services.Sales
         {
             await using var db = await _factory.CreateDbContextAsync(cancellation);
 
-            return await db.Sales
-                .AsNoTracking()
+            return await VisibleSales(db)
                 .Where(x => x.Id == saleId)
                 .Select(x => new SaleDetailDto
                 {

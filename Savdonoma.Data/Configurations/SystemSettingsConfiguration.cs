@@ -27,12 +27,30 @@ namespace Savdonoma.Data.Configurations
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnType("timestamp with time zone")
-                .HasColumnName("UPDATED_AT")
+                .HasColumnName("CREATED_AT")
                 .HasColumnOrder(2)
                 .IsRequired(false);
 
+            builder.Property(x => x.UpdatedAt)
+                .HasColumnType("timestamp with time zone")
+                .HasColumnName("UPDATED_AT")
+                .HasColumnOrder(7)
+                .IsRequired(false);
+
+            builder.Property(x => x.DefaultMarkupPercent)
+                .HasColumnName("DEFAULT_MARKUP_PERCENT")
+                .HasColumnOrder(8)
+                .HasColumnType("decimal")
+                .IsRequired(false);
+
+            builder.Property(x => x.PriceRoundingStep)
+                .HasColumnName("PRICE_ROUNDING_STEP")
+                .HasColumnOrder(9)
+                .HasColumnType("integer")
+                .IsRequired(false);
+
             builder.Property(x => x.ShopName)
-                .HasColumnName("ORG_NAME")
+                .HasColumnName("SHOP_NAME")
                 .HasColumnOrder(3)
                 .HasColumnType("text")
                 .IsRequired(false);

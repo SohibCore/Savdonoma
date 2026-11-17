@@ -13,7 +13,9 @@ namespace Savdonoma.Core.Entity
         public long UnitPrice { get; set; }
         public decimal Quantity { get; set; }
         public long LineTotal { get; set; }
-        public decimal TotalAmount { get; set; }
+
+        // Sotuv paytidagi tannarx (1 birlik). Foyda = LineTotal - Quantity * CostPrice.
+        public long CostPrice { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 

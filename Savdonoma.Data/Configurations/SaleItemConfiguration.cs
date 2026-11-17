@@ -57,9 +57,9 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnType("bigint")
                 .IsRequired();
 
-            builder.Property(x => x.TotalAmount)
+            builder.Property(x => x.CostPrice)
                 .HasColumnOrder(7)
-                .HasColumnName("TOTAL_AMOUNT")
+                .HasColumnName("COST_PRICE")
                 .HasColumnType("bigint")
                 .IsRequired();
 

@@ -81,6 +81,13 @@ public class DatabaseTests : IDisposable
         return new UserService(_db, current, new FakeLicense());
     }
 
+    private static CurrentUserService Signed(UserRole role, int userId = 1)
+    {
+        var current = new CurrentUserService();
+        current.SignIn(new AuthResultDto { UserId = userId, UserName = "u", OrgName = "TestStore", UserRole = role });
+        return current;
+    }
+
     // ---------- Audit log ----------
 
     [Fact]
@@ -303,7 +310,7 @@ public class DatabaseTests : IDisposable
         AddSale(product, SaleStatus.Cancelled, PaymentMethod.Naqd, 50_000);
 
         var today = DateTime.Today;
-        var summary = await new ReportService(_db).GetSummaryAsync(today, today, CancellationToken.None);
+        var summary = await new ReportService(_db, Signed(UserRole.Boshliq)).GetSummaryAsync(today, today, CancellationToken.None);
 
         Assert.Equal(30_000, summary.TotalAmount);
         Assert.Equal(2, summary.SalesCount);

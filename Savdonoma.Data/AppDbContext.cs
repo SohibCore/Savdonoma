@@ -21,6 +21,12 @@ namespace Savdonoma.Data
         public DbSet<AuditLog> AuditLogs { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<SystemSettings> SysSettings { get; set; } = null!;
+        public DbSet<Supplier> Suppliers { get; set; } = null!;
+        public DbSet<SupplierPayment> SupplierPayments { get; set; } = null!;
+        public DbSet<StockDocument> StockDocuments { get; set; } = null!;
+        public DbSet<StockDocumentLine> StockDocumentLines { get; set; } = null!;
+        public DbSet<StockMovement> StockMovements { get; set; } = null!;
+        public DbSet<ProductBarcode> ProductBarcodes { get; set; } = null!;
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {

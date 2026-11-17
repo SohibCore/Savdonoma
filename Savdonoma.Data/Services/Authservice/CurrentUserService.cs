@@ -13,6 +13,17 @@ public class CurrentUserService
     public bool IsAuthenticated => UserId.HasValue;
     public bool IsOwner => UserRole == Savdonoma.Core.Enums.UserRole.Boshliq;
 
+    private bool IsOwnerOrManager => UserRole is Savdonoma.Core.Enums.UserRole.Boshliq or Savdonoma.Core.Enums.UserRole.Manager;
+
+    // Ombor amallari (kirim, hisobdan chiqarish, inventarizatsiya): rahbar va menejer
+    public bool CanManageStock => IsOwnerOrManager;
+
+    // Chekni bekor qilish: rahbar va menejer. Sotuvchi bekor qila olmaydi.
+    public bool CanCancelSales => IsOwnerOrManager;
+
+    // Hisobotda hamma sotuvlar: rahbar va menejer. Sotuvchi faqat o'zinikini ko'radi.
+    public bool CanViewAllSales => IsOwnerOrManager;
+
     public void SignIn(AuthResultDto user)
     {
         UserId = user.UserId;

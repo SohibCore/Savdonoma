@@ -30,6 +30,24 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnName("IS_ACTIVE")
                 .HasColumnOrder(2)
                 .IsRequired();
+
+            builder.Property(x => x.MarkupPercent)
+                .HasColumnType("decimal")
+                .HasColumnName("MARKUP_PERCENT")
+                .HasColumnOrder(5)
+                .IsRequired(false);
+
+            builder.Property(x => x.CreatedAt)
+                .HasColumnType("timestamp with time zone")
+                .HasColumnName("CREATED_AT")
+                .HasColumnOrder(3)
+                .IsRequired(false);
+
+            builder.Property(x => x.UpdatedAt)
+                .HasColumnType("timestamp with time zone")
+                .HasColumnName("UPDATED_AT")
+                .HasColumnOrder(4)
+                .IsRequired(false);
         }
     }
 }

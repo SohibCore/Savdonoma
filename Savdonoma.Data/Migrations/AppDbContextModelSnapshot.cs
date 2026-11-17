@@ -76,12 +76,19 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnOrder(0);
 
                     b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CREATED_AT")
+                        .HasColumnOrder(3);
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("IS_ACTIVE")
                         .HasColumnOrder(2);
+
+                    b.Property<decimal?>("MarkupPercent")
+                        .HasColumnType("decimal")
+                        .HasColumnName("MARKUP_PERCENT")
+                        .HasColumnOrder(5);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -91,7 +98,9 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnOrder(1);
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UPDATED_AT")
+                        .HasColumnOrder(4);
 
                     b.HasKey("Id");
 
@@ -116,6 +125,11 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("CATEGORY_ID")
                         .HasColumnOrder(4);
 
+                    b.Property<long>("CostPrice")
+                        .HasColumnType("bigint")
+                        .HasColumnName("COST_PRICE")
+                        .HasColumnOrder(11);
+
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("CREATED_AT")
@@ -125,6 +139,27 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("IS_ACTIVE")
                         .HasColumnOrder(3);
+
+                    b.Property<bool>("IsMarked")
+                        .HasColumnType("boolean")
+                        .HasColumnName("IS_MARKED")
+                        .HasColumnOrder(17);
+
+                    b.Property<decimal?>("MarkupPercent")
+                        .HasColumnType("decimal")
+                        .HasColumnName("MARKUP_PERCENT")
+                        .HasColumnOrder(18);
+
+                    b.Property<decimal?>("MinQuantity")
+                        .HasColumnType("decimal")
+                        .HasColumnName("MIN_QUANTITY")
+                        .HasColumnOrder(12);
+
+                    b.Property<string>("MxikCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("MXIK_CODE")
+                        .HasColumnOrder(14);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -140,6 +175,12 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("NAME_SEARCH")
                         .HasColumnOrder(7);
 
+                    b.Property<string>("PackageCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("PACKAGE_CODE")
+                        .HasColumnOrder(15);
+
                     b.Property<long>("Price")
                         .HasColumnType("bigint")
                         .HasColumnName("PRICE")
@@ -152,6 +193,12 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("QUANTITY")
                         .HasColumnOrder(10);
 
+                    b.Property<string>("ScaleCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("SCALE_CODE")
+                        .HasColumnOrder(13);
+
                     b.Property<string>("Unit")
                         .IsRequired()
                         .HasColumnType("text")
@@ -162,6 +209,11 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("UPDATED_AT")
                         .HasColumnOrder(9);
+
+                    b.Property<decimal?>("VatPercent")
+                        .HasColumnType("decimal")
+                        .HasColumnName("VAT_PERCENT")
+                        .HasColumnOrder(16);
 
                     b.HasKey("Id");
 
@@ -174,7 +226,45 @@ namespace Savdonoma.Data.Migrations
 
                     b.HasIndex("Price");
 
+                    b.HasIndex("ScaleCode")
+                        .IsUnique();
+
                     b.ToTable("SYS_PRODUCT", (string)null);
+                });
+
+            modelBuilder.Entity("Savdonoma.Core.Entity.ProductBarcode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID")
+                        .HasColumnOrder(0);
+
+                    b.Property<string>("Barcode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("BARCODE")
+                        .HasColumnOrder(2);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CREATED_AT")
+                        .HasColumnOrder(3);
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer")
+                        .HasColumnName("PRODUCT_ID")
+                        .HasColumnOrder(1);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Barcode")
+                        .IsUnique();
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("SYS_PRODUCT_BARCODE", (string)null);
                 });
 
             modelBuilder.Entity("Savdonoma.Core.Entity.Sale", b =>
@@ -224,7 +314,9 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnOrder(12);
 
                     b.Property<int>("SaleStatus")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer")
+                        .HasColumnName("SALE_STATUS")
+                        .HasColumnOrder(14);
 
                     b.Property<long>("TotalAmount")
                         .HasColumnType("bigint")
@@ -260,6 +352,11 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("ID")
                         .HasColumnOrder(0);
 
+                    b.Property<long>("CostPrice")
+                        .HasColumnType("bigint")
+                        .HasColumnName("COST_PRICE")
+                        .HasColumnOrder(7);
+
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("CREATED_AT")
@@ -292,11 +389,6 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("SALE_ID")
                         .HasColumnOrder(1);
 
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("bigint")
-                        .HasColumnName("TOTAL_AMOUNT")
-                        .HasColumnOrder(7);
-
                     b.Property<string>("Unit")
                         .IsRequired()
                         .HasColumnType("text")
@@ -324,6 +416,323 @@ namespace Savdonoma.Data.Migrations
                     b.ToTable("SYS_SALE_ITEMS", (string)null);
                 });
 
+            modelBuilder.Entity("Savdonoma.Core.Entity.StockDocument", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID")
+                        .HasColumnOrder(0);
+
+                    b.Property<string>("CancelReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("CANCEL_REASON")
+                        .HasColumnOrder(13);
+
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CANCELLED_AT")
+                        .HasColumnOrder(11);
+
+                    b.Property<int?>("CancelledByUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("CANCELLED_BY")
+                        .HasColumnOrder(12);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CREATED_AT")
+                        .HasColumnOrder(7);
+
+                    b.Property<int?>("CreatedByUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("CREATED_BY")
+                        .HasColumnOrder(8);
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("NOTE")
+                        .HasColumnOrder(5);
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("NUMBER")
+                        .HasColumnOrder(1);
+
+                    b.Property<DateTime?>("PostedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("POSTED_AT")
+                        .HasColumnOrder(9);
+
+                    b.Property<int?>("PostedByUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("POSTED_BY")
+                        .HasColumnOrder(10);
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("STATUS")
+                        .HasColumnOrder(3);
+
+                    b.Property<int?>("SupplierId")
+                        .HasColumnType("integer")
+                        .HasColumnName("SUPPLIER_ID")
+                        .HasColumnOrder(4);
+
+                    b.Property<long>("TotalCost")
+                        .HasColumnType("bigint")
+                        .HasColumnName("TOTAL_COST")
+                        .HasColumnOrder(6);
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("TYPE")
+                        .HasColumnOrder(2);
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UPDATED_AT")
+                        .HasColumnOrder(14);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Number")
+                        .IsUnique();
+
+                    b.HasIndex("SupplierId");
+
+                    b.HasIndex("Type", "CreatedAt");
+
+                    b.ToTable("SYS_STOCK_DOCUMENT", (string)null);
+                });
+
+            modelBuilder.Entity("Savdonoma.Core.Entity.StockDocumentLine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID")
+                        .HasColumnOrder(0);
+
+                    b.Property<long>("CostPrice")
+                        .HasColumnType("bigint")
+                        .HasColumnName("COST_PRICE")
+                        .HasColumnOrder(4);
+
+                    b.Property<int>("DocumentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("DOCUMENT_ID")
+                        .HasColumnOrder(1);
+
+                    b.Property<decimal?>("ExpectedQuantity")
+                        .HasColumnType("decimal")
+                        .HasColumnName("EXPECTED_QUANTITY")
+                        .HasColumnOrder(6);
+
+                    b.Property<long?>("NewSalePrice")
+                        .HasColumnType("bigint")
+                        .HasColumnName("NEW_SALE_PRICE")
+                        .HasColumnOrder(5);
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer")
+                        .HasColumnName("PRODUCT_ID")
+                        .HasColumnOrder(2);
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal")
+                        .HasColumnName("QUANTITY")
+                        .HasColumnOrder(3);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("SYS_STOCK_DOCUMENT_LINE", (string)null);
+                });
+
+            modelBuilder.Entity("Savdonoma.Core.Entity.StockMovement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID")
+                        .HasColumnOrder(0);
+
+                    b.Property<decimal>("BalanceAfter")
+                        .HasColumnType("decimal")
+                        .HasColumnName("BALANCE_AFTER")
+                        .HasColumnOrder(4);
+
+                    b.Property<long>("CostPrice")
+                        .HasColumnType("bigint")
+                        .HasColumnName("COST_PRICE")
+                        .HasColumnOrder(5);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CREATED_AT")
+                        .HasColumnOrder(10);
+
+                    b.Property<int?>("DocumentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("DOCUMENT_ID")
+                        .HasColumnOrder(6);
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("NOTE")
+                        .HasColumnOrder(9);
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer")
+                        .HasColumnName("PRODUCT_ID")
+                        .HasColumnOrder(1);
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal")
+                        .HasColumnName("QUANTITY")
+                        .HasColumnOrder(3);
+
+                    b.Property<int?>("SaleId")
+                        .HasColumnType("integer")
+                        .HasColumnName("SALE_ID")
+                        .HasColumnOrder(7);
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("TYPE")
+                        .HasColumnOrder(2);
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("USER_ID")
+                        .HasColumnOrder(8);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("DocumentId");
+
+                    b.HasIndex("SaleId");
+
+                    b.HasIndex("ProductId", "Id");
+
+                    b.ToTable("SYS_STOCK_MOVEMENT", (string)null);
+                });
+
+            modelBuilder.Entity("Savdonoma.Core.Entity.Supplier", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID")
+                        .HasColumnOrder(0);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CREATED_AT")
+                        .HasColumnOrder(7);
+
+                    b.Property<long>("Debt")
+                        .HasColumnType("bigint")
+                        .HasColumnName("DEBT")
+                        .HasColumnOrder(6);
+
+                    b.Property<string>("Inn")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("INN")
+                        .HasColumnOrder(3);
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("IS_ACTIVE")
+                        .HasColumnOrder(5);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("NAME")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("NOTE")
+                        .HasColumnOrder(4);
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("PHONE")
+                        .HasColumnOrder(2);
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UPDATED_AT")
+                        .HasColumnOrder(8);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name");
+
+                    b.ToTable("SYS_SUPPLIER", (string)null);
+                });
+
+            modelBuilder.Entity("Savdonoma.Core.Entity.SupplierPayment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID")
+                        .HasColumnOrder(0);
+
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("AMOUNT")
+                        .HasColumnOrder(2);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CREATED_AT")
+                        .HasColumnOrder(5);
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("NOTE")
+                        .HasColumnOrder(3);
+
+                    b.Property<int>("SupplierId")
+                        .HasColumnType("integer")
+                        .HasColumnName("SUPPLIER_ID")
+                        .HasColumnOrder(1);
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("USER_ID")
+                        .HasColumnOrder(4);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupplierId", "CreatedAt");
+
+                    b.ToTable("SYS_SUPPLIER_PAYMENT", (string)null);
+                });
+
             modelBuilder.Entity("Savdonoma.Core.Entity.SystemSettings", b =>
                 {
                     b.Property<int>("Id")
@@ -344,13 +753,23 @@ namespace Savdonoma.Data.Migrations
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("UPDATED_AT")
+                        .HasColumnName("CREATED_AT")
                         .HasColumnOrder(2);
+
+                    b.Property<decimal?>("DefaultMarkupPercent")
+                        .HasColumnType("decimal")
+                        .HasColumnName("DEFAULT_MARKUP_PERCENT")
+                        .HasColumnOrder(8);
 
                     b.Property<bool>("InventoryEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("INVENTORY_ENABLED")
                         .HasColumnOrder(1);
+
+                    b.Property<int?>("PriceRoundingStep")
+                        .HasColumnType("integer")
+                        .HasColumnName("PRICE_ROUNDING_STEP")
+                        .HasColumnOrder(9);
 
                     b.Property<string>("PrinterName")
                         .HasColumnType("text")
@@ -359,8 +778,13 @@ namespace Savdonoma.Data.Migrations
 
                     b.Property<string>("ShopName")
                         .HasColumnType("text")
-                        .HasColumnName("ORG_NAME")
+                        .HasColumnName("SHOP_NAME")
                         .HasColumnOrder(3);
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("UPDATED_AT")
+                        .HasColumnOrder(7);
 
                     b.HasKey("Id");
 
@@ -452,6 +876,17 @@ namespace Savdonoma.Data.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Savdonoma.Core.Entity.ProductBarcode", b =>
+                {
+                    b.HasOne("Savdonoma.Core.Entity.Product", "Product")
+                        .WithMany("Barcodes")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Savdonoma.Core.Entity.Sale", b =>
                 {
                     b.HasOne("Savdonoma.Core.Entity.User", "User")
@@ -480,6 +915,71 @@ namespace Savdonoma.Data.Migrations
                     b.Navigation("Sale");
                 });
 
+            modelBuilder.Entity("Savdonoma.Core.Entity.StockDocument", b =>
+                {
+                    b.HasOne("Savdonoma.Core.Entity.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Supplier");
+                });
+
+            modelBuilder.Entity("Savdonoma.Core.Entity.StockDocumentLine", b =>
+                {
+                    b.HasOne("Savdonoma.Core.Entity.StockDocument", "Document")
+                        .WithMany("Lines")
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Savdonoma.Core.Entity.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Document");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Savdonoma.Core.Entity.StockMovement", b =>
+                {
+                    b.HasOne("Savdonoma.Core.Entity.StockDocument", "Document")
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Savdonoma.Core.Entity.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Savdonoma.Core.Entity.Sale", "Sale")
+                        .WithMany()
+                        .HasForeignKey("SaleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Document");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Sale");
+                });
+
+            modelBuilder.Entity("Savdonoma.Core.Entity.SupplierPayment", b =>
+                {
+                    b.HasOne("Savdonoma.Core.Entity.Supplier", "Supplier")
+                        .WithMany("Payments")
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Supplier");
+                });
+
             modelBuilder.Entity("Savdonoma.Core.Entity.Category", b =>
                 {
                     b.Navigation("Products");
@@ -487,12 +987,24 @@ namespace Savdonoma.Data.Migrations
 
             modelBuilder.Entity("Savdonoma.Core.Entity.Product", b =>
                 {
+                    b.Navigation("Barcodes");
+
                     b.Navigation("SaleItems");
                 });
 
             modelBuilder.Entity("Savdonoma.Core.Entity.Sale", b =>
                 {
                     b.Navigation("SaleItems");
+                });
+
+            modelBuilder.Entity("Savdonoma.Core.Entity.StockDocument", b =>
+                {
+                    b.Navigation("Lines");
+                });
+
+            modelBuilder.Entity("Savdonoma.Core.Entity.Supplier", b =>
+                {
+                    b.Navigation("Payments");
                 });
 #pragma warning restore 612, 618
         }

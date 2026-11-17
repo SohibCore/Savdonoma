@@ -25,6 +25,7 @@ namespace Savdonoma.Data.Services.Categories
                     Id = x.Id,
                     Name = x.Name,
                     IsActive = x.IsActive,
+                    MarkupPercent = x.MarkupPercent,
                 }).ToListAsync(cancellation);
 
             return categories;
@@ -41,6 +42,7 @@ namespace Savdonoma.Data.Services.Categories
                     Id = x.Id,
                     Name = x.Name,
                     IsActive = x.IsActive,
+                    MarkupPercent = x.MarkupPercent,
                 }).FirstOrDefaultAsync(cancellation);
 
             if (product is null)

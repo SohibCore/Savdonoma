@@ -5,6 +5,8 @@ using System.Globalization;
 using Savdonoma.Core.Entity;
 using Microsoft.EntityFrameworkCore;
 using Unit = Savdonoma.Core.Enums.Unit;
+using StockMovementType = Savdonoma.Core.Enums.StockMovementType;
+using Savdonoma.Data.Services.Stock;
 
 namespace Savdonoma.Import
 {
@@ -49,6 +51,7 @@ namespace Savdonoma.Import
                     .Select(x => x.Barcode!)
                     .ToListAsync(),
                 StringComparer.Ordinal);
+            seenBarcodes.UnionWith(await db.ProductBarcodes.AsNoTracking().Select(x => x.Barcode).ToListAsync());
 
             var categoryIds = (await db.Categories
                 .AsNoTracking()
@@ -151,25 +154,44 @@ namespace Savdonoma.Import
                 return;
 
             _license.EnsureCanWrite();
-            await using var db = await _context.CreateDbContextAsync();
 
-            var toAdd = validated.ValidRows.Select(row => new Product
+            await StockLedger.Lock.WaitAsync();
+            try
             {
-                Name = row.Name,
-                NameSearch = NameNormalizer.Normalize(row.Name),   // qo'shildi
-                Price = Convert.ToInt64(row.Price),
-                Unit = Enum.TryParse<Unit>(row.Unit, true, out var parsedUnit) ? parsedUnit : Unit.Dona,
-                CategoryId = row.CategoryId,
-                Barcode = row.Barcode,
-                Quantity = row.Quantity,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-            }).ToList();
+                await using var db = await _context.CreateDbContextAsync();
+                var now = DateTime.UtcNow;
 
-            db.Products.AddRange(toAdd);
-            await db.SaveChangesAsync();
+                var toAdd = validated.ValidRows.Select(row => new
+                {
+                    Row = row,
+                    Product = new Product
+                    {
+                        Name = row.Name,
+                        NameSearch = NameNormalizer.Normalize(row.Name),
+                        Price = Convert.ToInt64(row.Price),
+                        Unit = Enum.TryParse<Unit>(row.Unit, true, out var parsedUnit) ? parsedUnit : Unit.Dona,
+                        CategoryId = row.CategoryId,
+                        Barcode = row.Barcode,
+                        Quantity = 0,
+                        IsActive = true,
+                        CreatedAt = now,
+                    }
+                }).ToList();
 
-            validated.Added = toAdd.Count;
+                db.Products.AddRange(toAdd.Select(x => x.Product));
+
+                // Fayldagi qoldiq "Boshlang'ich qoldiq" harakati sifatida jurnalga yoziladi
+                foreach (var item in toAdd.Where(x => x.Row.Quantity != 0))
+                    StockLedger.Apply(db, item.Product, item.Row.Quantity, StockMovementType.OpeningBalance, now, userId: null,
+                        note: "Excel import");
+
+                await db.SaveChangesAsync();
+                validated.Added = toAdd.Count;
+            }
+            finally
+            {
+                StockLedger.Lock.Release();
+            }
         }
 
         public static bool TryParsePrice(string? text, out decimal price)

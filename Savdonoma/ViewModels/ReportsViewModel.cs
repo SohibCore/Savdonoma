@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using Savdonoma.Data.Services.Sales;
 using System.Collections.ObjectModel;
 using Savdonoma.Data.Services.Reports;
+using Savdonoma.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Savdonoma.ViewModels
@@ -13,7 +14,14 @@ namespace Savdonoma.ViewModels
     {
         private readonly IReportService _reports;
         private readonly ISaleService _sales;
+        private readonly CurrentUserService _currentUser;
         private CancellationTokenSource? _cts;
+
+        // ViewModel singleton: foydalanuvchi almashishi mumkin, shuning uchun har safar joriy foydalanuvchidan olinadi
+        public bool CanCancelSales => _currentUser.CanCancelSales;
+        public string SalesSubtitle => _currentUser.CanViewAllSales
+            ? "Tanlangan sana oralig'idagi savdolar"
+            : "Tanlangan sana oralig'idagi sizning savdolaringiz";
 
         [ObservableProperty] private ObservableCollection<SaleRowDto> sales = new();
 
@@ -30,10 +38,11 @@ namespace Savdonoma.ViewModels
         [ObservableProperty] private SaleRowDto? selectedSale;
         [ObservableProperty] private string errorMessage = "";
 
-        public ReportsViewModel(IReportService reports, ISaleService sales)
+        public ReportsViewModel(IReportService reports, ISaleService sales, CurrentUserService currentUser)
         {
             _reports = reports;
             _sales = sales;
+            _currentUser = currentUser;
         }
 
         partial void OnFromDateChanged(DateTime? value) => _ = LoadAsync();
@@ -48,6 +57,10 @@ namespace Savdonoma.ViewModels
             var from = FromDate ?? DateTime.Today;
             var to = ToDate ?? from;
             if (to < from) (from, to) = (to, from);
+
+            OnPropertyChanged(nameof(CanCancelSales));
+            OnPropertyChanged(nameof(SalesSubtitle));
+            CancelSaleCommand.NotifyCanExecuteChanged();
 
             try
             {
@@ -144,10 +157,10 @@ namespace Savdonoma.ViewModels
             ToDate = to;
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanCancelSales))]
         private async Task CancelSaleAsync()
         {
-            if (SelectedSale == null) return;
+            if (SelectedSale == null || !CanCancelSales) return;
 
             if (SelectedSale.Status == SaleStatus.Cancelled)
             {

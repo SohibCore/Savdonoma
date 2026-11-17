@@ -81,6 +81,13 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnType("decimal")
                 .IsRequired(false);
 
+            // Raqam sifatida saqlanadi (1 = Tugallandi, 2 = Bekor qilindi)
+            builder.Property(x => x.SaleStatus)
+                .HasColumnName("SALE_STATUS")
+                .HasColumnOrder(14)
+                .HasColumnType("integer")
+                .IsRequired();
+
             builder.HasIndex(x => x.CreatedAt);
         }
     }

@@ -12,6 +12,7 @@
     <UserControl.Resources>
 
         <conv:MoneyConverter x:Key="Money" />
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <SolidColorBrush x:Key="ReportCardBackground"
                          Color="#FFFFFF" />
 
@@ -503,7 +504,7 @@
                                    Foreground="{StaticResource ReportPrimaryText}" 
                                    HorizontalAlignment="Center"/>
 
-                        <TextBlock Text="Tanlangan sana oralig'idagi savdolar"
+                        <TextBlock Text="{Binding SalesSubtitle}"
                                    FontSize="12"
                                    Margin="0,3,0,0"
                                    Foreground="{StaticResource ReportSecondaryText}" 
@@ -515,6 +516,7 @@
                     <ui:Button Grid.Column="1"
                                Content="Bekor qilish"
                                Command="{Binding CancelSaleCommand}"
+                               Visibility="{Binding CanCancelSales, Converter={StaticResource BoolToVisibility}}"
                                MinHeight="40"
                                Padding="18,0" />
 

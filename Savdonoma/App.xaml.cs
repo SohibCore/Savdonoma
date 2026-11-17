@@ -15,6 +15,8 @@ using Savdonoma.Core.Licensing;
 using Savdonoma.Data.Licensing;
 using Microsoft.EntityFrameworkCore;
 using Savdonoma.Data.Services.Sales;
+using Savdonoma.Data.Services.Stock;
+using Savdonoma.Data.Services.Pricing;
 using Savdonoma.Data.Services.Reports;
 using Savdonoma.Data.Services.Products;
 using Savdonoma.Data.Services.Categories;
@@ -91,6 +93,9 @@ namespace Savdonoma
             sc.AddTransient<ICategoryService, CategoryService>();
             sc.AddTransient<ISystemSettingsService, SystemSettingsService>();
             sc.AddTransient<IPasswordResetService, PasswordResetService>();
+            sc.AddTransient<IStockService, StockService>();
+            sc.AddTransient<ISupplierService, SupplierService>();
+            sc.AddTransient<IPricingService, PricingService>();
 
             // ViewModel'lar
             sc.AddSingleton<MainViewModel>();

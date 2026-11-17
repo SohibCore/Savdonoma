@@ -1,4 +1,6 @@
-﻿using Savdonoma.Core.Enums;
+﻿using Savdonoma.Services;
+using Savdonoma.Core.Enums;
+using Savdonoma.Core.Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Savdonoma.Data.Services.Reports
@@ -6,9 +8,23 @@ namespace Savdonoma.Data.Services.Reports
     public class ReportService : IReportService
     {
         private readonly IDbContextFactory<AppDbContext> _factory;
-        public ReportService(IDbContextFactory<AppDbContext> factory)
+        private readonly CurrentUserService _currentUser;
+
+        public ReportService(IDbContextFactory<AppDbContext> factory, CurrentUserService currentUser)
         {
             _factory = factory;
+            _currentUser = currentUser;
+        }
+
+        // Sotuvchi faqat o'z sotuvlarini ko'radi, rahbar va menejer hammasini
+        private IQueryable<Sale> VisibleSales(AppDbContext db)
+        {
+            var sales = db.Sales.AsNoTracking();
+            if (_currentUser.CanViewAllSales)
+                return sales;
+
+            var userId = _currentUser.UserId ?? -1; // tizimga kirmagan bo'lsa hech narsa ko'rinmaydi
+            return sales.Where(s => s.UserId == userId);
         }
         private static (DateTime fromUtc, DateTime toUtc) ToUtcRange(DateTime from, DateTime to)
         {
@@ -25,7 +41,7 @@ namespace Savdonoma.Data.Services.Reports
             var (fromUtc, toUtc) = ToUtcRange(from, to);
             await using var db = await _factory.CreateDbContextAsync(cancellation);
 
-            var rows = await db.Sales.AsNoTracking()
+            var rows = await VisibleSales(db)
                 .Where(s => s.CreatedAt >= fromUtc && s.CreatedAt < toUtc)
                 .Select(s => new
                 {
@@ -54,7 +70,7 @@ namespace Savdonoma.Data.Services.Reports
             var (fromUtc, toUtc) = ToUtcRange(from, to);
             using var db = await _factory.CreateDbContextAsync(cancellation);
 
-            var rows = await db.Sales.AsNoTracking()
+            var rows = await VisibleSales(db)
                 .Where(s => s.CreatedAt >= fromUtc && s.CreatedAt < toUtc)
                 .OrderByDescending(s => s.CreatedAt)
                 .Select(s => new
@@ -84,9 +100,12 @@ namespace Savdonoma.Data.Services.Reports
             var (fromUtc, toUtc) = ToUtcRange(from, to);
             await using var db = await _factory.CreateDbContextAsync(cancellation);
 
-            var rows = await db.SaleItems.AsNoTracking()
-                .Where(i => i.Sale.SaleStatus == SaleStatus.Completed
-                         && i.Sale.CreatedAt >= fromUtc && i.Sale.CreatedAt < toUtc)
+            var visibleSales = VisibleSales(db)
+                .Where(s => s.SaleStatus == SaleStatus.Completed
+                         && s.CreatedAt >= fromUtc && s.CreatedAt < toUtc);
+
+            var rows = await visibleSales
+                .SelectMany(s => s.SaleItems)
                 .Select(i => new { i.ProductId, i.ProductName, i.Quantity, i.LineTotal })
                 .ToListAsync(cancellation);
 
