@@ -15,4 +15,8 @@
     <ProjectReference Include="..\SavdonomaCore\Savdonoma.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Savdonoma.Tests" />
+  </ItemGroup>
+
 </Project>

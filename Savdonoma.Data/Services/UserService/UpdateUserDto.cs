@@ -10,5 +10,8 @@ namespace Savdonoma.Data.Services.UserService
         public string? Password { get; set; }
         public string? OrgName { get; set; }
         public UserRole? UserRole { get; set; }
+
+        // Rahbar o'z login yoki parolini o'zgartirganda talab qilinadi
+        public string? CurrentPassword { get; set; }
     }
 }

@@ -32,7 +32,7 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnType("varchar(100)")
                 .HasMaxLength(100)
                 .IsRequired();
-            builder.HasIndex(x => x.UserName);
+            builder.HasIndex(x => x.UserName).IsUnique();
 
             builder.Property(x => x.Password)
                 .HasColumnOrder(3)

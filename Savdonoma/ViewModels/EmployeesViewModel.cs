@@ -27,6 +27,10 @@ namespace Savdonoma.ViewModels
         [ObservableProperty]
         private string password = "";
 
+        // Rahbar o'z login/parolini o'zgartirganda kerak
+        [ObservableProperty]
+        private string currentPassword = "";
+
         [ObservableProperty]
         private UserRole selectedRole = UserRole.Sotuvchi;
 
@@ -40,13 +44,22 @@ namespace Savdonoma.ViewModels
         private bool isBusy;
 
         [ObservableProperty]
+        private bool showInactive;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsEditingOwner))]
+        [NotifyCanExecuteChangedFor(nameof(UpdateCommand))]
         private UserDto? selectedUser;
 
         /// <summary>
         /// True bo'lsa forma "Tahrirlash" rejimida, false bo'lsa "Yaratish" rejimida.
         /// </summary>
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsEditingOwner))]
         private bool isEditing;
+
+        // Rahbar o'z ma'lumotlarini tahrirlayapti: rol o'rniga joriy parol so'raladi
+        public bool IsEditingOwner => IsEditing && SelectedUser?.IsOwner == true;
 
         public EmployeesViewModel(IUserService user, ILicenseService license)
         {
@@ -63,8 +76,11 @@ namespace Savdonoma.ViewModels
                 CreateCommand.NotifyCanExecuteChanged();
                 UpdateCommand.NotifyCanExecuteChanged();
                 DeleteCommand.NotifyCanExecuteChanged();
+                ReactivateCommand.NotifyCanExecuteChanged();
             }));
         }
+
+        partial void OnShowInactiveChanged(bool value) => _ = LoadAsync();
 
         [RelayCommand]
         private async Task LoadAsync()
@@ -72,7 +88,7 @@ namespace Savdonoma.ViewModels
             IsBusy = true;
             try
             {
-                var users = await _user.GetListAsync(CancellationToken.None);
+                var users = await _user.GetListAsync(ShowInactive, CancellationToken.None);
                 Employees.Clear();
                 foreach (var employee in users)
                     Employees.Add(employee);
@@ -102,7 +118,9 @@ namespace Savdonoma.ViewModels
             FullName = employee.FullName;
             UserName = employee.UserName;
             Password = "";
-            SelectedRole = employee.UserRole;
+            CurrentPassword = "";
+            if (!employee.IsOwner)
+                SelectedRole = employee.UserRole;
             IsEditing = true;
             StatusMessage = "";
             HasError = false;
@@ -137,17 +155,7 @@ namespace Savdonoma.ViewModels
                 await LoadAsync();
                 StatusMessage = "Xodim muvaffaqiyatli yaratildi.";
             }
-            catch (UnauthorizedAccessException ex)
-            {
-                StatusMessage = ex.Message;
-                HasError = true;
-            }
-            catch (LicenseExpiredException ex)
-            {
-                StatusMessage = ex.Message;
-                HasError = true;
-            }
-            catch (InvalidOperationException ex)
+            catch (Exception ex) when (ex is UnauthorizedAccessException or LicenseExpiredException or InvalidOperationException)
             {
                 StatusMessage = ex.Message;
                 HasError = true;
@@ -163,11 +171,15 @@ namespace Savdonoma.ViewModels
             }
         }
 
-        [RelayCommand(CanExecute = nameof(CanWrite))]
+        // Rahbar o'z ma'lumotlarini litsenziya muddati o'tgan bo'lsa ham o'zgartira oladi
+        private bool CanUpdate() => CanWrite || SelectedUser?.IsOwner == true;
+
+        [RelayCommand(CanExecute = nameof(CanUpdate))]
         private async Task UpdateAsync()
         {
             if (SelectedUser is null) return;
 
+            var isOwner = SelectedUser.IsOwner;
             IsBusy = true;
             StatusMessage = "";
             HasError = false;
@@ -179,24 +191,17 @@ namespace Savdonoma.ViewModels
                     FullName = FullName,
                     UserName = UserName,
                     Password = string.IsNullOrEmpty(Password) ? null : Password,
-                    UserRole = SelectedRole
+                    UserRole = isOwner ? null : SelectedRole,
+                    CurrentPassword = isOwner ? CurrentPassword : null,
                 }, CancellationToken.None);
 
                 ClearForm();
                 await LoadAsync();
-                StatusMessage = "Xodim muvaffaqiyatli yangilandi.";
+                StatusMessage = isOwner
+                    ? "Ma'lumotlaringiz yangilandi. Keyingi kirishda yangi login va paroldan foydalaning."
+                    : "Xodim muvaffaqiyatli yangilandi.";
             }
-            catch (UnauthorizedAccessException ex)
-            {
-                StatusMessage = ex.Message;
-                HasError = true;
-            }
-            catch (LicenseExpiredException ex)
-            {
-                StatusMessage = ex.Message;
-                HasError = true;
-            }
-            catch (InvalidOperationException ex)
+            catch (Exception ex) when (ex is UnauthorizedAccessException or LicenseExpiredException or InvalidOperationException)
             {
                 StatusMessage = ex.Message;
                 HasError = true;
@@ -212,13 +217,16 @@ namespace Savdonoma.ViewModels
             }
         }
 
+        // Qator ichidagi tugma xodimni parametr sifatida uzatadi: tugma bosilganda qator tanlanmaydi,
+        // shuning uchun faqat SelectedUser'ga tayanib bo'lmaydi.
         [RelayCommand(CanExecute = nameof(CanWrite))]
-        private async Task DeleteAsync()
+        private async Task DeleteAsync(UserDto? employee)
         {
-            if (SelectedUser is null) return;
+            employee ??= SelectedUser;
+            if (employee is null || employee.IsOwner) return;
 
             var result = MessageBox.Show(
-                $"'{SelectedUser.FullName}' xodimini o'chirmoqchimisiz?",
+                $"'{employee.FullName}' xodimini o'chirmoqchimisiz?",
                 "O'chirishni tasdiqlang",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
@@ -230,11 +238,41 @@ namespace Savdonoma.ViewModels
             HasError = false;
             try
             {
-                await _user.DeleteAsync(SelectedUser.Id, CancellationToken.None);
+                var deleteResult = await _user.DeleteAsync(employee.Id, CancellationToken.None);
 
                 ClearForm();
                 await LoadAsync();
-                StatusMessage = "Xodim muvaffaqiyatli o'chirildi.";
+                StatusMessage = deleteResult == UserDeleteResult.Deactivated
+                    ? "Xodimning sotuvlari bor, shuning uchun u o'chirilmadi, nofaol qilindi. Endi u tizimga kira olmaydi. " +
+                      "Uni \"Nofaollarni ko'rsatish\" orqali qayta faollashtirish mumkin."
+                    : "Xodim muvaffaqiyatli o'chirildi.";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ex.Message;
+                HasError = true;
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        [RelayCommand(CanExecute = nameof(CanWrite))]
+        private async Task ReactivateAsync(UserDto? employee)
+        {
+            if (employee is null || employee.IsActive) return;
+
+            IsBusy = true;
+            StatusMessage = "";
+            HasError = false;
+            try
+            {
+                await _user.ReactivateAsync(employee.Id, CancellationToken.None);
+
+                ClearForm();
+                await LoadAsync();
+                StatusMessage = $"'{employee.FullName}' qayta faollashtirildi. Endi u tizimga kira oladi.";
             }
             catch (Exception ex)
             {
@@ -252,6 +290,7 @@ namespace Savdonoma.ViewModels
             FullName = "";
             UserName = "";
             Password = "";
+            CurrentPassword = "";
             SelectedRole = UserRole.Sotuvchi;
             SelectedUser = null;
             IsEditing = false;

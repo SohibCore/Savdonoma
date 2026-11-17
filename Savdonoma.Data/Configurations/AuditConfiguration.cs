@@ -22,19 +22,30 @@ namespace Savdonoma.Data.Configurations
             builder.Property(x => x.OldValue)
                 .HasColumnName("OLD_VALUE")
                 .HasColumnType("text")
-                .HasColumnOrder(1);
+                .HasColumnOrder(1)
+                .IsRequired(false);
 
             builder.Property(x => x.NewValue)
                 .HasColumnName("NEW_VALUE")
                 .HasColumnType("text")
-                .HasColumnOrder(2);
+                .HasColumnOrder(2)
+                .IsRequired(false);
 
             builder.Property(x => x.EntityName)
                 .HasColumnOrder(3)
                 .HasColumnName("ENTITY_NAME")
-                .HasColumnType("varchar(20)")
-                .HasMaxLength(20)
+                .HasColumnType("varchar(50)")
+                .HasMaxLength(50)
                 .IsRequired();
+
+            builder.Property(x => x.EntityId)
+                .HasColumnOrder(6)
+                .HasColumnName("ENTITY_ID")
+                .HasColumnType("varchar(50)")
+                .HasMaxLength(50)
+                .IsRequired(false);
+
+            builder.HasIndex(x => new { x.EntityName, x.EntityId });
 
             builder.Property(x => x.Log)
                 .HasColumnName("AUDIT_LOG")

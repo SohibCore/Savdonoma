@@ -35,7 +35,18 @@ namespace Savdonoma.ViewModels
         [ObservableProperty]
         private string errorMessage = "";
 
+        [ObservableProperty]
+        private string infoMessage = "";
+
         public bool IsAuthenticated { get; private set; }
+
+        public void OnPasswordReset(string? userName)
+        {
+            ErrorMessage = "";
+            if (!string.IsNullOrWhiteSpace(userName))
+                UserName = userName;
+            InfoMessage = "Parol yangilandi. Yangi parol bilan kiring.";
+        }
 
         public AuthViewModel(IAuthservice authService, IUserService userService, CurrentUserService currentUser)
         {
@@ -53,6 +64,7 @@ namespace Savdonoma.ViewModels
         private async Task SubmitAsync()
         {
             ErrorMessage = "";
+            InfoMessage = "";
             IsBusy = true;
 
             try

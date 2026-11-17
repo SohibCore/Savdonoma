@@ -18,17 +18,27 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <StackPanel Margin="0,0,0,16">
-                    <TextBlock Text="Xodimlar" FontSize="22" FontWeight="Bold"
-                               Foreground="#0F172A" />
-                    <TextBlock Text="Do'koningiz xodimlari ro'yxati"
-                               Foreground="#64748B" Margin="0,4,0,0" />
-                </StackPanel>
+                <Grid Grid.Row="0" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Xodimlar" FontSize="22" FontWeight="Bold"
+                                   Foreground="#0F172A" />
+                        <TextBlock Text="Do'koningiz xodimlari ro'yxati"
+                                   Foreground="#64748B" Margin="0,4,0,0" />
+                    </StackPanel>
+                    <CheckBox Grid.Column="1" Content="Nofaollarni ko'rsatish"
+                              IsChecked="{Binding ShowInactive}"
+                              VerticalAlignment="Center" Foreground="#334155" FontSize="14" />
+                </Grid>
 
                 <!-- Jadval header -->
-                <Grid MinHeight="42" Background="#E9EEF5">
+                <Grid Grid.Row="1" MinHeight="42" Background="#E9EEF5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
                         <ColumnDefinition Width="1.5*" />
@@ -54,7 +64,7 @@
                 </Grid>
 
                 <!-- Xodimlar ro'yxati -->
-                <ListView x:Name="EmployeesList" Grid.Row="1"
+                <ListView x:Name="EmployeesList" Grid.Row="2"
                           ItemsSource="{Binding Employees}"
                           SelectedItem="{Binding SelectedUser}"
                           SelectionMode="Single"
@@ -66,6 +76,16 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid MinHeight="42">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Style.Triggers>
+                                            <!-- Nofaol xodimlar xira ko'rinadi -->
+                                            <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                <Setter Property="Opacity" Value="0.6" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="2*" />
                                     <ColumnDefinition Width="1.5*" />
@@ -86,17 +106,50 @@
                                 </Border>
 
                                 <!-- Rol -->
-                                <Border Grid.Column="2" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
-                                    <Border CornerRadius="12" Padding="8,3" HorizontalAlignment="Center">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Background" Value="#EFF6FF" />
-                                            </Style>
-                                        </Border.Style>
-                                        <TextBlock Text="{Binding UserRole}" VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center" TextAlignment="Center"
-                                                   FontSize="12" FontWeight="SemiBold" Foreground="#1D4ED8" />
-                                    </Border>
+                                <Border Grid.Column="2" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,6">
+                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Border CornerRadius="12" Padding="8,3" HorizontalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#EFF6FF" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsOwner}" Value="True">
+                                                            <Setter Property="Background" Value="#FEF3C7" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="{Binding RoleDisplay}" VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center" TextAlignment="Center"
+                                                       FontSize="12" FontWeight="SemiBold">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#1D4ED8" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsOwner}" Value="True">
+                                                                <Setter Property="Foreground" Value="#B45309" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+                                        <!-- Nofaol belgisi -->
+                                        <Border CornerRadius="12" Padding="8,2" Margin="0,4,0,0"
+                                                HorizontalAlignment="Center" Background="#F1F5F9">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="Nofaol" FontSize="11" FontWeight="SemiBold" Foreground="#64748B" />
+                                        </Border>
+                                    </StackPanel>
                                 </Border>
 
                                 <!-- Amallar: Tahrirlash / O'chirish -->
@@ -136,11 +189,72 @@
                                             </Button.Template>
                                         </Button>
 
-                                        <!-- O'chirish tugmasi -->
+                                        <!-- Qayta faollashtirish tugmasi (faqat nofaol xodimlar uchun) -->
+                                        <Button Cursor="Hand"
+                                                Command="{Binding DataContext.ReactivateCommand,
+                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                ToolTip="Qayta faollashtirish"
+                                                ToolTipService.ShowOnDisabled="True">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="BtnBorder" Background="Transparent"
+                                                            CornerRadius="8" Width="32" Height="32">
+                                                        <Viewbox Width="16" Height="16"
+                                                                 HorizontalAlignment="Center"
+                                                                 VerticalAlignment="Center">
+                                                            <Path x:Name="IconPath"
+                                                                  Data="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18z"
+                                                                  Fill="#16A34A" />
+                                                        </Viewbox>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="BtnBorder" Property="Background" Value="#DCFCE7" />
+                                                            <Setter TargetName="IconPath" Property="Fill" Value="#15803D" />
+                                                        </Trigger>
+                                                        <Trigger Property="IsPressed" Value="True">
+                                                            <Setter TargetName="BtnBorder" Property="Background" Value="#BBF7D0" />
+                                                        </Trigger>
+                                                        <Trigger Property="IsEnabled" Value="False">
+                                                            <Setter TargetName="BtnBorder" Property="Opacity" Value="0.35" />
+                                                            <Setter Property="Cursor" Value="Arrow" />
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+
+                                        <!-- O'chirish tugmasi (rahbar va nofaol xodimlar uchun ko'rinmaydi) -->
                                         <Button Cursor="Hand"
                                                 Command="{Binding DataContext.DeleteCommand,
                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                ToolTip="O'chirish">
+                                                CommandParameter="{Binding}"
+                                                ToolTip="O'chirish"
+                                                ToolTipService.ShowOnDisabled="True">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsOwner}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="BtnBorder" Background="Transparent"
@@ -161,6 +275,10 @@
                                                         <Trigger Property="IsPressed" Value="True">
                                                             <Setter TargetName="BtnBorder" Property="Background" Value="#FECACA" />
                                                             <Setter TargetName="IconPath" Property="Fill" Value="#DC2626" />
+                                                        </Trigger>
+                                                        <Trigger Property="IsEnabled" Value="False">
+                                                            <Setter TargetName="BtnBorder" Property="Opacity" Value="0.35" />
+                                                            <Setter Property="Cursor" Value="Arrow" />
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
@@ -189,6 +307,9 @@
                                 <DataTrigger Binding="{Binding IsEditing}" Value="True">
                                     <Setter Property="Text" Value="Xodimni tahrirlash" />
                                 </DataTrigger>
+                                <DataTrigger Binding="{Binding IsEditingOwner}" Value="True">
+                                    <Setter Property="Text" Value="Mening ma'lumotlarim" />
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </TextBlock.Style>
@@ -202,13 +323,56 @@
                 <TextBox Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}"
                          Height="38" Padding="9,6" Margin="0,0,0,13" />
 
-                <TextBlock Text="Parol" Foreground="#475569" Margin="0,0,0,5" />
+                <TextBlock Foreground="#475569" Margin="0,0,0,5" TextWrapping="Wrap">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="Parol" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                    <Setter Property="Text" Value="Yangi parol (o'zgartirmasangiz bo'sh qoldiring)" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
                 <PasswordBox x:Name="EmployeePassword" PasswordChanged="EmployeePassword_PasswordChanged"
                              Height="38" Padding="9,6" Margin="0,0,0,13" />
 
-                <TextBlock Text="Rol" Foreground="#475569" Margin="0,0,0,5" />
-                <ComboBox ItemsSource="{Binding Roles}" SelectedItem="{Binding SelectedRole}"
-                          Height="38" Padding="8,5" Margin="0,0,0,18" />
+                <!-- Xodim uchun: rol -->
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEditingOwner}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <TextBlock Text="Rol" Foreground="#475569" Margin="0,0,0,5" />
+                    <ComboBox ItemsSource="{Binding Roles}" SelectedItem="{Binding SelectedRole}"
+                              Height="38" Padding="8,5" Margin="0,0,0,18" />
+                </StackPanel>
+
+                <!-- Rahbar uchun: joriy parol (login yoki parol o'zgarsa talab qilinadi) -->
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEditingOwner}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <TextBlock Text="Joriy parolingiz" Foreground="#475569" Margin="0,0,0,5" />
+                    <PasswordBox x:Name="CurrentPasswordInput" PasswordChanged="CurrentPassword_PasswordChanged"
+                                 Height="38" Padding="9,6" Margin="0,0,0,5" />
+                    <TextBlock Text="Login yoki parolni o'zgartirish uchun joriy parolingizni kiriting."
+                               Foreground="#64748B" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,18" />
+                </StackPanel>
 
                 <!-- Status xabar -->
                 <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap"

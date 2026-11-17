@@ -20,7 +20,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.31" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.31" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.12">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.31">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

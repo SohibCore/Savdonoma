@@ -161,7 +161,7 @@ namespace Savdonoma.Data.Services.Sales
                 Date = sale.CreatedAt,
                 Cashier = sale.User?.FullName ?? "Noma'lum sotuvchi",
                 PaymentType = sale.PaymentMethod,
-                Paid = sale.SaleItems.Sum(i => i.Quantity * i.UnitPrice), // vaqtincha = jami
+                Paid = sale.ReceivedAmount ?? sale.TotalAmount,
 
                 ShopName = string.IsNullOrWhiteSpace(shopName)
                     ? "Noma'lum do'kon"

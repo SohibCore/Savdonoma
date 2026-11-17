@@ -34,17 +34,18 @@ namespace Savdonoma.Data.Services.Reports
                     s.TotalAmount
                 }).ToListAsync(cancellation);
 
-            //var done = rows.Where(r => r.SaleStatus == SaleStatus.Completed).ToList();
-            var total = rows.Sum(r => r.TotalAmount);
+            // Summalar faqat tugallangan sotuvlardan hisoblanadi, bekor qilinganlar alohida sanaladi
+            var done = rows.Where(r => r.SaleStatus == SaleStatus.Completed).ToList();
+            var total = done.Sum(r => r.TotalAmount);
 
             return new SalesSummaryDto
             {
                 TotalAmount = total,
-                SalesCount = rows.Count,
-                CashAmount = rows.Where(r => r.PaymentMethod == PaymentMethod.Naqd).Sum(r => r.TotalAmount),
-                CardAmount = rows.Where(r => r.PaymentMethod == PaymentMethod.Karta).Sum(r => r.TotalAmount),
-                AverageCheck = rows.Count == 0 ? 0 : total / rows.Count,
-                CancelledCount = rows.Count - rows.Count(r => r.SaleStatus == SaleStatus.Completed)
+                SalesCount = done.Count,
+                CashAmount = done.Where(r => r.PaymentMethod == PaymentMethod.Naqd).Sum(r => r.TotalAmount),
+                CardAmount = done.Where(r => r.PaymentMethod == PaymentMethod.Karta).Sum(r => r.TotalAmount),
+                AverageCheck = done.Count == 0 ? 0 : total / done.Count,
+                CancelledCount = rows.Count(r => r.SaleStatus == SaleStatus.Cancelled)
             };
         }
 

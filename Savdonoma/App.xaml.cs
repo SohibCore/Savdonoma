@@ -90,6 +90,7 @@ namespace Savdonoma
             sc.AddTransient<IProductService, ProductService>();
             sc.AddTransient<ICategoryService, CategoryService>();
             sc.AddTransient<ISystemSettingsService, SystemSettingsService>();
+            sc.AddTransient<IPasswordResetService, PasswordResetService>();
 
             // ViewModel'lar
             sc.AddSingleton<MainViewModel>();
@@ -99,11 +100,13 @@ namespace Savdonoma
             sc.AddSingleton<LicenseViewModel>();
             sc.AddSingleton<ProductsViewModel>();
             sc.AddTransient<EmployeesViewModel>();
+            sc.AddTransient<PasswordResetViewModel>();
 
             // Oynalar
             sc.AddTransient<AuthWindow>();
             sc.AddTransient<MainWindow>();
             sc.AddTransient<ActivationWindow>();
+            sc.AddTransient<PasswordResetWindow>();
 
             Services = sc.BuildServiceProvider();
 
@@ -197,15 +200,36 @@ namespace Savdonoma
                 {
                     using var db = factory.CreateDbContext();
                     await db.Database.ExecuteSqlRawAsync("PRAGMA journal_mode=WAL;");
+
+                    // Baza tuzilishi o'zgarishidan oldin albatta nusxa olinadi
+                    var pending = await db.Database.GetPendingMigrationsAsync();
+                    if (pending.Any())
+                        DatabaseBackupService.CreateMigrationBackup(AppPaths.DbPath, AppPaths.BackupFolder, DateTime.Now);
+
                     await db.Database.MigrateAsync();
                     await DbSeeder.SeedAsync(db);
                     await RepairImportedProductsAsync(db);
+
+                    CreateDailyBackup();
                     return;
                 }
                 catch (Exception ex) when (IsDatabaseLocked(ex) && attempt < 2)
                 {
                     await Task.Delay(TimeSpan.FromMilliseconds(300 * (attempt + 1)));
                 }
+            }
+        }
+
+        // Kunlik nusxa: xato bo'lsa ham dastur ishlashda davom etadi
+        private static void CreateDailyBackup()
+        {
+            try
+            {
+                DatabaseBackupService.CreateDailyBackupIfNeeded(AppPaths.DbPath, AppPaths.BackupFolder, DateTime.Now);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SqliteException)
+            {
+                System.Diagnostics.Debug.WriteLine("Kunlik zaxira nusxa olinmadi: " + ex.Message);
             }
         }
 

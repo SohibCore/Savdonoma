@@ -12,6 +12,7 @@ var registryPath = Path.Combine(dir, "RegisteredMarkets.csv");
 
 Console.WriteLine("1 - Kalit juftligini yaratish (faqat bir marta)");
 Console.WriteLine("2 - Litsenziya berish");
+Console.WriteLine("3 - Parol tiklash kodi (do'kon egasi parolni unutganda)");
 Console.Write("Tanlang: ");
 var choice = Console.ReadLine()?.Trim();
 
@@ -99,6 +100,57 @@ else if (choice == "2")
     Console.WriteLine($"Ro'yxat: {registryPath}");
     Console.WriteLine("Kalit (matn ko'rinishida yuborsangiz ham bo'ladi):");
     Console.WriteLine(key);
+}
+else if (choice == "3")
+{
+    if (!File.Exists(privatePath) || !File.Exists(publicPath))
+    {
+        Console.WriteLine("Avval 1-tanlov bilan kalit yarating.");
+        return;
+    }
+
+    Console.Write("Machine ID (mijozning 'Parolni tiklash' oynasidan): ");
+    var machineId = PasswordResetCode.NormalizeMachineId(Console.ReadLine());
+    if (string.IsNullOrWhiteSpace(machineId))
+    {
+        Console.WriteLine("Machine ID bo'sh bo'lmasligi kerak.");
+        return;
+    }
+
+    Console.Write("So'rov kodi (masalan, ABCD-2345): ");
+    var requestCode = PasswordResetCode.NormalizeRequestCode(Console.ReadLine());
+    if (requestCode.Length != 8)
+    {
+        Console.WriteLine("So'rov kodi 8 ta belgidan iborat bo'lishi kerak.");
+        return;
+    }
+
+    Console.Write("Do'kon nomi yoki izoh (ro'yxat uchun): ");
+    var note = Console.ReadLine()?.Trim() ?? "";
+
+    var today = LicenseEvaluator.TodayInTashkent(DateTime.UtcNow);
+    var resetCode = PasswordResetCode.Create(machineId, requestCode, today, File.ReadAllText(privatePath));
+
+    // O'zini tekshirish
+    var ok = PasswordResetCode.Verify(resetCode, machineId, requestCode, today, File.ReadAllText(publicPath));
+    Console.WriteLine(ok ? "Tekshiruv: OK" : "Tekshiruv: XATO!");
+
+    AppendPasswordResetRecord(Path.Combine(dir, "PasswordResets.csv"), today, machineId, requestCode, note);
+
+    Console.WriteLine($"Kod {PasswordResetCode.ValidDays} kun ichida va faqat shu so'rov kodi uchun ishlaydi.");
+    Console.WriteLine("Tiklash kodi (mijozga yuboring):");
+    Console.WriteLine(resetCode);
+}
+
+static void AppendPasswordResetRecord(string path, DateOnly date, string machineId, string requestCode, string note)
+{
+    const string header = "Sana;Machine ID;So'rov kodi;Izoh";
+    if (!File.Exists(path) || new FileInfo(path).Length == 0)
+        File.WriteAllText(path, header + Environment.NewLine, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+
+    var fields = new[] { date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), machineId, requestCode, note };
+    using var writer = new StreamWriter(path, append: true, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+    writer.WriteLine(string.Join(';', fields.Select(EscapeCsvField)));
 }
 
 static void AppendRegistryRecord(string path, LicenseInfo info, string expiresText)

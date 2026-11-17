@@ -2,11 +2,16 @@
 using Microsoft.EntityFrameworkCore;
 using Savdonoma.Core.Enums;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Savdonoma.Data
 {
     public class AppDbContext : DbContext
     {
+        // Audit logga qiymati yozilmaydigan maydonlar (masalan, parol xeshi)
+        private static readonly HashSet<string> MaskedProperties = new() { nameof(User.Password) };
+        private const string MaskedValue = "***";
+
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Category> Categories { get; set; } = null!;
@@ -17,76 +22,96 @@ namespace Savdonoma.Data
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<SystemSettings> SysSettings { get; set; } = null!;
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellation = default)
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            var auditLogs = new List<AuditLog>();
-
-            var entries = ChangeTracker
-                .Entries()
-                .Where(x =>
-                x.State == EntityState.Modified || x.State == EntityState.Deleted).ToList();
-
-            foreach (var item in entries)
-            {
-                if (item.Entity is AuditLog)
-                    continue;
-
-                var oldVlaues = new Dictionary<string, object>();
-                var newVlaues = new Dictionary<string, object>();
-
-                AuditAction auditAction;
-
-                switch (item.State)
-                {
-                    case EntityState.Modified:
-                        auditAction = AuditAction.UPDATE;
-
-                        foreach (var property in item.Properties)
-                        {
-                            if (!property.IsModified)
-                                continue;
-
-                            if (property.Metadata.Name == "Price" || property.Metadata.Name != nameof(Product.Price))
-                            {
-                                oldVlaues[property.Metadata.Name] = property.OriginalValue;
-                                newVlaues[property.Metadata.Name] = property.CurrentValue;
-                            }
-                        }
-                        break;
-
-                    case EntityState.Deleted:
-                        auditAction = AuditAction.DELETE;
-
-                        foreach (var property in item.Properties)
-                        {
-                            if (!property.IsModified || property.Metadata.Name != nameof(Product.Price))
-                                continue;
-
-                            oldVlaues[property.Metadata.Name] = property.OriginalValue;
-
-                            newVlaues[property.Metadata.Name] = property.CurrentValue;
-                        }
-                        break;
-
-                    default: continue;
-                }
-
-                var log = new AuditLog
-                {
-                    EntityName = "Product",
-                    OldValue = oldVlaues.Count == 0 ? null : JsonSerializer.Serialize(oldVlaues.Values),
-                    NewValue = newVlaues.Count == 0 ? null : JsonSerializer.Serialize(newVlaues.Values),
-                    Log = auditAction,
-                    CreatedAt = DateTime.Now,
-                };
-                auditLogs.Add(log);
-            }
-            AuditLogs.AddRange(auditLogs);
-
-            return await base.SaveChangesAsync(cancellation);
+            AddAuditLogs();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder) 
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            AddAuditLogs();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        // O'zgartirilgan va o'chirilgan yozuvlar uchun audit log yaratadi
+        private void AddAuditLogs()
+        {
+            var entries = ChangeTracker
+                .Entries()
+                .Where(x => x.Entity is not AuditLog
+                         && (x.State == EntityState.Modified || x.State == EntityState.Deleted))
+                .ToList();
+
+            if (entries.Count == 0)
+                return;
+
+            var now = DateTime.UtcNow;
+            var logs = new List<AuditLog>();
+
+            foreach (var entry in entries)
+            {
+                var oldValues = new Dictionary<string, object?>();
+                var newValues = new Dictionary<string, object?>();
+                AuditAction action;
+
+                if (entry.State == EntityState.Modified)
+                {
+                    action = AuditAction.UPDATE;
+
+                    foreach (var property in entry.Properties)
+                    {
+                        if (!property.IsModified || Equals(property.OriginalValue, property.CurrentValue))
+                            continue;
+
+                        var name = property.Metadata.Name;
+                        oldValues[name] = Mask(name, property.OriginalValue);
+                        newValues[name] = Mask(name, property.CurrentValue);
+                    }
+
+                    // Haqiqatda hech narsa o'zgarmagan bo'lsa, log yozmaymiz
+                    if (oldValues.Count == 0)
+                        continue;
+                }
+                else
+                {
+                    action = AuditAction.DELETE;
+
+                    foreach (var property in entry.Properties)
+                    {
+                        var name = property.Metadata.Name;
+                        oldValues[name] = Mask(name, property.OriginalValue);
+                    }
+                }
+
+                logs.Add(new AuditLog
+                {
+                    EntityName = entry.Metadata.ClrType.Name,
+                    EntityId = GetPrimaryKey(entry),
+                    OldValue = oldValues.Count == 0 ? null : JsonSerializer.Serialize(oldValues),
+                    NewValue = newValues.Count == 0 ? null : JsonSerializer.Serialize(newValues),
+                    Log = action,
+                    CreatedAt = now,
+                });
+            }
+
+            if (logs.Count > 0)
+                AuditLogs.AddRange(logs);
+        }
+
+        private static object? Mask(string propertyName, object? value)
+            => MaskedProperties.Contains(propertyName) && value is not null ? MaskedValue : value;
+
+        private static string? GetPrimaryKey(EntityEntry entry)
+        {
+            var key = entry.Metadata.FindPrimaryKey();
+            if (key is null)
+                return null;
+
+            return string.Join(",", key.Properties.Select(p => entry.Property(p.Name).OriginalValue?.ToString()));
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         }

@@ -31,10 +31,16 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("CREATED_AT")
                         .HasColumnOrder(5);
 
+                    b.Property<string>("EntityId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("ENTITY_ID")
+                        .HasColumnOrder(6);
+
                     b.Property<string>("EntityName")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("ENTITY_NAME")
                         .HasColumnOrder(3);
 
@@ -45,18 +51,18 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnOrder(4);
 
                     b.Property<string>("NewValue")
-                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("NEW_VALUE")
                         .HasColumnOrder(2);
 
                     b.Property<string>("OldValue")
-                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("OLD_VALUE")
                         .HasColumnOrder(1);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EntityName", "EntityId");
 
                     b.ToTable("SYS_AUDIT_LOGS", (string)null);
                 });
@@ -430,7 +436,8 @@ namespace Savdonoma.Data.Migrations
 
                     b.HasIndex("FullName");
 
-                    b.HasIndex("UserName");
+                    b.HasIndex("UserName")
+                        .IsUnique();
 
                     b.ToTable("SYS_USER", (string)null);
                 });

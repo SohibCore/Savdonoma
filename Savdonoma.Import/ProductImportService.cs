@@ -41,6 +41,15 @@ namespace Savdonoma.Import
 
             var seen = new HashSet<string>(existingProducts.Select(NameNormalizer.Normalize));
 
+            // Barcode bazada unique, shuning uchun takrorlarni yozishdan oldin aniqlaymiz
+            var seenBarcodes = new HashSet<string>(
+                await db.Products
+                    .AsNoTracking()
+                    .Where(x => x.Barcode != null)
+                    .Select(x => x.Barcode!)
+                    .ToListAsync(),
+                StringComparer.Ordinal);
+
             var categoryIds = (await db.Categories
                 .AsNoTracking()
                 .Select(x => x.Id)
@@ -103,11 +112,23 @@ namespace Savdonoma.Import
 
                 // 6. Takror (bazada ham, fayl ichida ham)
                 var key = NameNormalizer.Normalize(row.Name);
-                if (!seen.Add(key))
+                if (seen.Contains(key))
                 {
                     result.Skipped.Add($"{row.RowNumber}-qator: \"{row.Name}\" allaqachon bor");
                     continue;
                 }
+
+                // 7. Barcode takrori (bazada ham, fayl ichida ham)
+                var barcode = string.IsNullOrWhiteSpace(row.Barcode) ? null : row.Barcode.Trim();
+                if (barcode is not null && seenBarcodes.Contains(barcode))
+                {
+                    result.Errors.Add($"{row.RowNumber}-qator: barcode \"{barcode}\" boshqa mahsulotda bor");
+                    continue;
+                }
+
+                seen.Add(key);
+                if (barcode is not null)
+                    seenBarcodes.Add(barcode);
 
                 result.ValidRows.Add(new ValidProductRow
                 {
@@ -115,7 +136,7 @@ namespace Savdonoma.Import
                     Price = price,
                     Unit = unit,
                     CategoryId = row.CategoryId,
-                    Barcode = row.Barcode,
+                    Barcode = barcode,
                     Quantity = quantity
                 });
             }
