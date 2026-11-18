@@ -6,6 +6,8 @@ using Savdonoma.Import;
 using Savdonoma.Services;
 using Savdonoma.Printing;
 using Savdonoma.ViewModels;
+using Savdonoma.Views.Warehouse;
+using Savdonoma.ViewModels.Warehouse;
 using Savdonoma.Core.Logic;
 using System.Windows.Markup;
 using Microsoft.Data.Sqlite;
@@ -106,12 +108,17 @@ namespace Savdonoma
             sc.AddSingleton<ProductsViewModel>();
             sc.AddTransient<EmployeesViewModel>();
             sc.AddTransient<PasswordResetViewModel>();
+            sc.AddTransient<WarehouseViewModel>();
+            sc.AddTransient<SuppliersViewModel>();
+            sc.AddTransient<PricingSettingsViewModel>();
+            sc.AddTransient<StockDocumentEditorViewModel>();
 
             // Oynalar
             sc.AddTransient<AuthWindow>();
             sc.AddTransient<MainWindow>();
             sc.AddTransient<ActivationWindow>();
             sc.AddTransient<PasswordResetWindow>();
+            sc.AddTransient<StockDocumentWindow>();
 
             Services = sc.BuildServiceProvider();
 

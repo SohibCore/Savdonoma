@@ -4,13 +4,15 @@ namespace Savdonoma.Core.Logic
     public static class CostCalculator
     {
         // Kirimdan keyingi yangi o'rtacha tannarx.
-        // Qoldiq 0 yoki manfiy bo'lsa (masalan, qoldiqsiz rejimda), kirim narxi tannarx bo'ladi.
+        // Kirim narxi tannarx bo'ladi, agar:
+        //  - qoldiq 0 yoki manfiy bo'lsa (masalan, qoldiqsiz rejimda);
+        //  - joriy tannarx noma'lum (0) bo'lsa: eski qoldiqni "tekin" deb o'rtachaga qo'shib bo'lmaydi.
         public static long AfterReceipt(decimal currentQuantity, long currentCost, decimal receivedQuantity, long receivedCost)
         {
             if (receivedQuantity <= 0)
                 return currentCost;
 
-            if (currentQuantity <= 0)
+            if (currentQuantity <= 0 || currentCost <= 0)
                 return receivedCost;
 
             var total = currentQuantity * currentCost + receivedQuantity * receivedCost;

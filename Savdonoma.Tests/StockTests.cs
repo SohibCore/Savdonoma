@@ -543,6 +543,7 @@ public class StockLogicTests
     [InlineData(0, 1000, 5, 3000, 3000)]     // qoldiq yo'q: kirim narxi
     [InlineData(-4, 1000, 5, 3000, 3000)]    // manfiy qoldiq: kirim narxi
     [InlineData(3, 1000, 0, 9000, 1000)]     // 0 kirim: o'zgarmaydi
+    [InlineData(20, 0, 100, 15000, 15000)]   // eski tannarx noma'lum (0): kirim narxi olinadi, 12 500 emas
     [InlineData(1, 1000, 2, 1001, 1001)]     // 1000.67 -> 1001
     public void Average_cost_after_receipt(double qty, long cost, double received, long receivedCost, long expected)
         => Assert.Equal(expected, CostCalculator.AfterReceipt((decimal)qty, cost, (decimal)received, receivedCost));

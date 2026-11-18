@@ -1,0 +1,272 @@
+<ui:FluentWindow x:Class="Savdonoma.Views.Warehouse.StockLineDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:conv="clr-namespace:Savdonoma.Converters"
+        Title="Mahsulot"
+        Icon="pack://application:,,,/TijoratUz;component/TijoratUz.ico"
+        Width="760" Height="680" MinWidth="640" MinHeight="560"
+        Background="#F1F5F9"
+        WindowStartupLocation="CenterOwner"
+        ExtendsContentIntoTitleBar="True">
+    <ui:FluentWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <conv:MoneyConverter x:Key="Money" />
+        <conv:QuantityConverter x:Key="Qty" />
+        <conv:DisplayNameConverter x:Key="DisplayName" />
+
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#0F172A" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+        <Style x:Key="FieldHint" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#64748B" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,4,0,0" />
+        </Style>
+        <Style x:Key="BigInput" TargetType="TextBox">
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="MinHeight" Value="48" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="BorderBrush" Value="#94A3B8" />
+            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="Background" Value="White" />
+        </Style>
+        <Style x:Key="SummaryLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#475569" />
+            <Setter Property="Margin" Value="0,3" />
+        </Style>
+        <Style x:Key="SummaryValue" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#0F172A" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="Margin" Value="0,3" />
+        </Style>
+
+        <!-- Mahsulotlar ro'yxati qatori -->
+        <Style x:Key="ProductItem" TargetType="ListBoxItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Bd" Background="White" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="14,10">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#EFF6FF" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#DBEAFE" />
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#93C5FD" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+    </ui:FluentWindow.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Grid.Row="0" Title="TijoratUz" />
+
+        <!-- ================= 1-QADAM: MAHSULOTNI TANLASH ================= -->
+        <Grid Grid.Row="1" Margin="24,4,24,0" Visibility="{Binding IsSelecting, Converter={StaticResource BoolToVisibility}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,12" />
+
+            <ui:TextBox x:Name="SearchBox" Grid.Row="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                        PlaceholderText="Mahsulot nomini yozing yoki shtrix-kodni skanerlang"
+                        FontSize="16" MinHeight="46" Margin="0,0,0,10" PreviewKeyDown="SearchBox_PreviewKeyDown">
+                <ui:TextBox.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding SubmitSearchCommand}" />
+                </ui:TextBox.InputBindings>
+            </ui:TextBox>
+
+            <Border Grid.Row="2" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="10" Background="White">
+                <ListBox x:Name="ProductList" ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}"
+                         ItemContainerStyle="{StaticResource ProductItem}" BorderThickness="0" Background="Transparent"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         MouseDoubleClick="ProductList_MouseDoubleClick" PreviewKeyDown="ProductList_PreviewKeyDown">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" Foreground="#0F172A" />
+                                    <TextBlock Foreground="#64748B" FontSize="12" Margin="0,2,0,0">
+                                        <Run Text="Omborda:" />
+                                        <Run Text="{Binding Quantity, Converter={StaticResource Qty}, Mode=OneWay}" />
+                                        <Run Text="{Binding Unit, Converter={StaticResource DisplayName}, Mode=OneWay}" />
+                                        <Run Text="   ·   Tannarx:" />
+                                        <Run Text="{Binding CostPriceText, Mode=OneWay}" />
+                                    </TextBlock>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="15" Foreground="#0F172A">
+                                    <Run Text="{Binding Price, Converter={StaticResource Money}, Mode=OneWay}" FontWeight="SemiBold" />
+                                    <Run Text="so'm" Foreground="#64748B" />
+                                </TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+
+            <TextBlock Grid.Row="3" Text="{Binding SearchInfo}" Foreground="#64748B" Margin="0,8,0,0" TextWrapping="Wrap" />
+        </Grid>
+
+        <!-- ================= 2-QADAM: MIQDOR VA NARX ================= -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      Visibility="{Binding IsFilling, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel Margin="24,4,24,0">
+
+                <!-- Mahsulot sarlavhasi -->
+                <Grid Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="{Binding Line.ProductName}" FontSize="24" FontWeight="Bold" Foreground="#0F172A" TextWrapping="Wrap" />
+                        <TextBlock Foreground="#475569" Margin="0,4,0,0">
+                            <Run Text="Omborda:" />
+                            <Run Text="{Binding Line.CurrentStockText, Mode=OneWay}" FontWeight="SemiBold" />
+                            <Run Text="   ·   Hozirgi narx:" />
+                            <Run Text="{Binding Line.CurrentSalePriceText, Mode=OneWay}" FontWeight="SemiBold" />
+                        </TextBlock>
+                    </StackPanel>
+                    <ui:Button Grid.Column="1" Content="← Boshqa mahsulot" Command="{Binding BackToSelectionCommand}"
+                               VerticalAlignment="Top" Padding="12,6"
+                               Visibility="{Binding CanChangeProduct, Converter={StaticResource BoolToVisibility}}" />
+                </Grid>
+
+                <!-- Inventarizatsiya: tizimdagi qoldiq -->
+                <Border Background="#E0F2FE" CornerRadius="10" Padding="14,10" Margin="0,0,0,16"
+                        Visibility="{Binding Line.IsInventory, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock FontSize="15" Foreground="#0C4A6E">
+                        <Run Text="Tizim bo'yicha qoldiq:" />
+                        <Run Text="{Binding Line.ExpectedText, Mode=OneWay}" FontWeight="Bold" />
+                        <Run Text="{Binding Line.UnitText, Mode=OneWay}" FontWeight="Bold" />
+                    </TextBlock>
+                </Border>
+
+                <!-- Miqdor (hamma turlar) -->
+                <TextBlock Text="{Binding QuantityLabel}" Style="{StaticResource FieldLabel}" />
+                <TextBox x:Name="QuantityBox" Text="{Binding Line.QuantityText, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource BigInput}" />
+                <TextBlock Text="Kasr son mumkin: 1,5 yoki 0,25" Style="{StaticResource FieldHint}" Margin="0,4,0,16" />
+
+                <!-- KIRIM: kirim narxi va sotuv narxi -->
+                <StackPanel Visibility="{Binding Line.IsReceipt, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Text="{Binding CostLabel}" Style="{StaticResource FieldLabel}" />
+                    <TextBox Text="{Binding Line.CostPriceText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BigInput}" />
+                    <TextBlock Text="Yetkazib beruvchiga 1 birlik uchun to'langan narx (faktura bo'yicha)" Style="{StaticResource FieldHint}" Margin="0,4,0,16" />
+
+                    <TextBlock Text="Yangi sotuv narxi (so'm)" Style="{StaticResource FieldLabel}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding Line.NewSalePriceText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BigInput}" />
+                        <ui:Button Grid.Column="1" Content="Ustama bo'yicha" Command="{Binding ResetPriceCommand}"
+                                   ToolTip="Narxni ustama bo'yicha qayta hisoblash" MinHeight="48" Padding="14,0" Margin="8,0,0,0" />
+                    </Grid>
+                    <TextBlock Text="{Binding Line.MarkupSourceText}" Style="{StaticResource FieldHint}" Margin="0,4,0,16" />
+                </StackPanel>
+
+                <!-- Xulosa -->
+                <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="16,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Kirim -->
+                        <TextBlock Grid.Row="0" Text="Sotuv narxi:" Style="{StaticResource SummaryLabel}"
+                                   Visibility="{Binding Line.IsReceipt, Converter={StaticResource BoolToVisibility}}" />
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Line.PriceChangeText}" Style="{StaticResource SummaryValue}"
+                                   Visibility="{Binding Line.IsReceipt, Converter={StaticResource BoolToVisibility}}" />
+                        <TextBlock Grid.Row="1" Text="Ustama (kirim narxiga nisbatan):" Style="{StaticResource SummaryLabel}"
+                                   Visibility="{Binding Line.IsReceipt, Converter={StaticResource BoolToVisibility}}" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Line.MarkupText}" Style="{StaticResource SummaryValue}"
+                                   Visibility="{Binding Line.IsReceipt, Converter={StaticResource BoolToVisibility}}" />
+
+                        <!-- Hisobdan chiqarish va inventarizatsiya -->
+                        <TextBlock Grid.Row="0" Text="Tannarx (1 birlik):" Style="{StaticResource SummaryLabel}"
+                                   Visibility="{Binding Line.IsWriteOff, Converter={StaticResource BoolToVisibility}}" />
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Line.CostPriceDisplay}" Style="{StaticResource SummaryValue}"
+                                   Visibility="{Binding Line.IsWriteOff, Converter={StaticResource BoolToVisibility}}" />
+                        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding Line.DifferenceInfo}" FontSize="16" FontWeight="Bold" Margin="0,3"
+                                   Visibility="{Binding Line.IsInventory, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#15803D" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Line.IsShortage}" Value="True">
+                                            <Setter Property="Foreground" Value="#DC2626" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <TextBlock Grid.Row="2" Text="Jami summa:" Style="{StaticResource SummaryLabel}" FontSize="16" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource SummaryValue}" FontSize="18">
+                            <Run Text="{Binding Line.LineTotalText, Mode=OneWay}" /> <Run Text="so'm" />
+                        </TextBlock>
+
+                        <Border Grid.Row="3" Grid.ColumnSpan="2" Background="#FEE2E2" CornerRadius="8" Padding="10,6" Margin="0,8,0,0"
+                                Visibility="{Binding Line.IsBelowCost, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="⚠ Sotuv narxi kirim narxidan past: bu tovar zarariga sotiladi." Foreground="#B91C1C" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        </Border>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ================= TUGMALAR ================= -->
+        <Grid Grid.Row="2" Margin="24,12,24,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <ui:Button Content="Bekor qilish" IsCancel="True" MinHeight="44" Padding="18,0" Margin="0,0,8,0" Click="Cancel_Click" />
+                <ui:Button Content="Tanlash" Command="{Binding SubmitSearchCommand}" Appearance="Primary" MinHeight="44" Padding="22,0"
+                           Visibility="{Binding IsSelecting, Converter={StaticResource BoolToVisibility}}" />
+                <ui:Button Content="{Binding ConfirmText}" Command="{Binding ConfirmCommand}" Appearance="Primary" MinHeight="44" Padding="22,0"
+                           IsDefault="{Binding IsFilling}"
+                           Visibility="{Binding IsFilling, Converter={StaticResource BoolToVisibility}}" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</ui:FluentWindow>

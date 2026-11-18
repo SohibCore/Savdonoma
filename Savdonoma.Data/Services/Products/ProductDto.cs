@@ -24,6 +24,18 @@ namespace Savdonoma.Data.Services.Products
         public bool IsMarked { get; set; }
 
         public bool IsLowStock => MinQuantity is not null && Quantity <= MinQuantity;
+
+        // Ro'yxatda ko'rsatish uchun: tannarx noma'lum bo'lsa "—"
+        public string CostPriceText => CostPrice > 0
+            ? CostPrice.ToString("N0", System.Globalization.CultureInfo.InvariantCulture).Replace(',', ' ')
+            : "—";
+
+        // Haqiqiy ustama: joriy narx tannarxga nisbatan
+        public string ActualMarkupText => Savdonoma.Core.Logic.PriceCalculator.MarkupPercent(Price, CostPrice) is { } m
+            ? $"{m:0.#}%"
+            : "—";
+
+        public bool IsBelowCost => CostPrice > 0 && Price < CostPrice;
     }
 
     // Barcode bo'yicha qidiruv natijasi. Tarozi barcode'ida vazn ham keladi.

@@ -51,7 +51,43 @@ namespace Savdonoma.ViewModels
         [ObservableProperty] private string importStatus = "";
         [ObservableProperty] private bool isLoadingProducts;
 
+        // Qo'shimcha maydonlar (1-bosqich)
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ProfitInfo))]
+        private string costPriceText = "";
+
+        [ObservableProperty] private string markupText = "";
+        [ObservableProperty] private string minQuantityText = "";
+        [ObservableProperty] private string scaleCode = "";
+        [ObservableProperty] private string mxikCode = "";
+        [ObservableProperty] private string packageCode = "";
+        [ObservableProperty] private string vatText = "";
+        [ObservableProperty] private bool isMarked;
+        [ObservableProperty] private bool showMoreFields;
+
+        public ObservableCollection<string> ExtraBarcodes { get; } = new();
+        [ObservableProperty] private string newExtraBarcode = "";
+
+        // Narx va tannarxdan: ustama va marja
+        public string ProfitInfo
+        {
+            get
+            {
+                var digits = new string((PriceText ?? "").Where(char.IsDigit).ToArray());
+                if (!long.TryParse(digits, out var price) || !Converters.NumberInput.TryParseMoney(CostPriceText, out var cost) || cost <= 0)
+                    return "Tannarx noma'lum: birinchi kirimda aniqlanadi yoki qo'lda kiriting.";
+
+                var markup = Core.Logic.PriceCalculator.MarkupPercent(price, cost);
+                var margin = Core.Logic.PriceCalculator.MarginPercent(price, cost);
+                var warning = price < cost ? "  ⚠ Narx tannarxdan past!" : "";
+                return $"Ustama: {markup:0.#}%   Marja: {margin:0.#}%   Foyda: {Converters.NumberInput.Money(price - cost)} so'm{warning}";
+            }
+        }
+
+        partial void OnPriceTextChanged(string value) => OnPropertyChanged(nameof(ProfitInfo));
+
         public bool IsCreating => EditingId is null;
+        public bool IsEditingProduct => EditingId is not null;
         public bool CanRefreshProducts => !IsLoadingProducts;
 
         // Bitta konstruktor: uchala servis shu yerda
@@ -79,6 +115,8 @@ namespace Savdonoma.ViewModels
                     SaveCommand.NotifyCanExecuteChanged();
                     DeactivateCommand.NotifyCanExecuteChanged();
                     ImportFromExcelCommand.NotifyCanExecuteChanged();
+                    AddExtraBarcodeCommand.NotifyCanExecuteChanged();
+                    RemoveExtraBarcodeCommand.NotifyCanExecuteChanged();
                 }));
 
             _ = LoadAsync();
@@ -108,8 +146,9 @@ namespace Savdonoma.ViewModels
         partial void OnEditingIdChanged(int? value)
         {
             OnPropertyChanged(nameof(IsCreating));
+            OnPropertyChanged(nameof(IsEditingProduct));
             FormDescription = value.HasValue
-                ? "Tahrirlashda faqat narxni o'zgartirish mumkin"
+                ? "Narx, qoldiq va qo'shimcha ma'lumotlarni o'zgartirish mumkin"
                 : "Mahsulot ma'lumotlarini kiriting";
         }
 
@@ -131,8 +170,94 @@ namespace Savdonoma.ViewModels
             SelectedCategory = Categories
                 .FirstOrDefault(x => x.Id == value.CategoryId);
 
+            CostPriceText = value.CostPrice > 0 ? value.CostPrice.ToString() : "";
+            MarkupText = FormatNullable(value.MarkupPercent);
+            MinQuantityText = FormatNullable(value.MinQuantity);
+            ScaleCode = value.ScaleCode ?? "";
+            MxikCode = value.MxikCode ?? "";
+            PackageCode = value.PackageCode ?? "";
+            VatText = FormatNullable(value.VatPercent);
+            IsMarked = value.IsMarked;
+            _ = LoadExtraBarcodesAsync(value.Id);
+
             FormTitle = "Tahrirlash";
             ErrorMessage = "";
+        }
+
+        private static string FormatNullable(decimal? value)
+            => value is null ? "" : Converters.NumberInput.Format(value.Value);
+
+        private async Task LoadExtraBarcodesAsync(int productId)
+        {
+            ExtraBarcodes.Clear();
+            try
+            {
+                foreach (var code in await _service.GetExtraBarcodesAsync(productId, CancellationToken.None))
+                    ExtraBarcodes.Add(code);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
+            }
+        }
+
+        [RelayCommand(CanExecute = nameof(CanWrite))]
+        private async Task AddExtraBarcodeAsync()
+        {
+            if (EditingId is null || string.IsNullOrWhiteSpace(NewExtraBarcode))
+                return;
+
+            try
+            {
+                await _service.AddBarcodeAsync(EditingId.Value, NewExtraBarcode, CancellationToken.None);
+                NewExtraBarcode = "";
+                await LoadExtraBarcodesAsync(EditingId.Value);
+                ErrorMessage = "";
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
+            }
+        }
+
+        [RelayCommand(CanExecute = nameof(CanWrite))]
+        private async Task RemoveExtraBarcodeAsync(string? code)
+        {
+            if (EditingId is null || string.IsNullOrWhiteSpace(code))
+                return;
+
+            try
+            {
+                await _service.RemoveBarcodeAsync(EditingId.Value, code, CancellationToken.None);
+                await LoadExtraBarcodesAsync(EditingId.Value);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
+            }
+        }
+
+        [RelayCommand]
+        private void ShowHistory()
+        {
+            if (EditingId is null)
+                return;
+            Views.Warehouse.ProductHistoryWindow.Open(App.Services, EditingId.Value, Name);
+        }
+
+        // Ixtiyoriy son maydonlari: bo'sh = null, noto'g'ri = xato
+        private bool TryReadOptional(string text, string fieldName, out decimal? value)
+        {
+            value = null;
+            if (string.IsNullOrWhiteSpace(text))
+                return true;
+            if (Converters.NumberInput.TryParseDecimal(text.Replace("%", ""), out var parsed) && parsed >= 0)
+            {
+                value = parsed;
+                return true;
+            }
+            ErrorMessage = $"{fieldName} noto'g'ri kiritilgan";
+            return false;
         }
 
         private async Task LoadAsync(bool debounce = true)
@@ -354,6 +479,16 @@ namespace Savdonoma.ViewModels
             QuantityText = "0";
             Barcode = "";
             SelectedCategory = null;
+            CostPriceText = "";
+            MarkupText = "";
+            MinQuantityText = "";
+            ScaleCode = "";
+            MxikCode = "";
+            PackageCode = "";
+            VatText = "";
+            IsMarked = false;
+            NewExtraBarcode = "";
+            ExtraBarcodes.Clear();
 
             FormTitle = "Yangi mahsulot";
             ErrorMessage = "";
@@ -380,6 +515,22 @@ namespace Savdonoma.ViewModels
                 return;
             }
 
+            long? costPrice = null;
+            if (!string.IsNullOrWhiteSpace(CostPriceText))
+            {
+                if (!Converters.NumberInput.TryParseMoney(CostPriceText, out var parsedCost))
+                {
+                    ErrorMessage = "Tannarx noto'g'ri kiritilgan";
+                    return;
+                }
+                costPrice = parsedCost;
+            }
+
+            if (!TryReadOptional(MarkupText, "Ustama", out var markup)
+                || !TryReadOptional(MinQuantityText, "Minimal qoldiq", out var minQuantity)
+                || !TryReadOptional(VatText, "QQS", out var vat))
+                return;
+
             try
             {
                 if (EditingId == null)
@@ -398,7 +549,15 @@ namespace Savdonoma.ViewModels
                         Price = price,
                         Barcode = Barcode,
                         CategoryId = category.Id,
-                        Quantity = quantity
+                        Quantity = quantity,
+                        CostPrice = costPrice,
+                        MarkupPercent = markup,
+                        MinQuantity = minQuantity,
+                        ScaleCode = ScaleCode,
+                        MxikCode = MxikCode,
+                        PackageCode = PackageCode,
+                        VatPercent = vat,
+                        IsMarked = IsMarked,
                     }, CancellationToken.None);
                 }
                 else
@@ -407,7 +566,16 @@ namespace Savdonoma.ViewModels
                     {
                         Id = EditingId.Value,
                         Price = price,
-                        Quantity = quantity
+                        Quantity = quantity,
+                        UpdateDetails = true,
+                        CostPrice = costPrice,
+                        MarkupPercent = markup,
+                        MinQuantity = minQuantity,
+                        ScaleCode = ScaleCode,
+                        MxikCode = MxikCode,
+                        PackageCode = PackageCode,
+                        VatPercent = vat,
+                        IsMarked = IsMarked,
                     }, CancellationToken.None);
                 }
 

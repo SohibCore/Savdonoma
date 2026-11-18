@@ -50,9 +50,13 @@ namespace Savdonoma.ViewModels
         private bool isEmployeesActive;
 
         [ObservableProperty]
+        private bool isWarehouseActive;
+
+        [ObservableProperty]
         private bool isMainMenuExpanded = true;
 
         public bool IsOwner => _currentUser.IsOwner;
+        public bool CanManageStock => _currentUser.CanManageStock;
 
         // Litsenziya banneri va yon menyudagi qisqa holat
         [ObservableProperty]
@@ -164,13 +168,14 @@ namespace Savdonoma.ViewModels
             };
         }
 
-        private void SetActiveSection(bool sale = false, bool products = false, bool reports = false, bool license = false, bool employees = false)
+        private void SetActiveSection(bool sale = false, bool products = false, bool reports = false, bool license = false, bool employees = false, bool warehouse = false)
         {
             IsSaleActive = sale;
             IsProductsActive = products;
             IsReportsActive = reports;
             IsLicenseActive = license;
             IsEmployeesActive = employees;
+            IsWarehouseActive = warehouse;
         }
 
         [RelayCommand]
@@ -233,7 +238,11 @@ namespace Savdonoma.ViewModels
             if (!_currentUser.IsOwner)
                 return;
 
-            CurrentPage = _sp.GetRequiredService<ProductsViewModel>();
+            var products = _sp.GetRequiredService<ProductsViewModel>();
+            CurrentPage = products;
+            // Kirim/sotuvdan keyin qoldiq, narx va tannarx yangi bo'lishi uchun har safar yangilanadi
+            if (products.RefreshProductsCommand.CanExecute(null))
+                products.RefreshProductsCommand.Execute(null);
             PageTitle = "Mahsulotlar";
             PageSubtitle = "Katalog, narx va qoldiqni boshqaring";
             SetActiveSection(products: true);
@@ -247,6 +256,20 @@ namespace Savdonoma.ViewModels
             PageSubtitle = "Kunlik, haftalik va oylik tahlil";
             SetActiveSection(reports: true);
             _ = ((ReportsViewModel)CurrentPage).LoadAsync();
+        }
+
+        [RelayCommand]
+        private async Task ShowWarehouseAsync()
+        {
+            if (!_currentUser.CanManageStock)
+                return;
+
+            var viewModel = _sp.GetRequiredService<Warehouse.WarehouseViewModel>();
+            CurrentPage = viewModel;
+            PageTitle = "Ombor";
+            PageSubtitle = "Kirim, hisobdan chiqarish, inventarizatsiya va yetkazib beruvchilar";
+            SetActiveSection(warehouse: true);
+            await viewModel.LoadAsync();
         }
 
         [RelayCommand]

@@ -157,7 +157,9 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2.5*" />
                         <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="1.3*" />
+                        <ColumnDefinition Width="1.3*" />
+                        <ColumnDefinition Width="1*" />
                         <ColumnDefinition Width="1*" />
                         <ColumnDefinition Width="1.5*" />
                     </Grid.ColumnDefinitions>
@@ -173,11 +175,21 @@
                         <TextBlock Text="NARX" FontWeight="SemiBold" Foreground="#111827"
                                    VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="3" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8">
+                    <Border Grid.Column="3" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8"
+                            ToolTip="O'rtacha kirim narxi (1 birlik)">
+                        <TextBlock Text="TANNARX" FontWeight="SemiBold" Foreground="#111827"
+                                   VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="4" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8"
+                            ToolTip="Narxning tannarxga nisbatan ustamasi">
+                        <TextBlock Text="USTAMA" FontWeight="SemiBold" Foreground="#111827"
+                                   VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </Border>
+                    <Border Grid.Column="5" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8">
                         <TextBlock Text="BIRLIK" FontWeight="SemiBold" Foreground="#111827"
                                    VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="4" BorderBrush="#D5DDE8" BorderThickness="0,0,0,1" Padding="12,8">
+                    <Border Grid.Column="6" BorderBrush="#D5DDE8" BorderThickness="0,0,0,1" Padding="12,8">
                         <TextBlock Text="SHTRIX-KOD" FontWeight="SemiBold" Foreground="#111827"
                                    VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
@@ -203,7 +215,9 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="2.5*" />
                                     <ColumnDefinition Width="1*" />
-                                    <ColumnDefinition Width="1.5*" />
+                                    <ColumnDefinition Width="1.3*" />
+                                    <ColumnDefinition Width="1.3*" />
+                                    <ColumnDefinition Width="1*" />
                                     <ColumnDefinition Width="1*" />
                                     <ColumnDefinition Width="1.5*" />
                                 </Grid.ColumnDefinitions>
@@ -234,11 +248,34 @@
                                                HorizontalAlignment="Center" TextAlignment="Center" />
                                 </Border>
                                 <Border Grid.Column="3" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
+                                    <TextBlock Text="{Binding CostPriceText, Mode=OneWay}" Foreground="#475569"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center" TextAlignment="Center" />
+                                </Border>
+                                <Border Grid.Column="4" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
+                                    <TextBlock Text="{Binding ActualMarkupText, Mode=OneWay}"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center" TextAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="#15803D" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsBelowCost}" Value="True">
+                                                        <Setter Property="Foreground" Value="#DC2626" />
+                                                        <Setter Property="FontWeight" Value="Bold" />
+                                                        <Setter Property="ToolTip" Value="Narx tannarxdan past!" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                                <Border Grid.Column="5" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
                                     <TextBlock Text="{Binding Unit}"
                                                VerticalAlignment="Center"
                                                HorizontalAlignment="Center" TextAlignment="Center" />
                                 </Border>
-                                <Border Grid.Column="4" Padding="12,8">
+                                <Border Grid.Column="6" Padding="12,8">
                                     <TextBlock Text="{Binding Barcode}"
                                                VerticalAlignment="Center"
                                                HorizontalAlignment="Center" TextAlignment="Center" />
@@ -363,7 +400,96 @@
                                     PlaceholderText="Ixtiyoriy"
                                     FontSize="15"
                                     MinHeight="44"
-                                    Margin="0,0,0,16"/>
+                                    Margin="0,0,0,14"/>
+
+                        <!-- Tannarx va ustama -->
+
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Tannarx (so'm)" Style="{StaticResource FieldLabelStyle}"/>
+                                <ui:TextBox Text="{Binding CostPriceText, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="Kirimda o'zi hisoblanadi"
+                                            ToolTip="O'rtacha kirim narxi. Har bir kirimdan keyin avtomatik yangilanadi."
+                                            FontSize="15" MinHeight="44"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Ustama (%)" Style="{StaticResource FieldLabelStyle}"/>
+                                <ui:TextBox Text="{Binding MarkupText, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="Kategoriyadagidek"
+                                            ToolTip="Faqat shu mahsulot uchun. Bo'sh bo'lsa kategoriya yoki umumiy ustama ishlatiladi."
+                                            FontSize="15" MinHeight="44"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="{Binding ProfitInfo}" Foreground="#0369A1" FontSize="12"
+                                   TextWrapping="Wrap" Margin="0,0,0,14"/>
+
+                        <TextBlock Text="Minimal qoldiq" Style="{StaticResource FieldLabelStyle}"/>
+                        <ui:TextBox Text="{Binding MinQuantityText, UpdateSourceTrigger=PropertyChanged}"
+                                    PlaceholderText="Shundan kam qolsa ogohlantiriladi (ixtiyoriy)"
+                                    FontSize="15" MinHeight="44" Margin="0,0,0,14"/>
+
+                        <!-- Qo'shimcha: tarozi, fiskal maydonlar -->
+
+                        <Expander Header="Qo'shimcha (tarozi, MXIK, QQS)" IsExpanded="{Binding ShowMoreFields}" Margin="0,0,0,14">
+                            <StackPanel Margin="0,10,0,0">
+                                <TextBlock Text="Tarozi kodi (PLU)" Style="{StaticResource FieldLabelStyle}"/>
+                                <ui:TextBox Text="{Binding ScaleCode, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="Tarozida mahsulotga berilgan raqam, 1-5 ta raqam"
+                                            FontSize="15" MinHeight="40" Margin="0,0,0,10"/>
+                                <TextBlock Text="MXIK kodi" Style="{StaticResource FieldLabelStyle}"/>
+                                <ui:TextBox Text="{Binding MxikCode, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="tasnif.soliq.uz dan (fiskal chek uchun)"
+                                            FontSize="15" MinHeight="40" Margin="0,0,0,10"/>
+                                <TextBlock Text="O'lchov birligi kodi" Style="{StaticResource FieldLabelStyle}"/>
+                                <ui:TextBox Text="{Binding PackageCode, UpdateSourceTrigger=PropertyChanged}"
+                                            FontSize="15" MinHeight="40" Margin="0,0,0,10"/>
+                                <TextBlock Text="QQS (%)" Style="{StaticResource FieldLabelStyle}"/>
+                                <ui:TextBox Text="{Binding VatText, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="Masalan, 12"
+                                            FontSize="15" MinHeight="40" Margin="0,0,0,10"/>
+                                <CheckBox Content="Markirovkalangan tovar (Asl belgisi)" IsChecked="{Binding IsMarked}"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- Qo'shimcha barcode'lar va tarix (faqat tahrirlashda) -->
+
+                        <StackPanel Visibility="{Binding IsEditingProduct, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    Margin="0,0,0,16">
+                            <TextBlock Text="Qo'shimcha shtrix-kodlar" Style="{StaticResource FieldLabelStyle}"/>
+                            <ItemsControl ItemsSource="{Binding ExtraBarcodes}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding}" VerticalAlignment="Center" FontSize="14"/>
+                                            <Button Grid.Column="1" Content="✕" Padding="8,1" ToolTip="Olib tashlash"
+                                                    Command="{Binding DataContext.RemoveExtraBarcodeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Grid Margin="0,4,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ui:TextBox Text="{Binding NewExtraBarcode, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="Yana bir shtrix-kod" MinHeight="40"/>
+                                <ui:Button Grid.Column="1" Content="Qo'shish" Command="{Binding AddExtraBarcodeCommand}"
+                                           MinHeight="40" Padding="12,0" Margin="8,0,0,0"/>
+                            </Grid>
+                            <ui:Button Content="Harakatlar tarixi" Command="{Binding ShowHistoryCommand}"
+                                       MinHeight="40" HorizontalAlignment="Stretch"/>
+                        </StackPanel>
 
 
                         <!-- Error -->

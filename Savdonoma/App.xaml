@@ -3,7 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              xmlns:vm="clr-namespace:Savdonoma.ViewModels"
-             xmlns:views="clr-namespace:Savdonoma.Views">
+             xmlns:views="clr-namespace:Savdonoma.Views"
+             xmlns:wvm="clr-namespace:Savdonoma.ViewModels.Warehouse"
+             xmlns:wviews="clr-namespace:Savdonoma.Views.Warehouse">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -42,6 +44,9 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type vm:EmployeesViewModel}">
                 <views:EmployeesView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type wvm:WarehouseViewModel}">
+                <wviews:WarehouseView />
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

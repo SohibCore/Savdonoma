@@ -267,6 +267,32 @@
                                        VerticalAlignment="Center" Style="{StaticResource NavLabelStyle}" />
                         </StackPanel>
                     </Button>
+                    <Button Command="{Binding ShowWarehouseCommand}"
+                            Visibility="{Binding CanManageStock, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Tag="{Binding IsWarehouseActive}" ToolTip="Ombor">
+                        <Button.Style>
+                            <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsMainMenuExpanded}" Value="True" />
+                                            <Condition Binding="{Binding IsWarehouseActive}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="#2563EB" />
+                                        <Setter Property="Foreground" Value="#FFFFFF" />
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource NavIconStyle}">
+                                <TextBlock Text="O" FontSize="16" FontWeight="Bold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Ombor" FontSize="15" FontWeight="SemiBold" Margin="10,0,0,0"
+                                       VerticalAlignment="Center" Style="{StaticResource NavLabelStyle}" />
+                        </StackPanel>
+                    </Button>
                     <Button Command="{Binding ShowReportsCommand}" Tag="{Binding IsReportsActive}" ToolTip="Hisobotlar">
                         <Button.Style>
                             <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">

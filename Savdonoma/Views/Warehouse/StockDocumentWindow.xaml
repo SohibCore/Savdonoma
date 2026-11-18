@@ -1,0 +1,243 @@
+<ui:FluentWindow x:Class="Savdonoma.Views.Warehouse.StockDocumentWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:conv="clr-namespace:Savdonoma.Converters"
+        Title="{Binding Title}"
+        Icon="pack://application:,,,/TijoratUz;component/TijoratUz.ico"
+        Width="1200" Height="800" MinWidth="980" MinHeight="600"
+        Background="#F1F5F9"
+        WindowStartupLocation="CenterOwner"
+        ExtendsContentIntoTitleBar="True">
+    <ui:FluentWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <Style x:Key="Label" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#475569" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,5" />
+        </Style>
+        <Style x:Key="RightCell" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="8,0" />
+        </Style>
+        <Style x:Key="Cell" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="8,0" />
+        </Style>
+        <!-- Ustama: tannarxdan arzon narx qizil -->
+        <Style x:Key="MarkupCell" TargetType="TextBlock" BasedOn="{StaticResource RightCell}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsBelowCost}" Value="True">
+                    <Setter Property="Foreground" Value="#DC2626" />
+                    <Setter Property="FontWeight" Value="Bold" />
+                    <Setter Property="ToolTip" Value="Sotuv narxi kirim narxidan past!" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Qator amallari: Tahrirlash / O'chirish -->
+        <DataTemplate x:Key="RowActions">
+            <StackPanel Orientation="Horizontal" Margin="4,0"
+                        Visibility="{Binding DataContext.IsEditable, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVisibility}}">
+                <Button Content="Tahrirlash" Padding="10,3" Margin="0,0,6,0" Click="EditLine_Click" Tag="{Binding}" />
+                <Button Content="✕" ToolTip="Hujjatdan olib tashlash" Padding="10,3"
+                        Command="{Binding DataContext.RemoveLineCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                        CommandParameter="{Binding}" />
+            </StackPanel>
+        </DataTemplate>
+    </ui:FluentWindow.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Grid.Row="0" Title="TijoratUz" />
+
+        <Grid Grid.Row="1" Margin="20,8,20,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Sarlavha -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="Bold" Foreground="#0F172A" />
+                    <Border CornerRadius="12" Padding="10,3" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#E0F2FE" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Status}" Value="Posted">
+                                        <Setter Property="Background" Value="#DCFCE7" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                        <Setter Property="Background" Value="#FEE2E2" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="{Binding StatusText}" FontSize="12" FontWeight="SemiBold" Foreground="#0F172A" />
+                    </Border>
+                </StackPanel>
+                <TextBlock Text="{Binding InfoText}" Foreground="#64748B" Margin="0,4,0,0" TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- Yetkazib beruvchi va izoh -->
+            <Grid Grid.Row="1" Margin="0,0,0,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Width="320" Margin="0,0,16,0" Visibility="{Binding IsReceipt, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Text="Yetkazib beruvchi (ixtiyoriy)" Style="{StaticResource Label}" />
+                    <ComboBox ItemsSource="{Binding Suppliers}" SelectedItem="{Binding SelectedSupplier}"
+                              DisplayMemberPath="Name" IsEnabled="{Binding IsEditable}" MinHeight="38" />
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Izoh" Style="{StaticResource Label}" />
+                    <ui:TextBox Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsEditable}"
+                                PlaceholderText="Masalan: faktura raqami yoki hisobdan chiqarish sababi" MinHeight="38" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Mahsulot qo'shish paneli -->
+            <Border Grid.Row="2" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,10"
+                    Visibility="{Binding IsEditable, Converter={StaticResource BoolToVisibility}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ui:Button x:Name="AddButton" Content="{Binding AddButtonText}" Click="AddLine_Click" Appearance="Primary"
+                               FontSize="15" MinHeight="44" Padding="20,0" />
+                    <TextBlock Grid.Column="1" Text="yoki" VerticalAlignment="Center" Foreground="#64748B" Margin="14,0" />
+                    <ui:TextBox x:Name="ScanBox" Grid.Column="2" Text="{Binding ScanText, UpdateSourceTrigger=PropertyChanged}"
+                                PlaceholderText="shtrix-kodni shu yerga skanerlang" MinHeight="44" FontSize="15">
+                        <ui:TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding ScanCommand}" />
+                        </ui:TextBox.InputBindings>
+                    </ui:TextBox>
+                </Grid>
+            </Border>
+
+            <!-- Hujjat qatorlari -->
+            <Grid Grid.Row="3">
+
+                <!-- KIRIM -->
+                <DataGrid ItemsSource="{Binding Lines}" AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column" SelectionMode="Single"
+                          MouseDoubleClick="Lines_MouseDoubleClick" RowHeight="40"
+                          Visibility="{Binding IsReceipt, Converter={StaticResource BoolToVisibility}}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Mahsulot" Binding="{Binding ProductName, Mode=OneWay}" Width="2*" ElementStyle="{StaticResource Cell}" />
+                        <DataGridTextColumn Header="Miqdor" Binding="{Binding QuantityDisplay, Mode=OneWay}" Width="110" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Kirim narxi" Binding="{Binding CostPriceDisplay, Mode=OneWay}" Width="120" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Summa" Binding="{Binding LineTotalText, Mode=OneWay}" Width="130" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Sotuv narxi" Binding="{Binding PriceChangeText, Mode=OneWay}" Width="1.4*" ElementStyle="{StaticResource Cell}" />
+                        <DataGridTextColumn Header="Ustama" Binding="{Binding MarkupText, Mode=OneWay}" Width="80" ElementStyle="{StaticResource MarkupCell}" />
+                        <DataGridTemplateColumn Width="Auto" CellTemplate="{StaticResource RowActions}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- HISOBDAN CHIQARISH -->
+                <DataGrid ItemsSource="{Binding Lines}" AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column" SelectionMode="Single"
+                          MouseDoubleClick="Lines_MouseDoubleClick" RowHeight="40"
+                          Visibility="{Binding IsWriteOff, Converter={StaticResource BoolToVisibility}}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Mahsulot" Binding="{Binding ProductName, Mode=OneWay}" Width="2*" ElementStyle="{StaticResource Cell}" />
+                        <DataGridTextColumn Header="Miqdor" Binding="{Binding QuantityDisplay, Mode=OneWay}" Width="140" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Tannarx" Binding="{Binding CostPriceDisplay, Mode=OneWay}" Width="130" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Summa" Binding="{Binding LineTotalText, Mode=OneWay}" Width="140" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTemplateColumn Width="Auto" CellTemplate="{StaticResource RowActions}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- INVENTARIZATSIYA -->
+                <DataGrid ItemsSource="{Binding Lines}" AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column" SelectionMode="Single"
+                          MouseDoubleClick="Lines_MouseDoubleClick" RowHeight="40"
+                          Visibility="{Binding IsInventory, Converter={StaticResource BoolToVisibility}}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Mahsulot" Binding="{Binding ProductName, Mode=OneWay}" Width="2*" ElementStyle="{StaticResource Cell}" />
+                        <DataGridTextColumn Header="Tizimda" Binding="{Binding ExpectedText, Mode=OneWay}" Width="110" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Sanalgan" Binding="{Binding QuantityDisplay, Mode=OneWay}" Width="130" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTemplateColumn Header="Farq" Width="1*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding DifferenceInfo, Mode=OneWay}" VerticalAlignment="Center" Margin="8,0" FontWeight="SemiBold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="#15803D" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsShortage}" Value="True">
+                                                        <Setter Property="Foreground" Value="#DC2626" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Farq summasi" Binding="{Binding LineTotalText, Mode=OneWay}" Width="140" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTemplateColumn Width="Auto" CellTemplate="{StaticResource RowActions}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Bo'sh hujjat: yo'riqnoma -->
+                <Border Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="12"
+                        Margin="0,44,0,0" Padding="24" VerticalAlignment="Top" HorizontalAlignment="Center" MaxWidth="560"
+                        Visibility="{Binding ShowEmptyHint, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Hujjatda hali mahsulot yo'q" FontSize="18" FontWeight="SemiBold" Foreground="#0F172A" HorizontalAlignment="Center" />
+                        <TextBlock Text="{Binding Hint}" Foreground="#475569" TextWrapping="Wrap" TextAlignment="Center" Margin="0,8,0,16" />
+                        <ui:Button Content="{Binding AddButtonText}" Click="AddLine_Click" Appearance="Primary" FontSize="15"
+                                   MinHeight="44" Padding="24,0" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Pastki qism: jami, xato va tugmalar -->
+            <Grid Grid.Row="4" Margin="0,12,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock FontSize="16">
+                        <Run Text="{Binding LineCountText, Mode=OneWay}" Foreground="#64748B" />
+                        <Run Text="   " />
+                        <Run Text="{Binding TotalLabel, Mode=OneWay}" Foreground="#475569" />
+                        <Run Text="{Binding TotalText, Mode=OneWay}" FontWeight="Bold" Foreground="#0F172A" />
+                    </TextBlock>
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" Margin="0,6,0,0" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom">
+                    <ui:Button Content="Qoralamani o'chirish" Command="{Binding DeleteDraftCommand}" MinHeight="40" Padding="14,0" Margin="0,0,8,0"
+                               Visibility="{Binding CanDeleteDraft, Converter={StaticResource BoolToVisibility}}" />
+                    <ui:Button Content="Hujjatni bekor qilish" Click="CancelDocument_Click" MinHeight="40" Padding="14,0" Margin="0,0,8,0"
+                               Appearance="Danger"
+                               Visibility="{Binding CanCancelDocument, Converter={StaticResource BoolToVisibility}}" />
+                    <ui:Button Content="Qoralama saqlash" Command="{Binding SaveDraftCommand}" MinHeight="40" Padding="14,0" Margin="0,0,8,0"
+                               ToolTip="Saqlab qo'yish. Qoldiqqa ta'sir qilmaydi, keyin davom ettirish mumkin."
+                               Visibility="{Binding IsEditable, Converter={StaticResource BoolToVisibility}}" />
+                    <ui:Button Content="O'tkazish" Command="{Binding PostCommand}" Appearance="Primary" MinHeight="40" Padding="20,0" Margin="0,0,8,0"
+                               ToolTip="Hujjatni yakunlash: qoldiq va narxlar yangilanadi."
+                               Visibility="{Binding IsEditable, Converter={StaticResource BoolToVisibility}}" />
+                    <ui:Button Content="Yopish" Click="Close_Click" MinHeight="40" Padding="14,0" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</ui:FluentWindow>

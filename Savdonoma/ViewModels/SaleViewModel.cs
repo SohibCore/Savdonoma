@@ -234,15 +234,17 @@ namespace Savdonoma.ViewModels
                 SearchText = value;
         }
 
-        private void AddToCart(ProductDto product)
+        // quantity: tarozi barcode'idan kelgan vazn; null bo'lsa 1 dona qo'shiladi
+        private void AddToCart(ProductDto product, decimal? quantity = null)
         {
             ErrorMessage = default!;
 
             var existing = CartItems.FirstOrDefault(x => x.ProductId == product.Id);
+            var amount = quantity ?? 1;
 
             if (existing != null)
             {
-                existing.Quantity++;
+                existing.Quantity += amount;
                 existing.Refresh();
                 SelectedCartItem = existing;
             }
@@ -254,7 +256,7 @@ namespace Savdonoma.ViewModels
                     ProductName = product.Name,
                     UnitPrice = product.Price,
                     Unit = product.Unit,
-                    Quantity = 1
+                    Quantity = amount
                 };
 
                 // Foydalanuvchi miqdorini qo'lda kiritganda ham
@@ -540,25 +542,15 @@ namespace Savdonoma.ViewModels
 
             try
             {
-                var product = await _product.FindByBarcodeAsync(normalizedCode);
-                if (product == null)
+                // Oddiy, qo'shimcha yoki tarozi barcode'i (tarozida vazn ham keladi)
+                var found = await _product.ResolveBarcodeAsync(normalizedCode, CancellationToken.None);
+                if (found == null)
                 {
                     ErrorMessage = $"Mahsulot topilmadi: {normalizedCode}";
                     return;
                 }
 
-                AddToCart(new ProductDto
-                {
-                    Id = product.Id,
-                    Unit = product.Unit,
-                    Name = product.Name,
-                    NameSearch = product.NameSearch,
-                    Price = product.Price,
-                    IsActive = product.IsActive,
-                    Barcode = product.Barcode,
-                    Quantity = product.Quantity,
-                    CategoryId = product.CategoryId
-                });
+                AddToCart(found.Product, found.Quantity);
             }
             catch (Exception ex)
             {

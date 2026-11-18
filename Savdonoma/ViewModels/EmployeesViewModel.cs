@@ -16,7 +16,13 @@ namespace Savdonoma.ViewModels
         public bool CanWrite => _license.Current.IsActive;
 
         public ObservableCollection<UserDto> Employees { get; } = new();
-        public Array Roles { get; } = new[] { UserRole.Manager, UserRole.Sotuvchi };
+        public IReadOnlyList<RoleOption> Roles { get; } = new[]
+        {
+            new RoleOption(UserRole.Manager, "Menejer"),
+            new RoleOption(UserRole.Sotuvchi, "Sotuvchi"),
+        };
+
+        public record RoleOption(UserRole Value, string Name);
 
         [ObservableProperty]
         private string fullName = "";

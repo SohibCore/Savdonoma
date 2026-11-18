@@ -351,7 +351,8 @@
                         </Style>
                     </StackPanel.Style>
                     <TextBlock Text="Rol" Foreground="#475569" Margin="0,0,0,5" />
-                    <ComboBox ItemsSource="{Binding Roles}" SelectedItem="{Binding SelectedRole}"
+                    <ComboBox ItemsSource="{Binding Roles}" SelectedValuePath="Value" DisplayMemberPath="Name"
+                              SelectedValue="{Binding SelectedRole}"
                               Height="38" Padding="8,5" Margin="0,0,0,18" />
                 </StackPanel>
 

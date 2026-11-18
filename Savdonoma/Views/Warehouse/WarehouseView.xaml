@@ -1,0 +1,299 @@
+<UserControl x:Class="Savdonoma.Views.Warehouse.WarehouseView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:Savdonoma.Converters"
+             mc:Ignorable="d"
+             d:DesignHeight="760" d:DesignWidth="1200">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <conv:DisplayNameConverter x:Key="DisplayName" />
+        <conv:MoneyConverter x:Key="Money" />
+        <conv:QuantityConverter x:Key="Qty" />
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="#E2E8F0" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="18" />
+        </Style>
+        <Style x:Key="Label" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#475569" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,5" />
+        </Style>
+        <Style x:Key="RightCell" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="6,0" />
+        </Style>
+        <Style x:Key="MessageText" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,8,0,0" />
+            <Setter Property="Foreground" Value="#15803D" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding HasError}" Value="True">
+                    <Setter Property="Foreground" Value="#DC2626" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TabControl>
+            <!-- ================= HUJJATLAR ================= -->
+            <TabItem Header="Hujjatlar">
+                <Border Style="{StaticResource Card}" Margin="0,10,0,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <WrapPanel Grid.Row="0" Margin="0,0,0,12">
+                            <ui:Button Content="+ Kirim" Command="{Binding NewReceiptCommand}" Appearance="Primary" MinHeight="40" Padding="16,0" Margin="0,0,8,0" />
+                            <ui:Button Content="+ Hisobdan chiqarish" Command="{Binding NewWriteOffCommand}" MinHeight="40" Padding="16,0" Margin="0,0,8,0" />
+                            <ui:Button Content="+ Inventarizatsiya" Command="{Binding NewInventoryCommand}" MinHeight="40" Padding="16,0" Margin="0,0,8,0" />
+                        </WrapPanel>
+
+                        <WrapPanel Grid.Row="1" Margin="0,0,0,12">
+                            <ComboBox ItemsSource="{Binding TypeFilters}" SelectedItem="{Binding SelectedTypeFilter}"
+                                      DisplayMemberPath="Name" Width="200" MinHeight="36" Margin="0,0,8,0" />
+                            <ComboBox ItemsSource="{Binding StatusFilters}" SelectedItem="{Binding SelectedStatusFilter}"
+                                      DisplayMemberPath="Name" Width="180" MinHeight="36" Margin="0,0,8,0" />
+                            <TextBlock Text="dan" VerticalAlignment="Center" Margin="4,0,6,0" Foreground="#475569" />
+                            <DatePicker SelectedDate="{Binding FromDate}" Width="140" Margin="0,0,8,0" VerticalAlignment="Center" />
+                            <TextBlock Text="gacha" VerticalAlignment="Center" Margin="4,0,6,0" Foreground="#475569" />
+                            <DatePicker SelectedDate="{Binding ToDate}" Width="140" Margin="0,0,8,0" VerticalAlignment="Center" />
+                            <ui:Button Content="Yangilash" Command="{Binding LoadDocumentsCommand}" MinHeight="36" Padding="12,0" />
+                        </WrapPanel>
+
+                        <DataGrid Grid.Row="2" ItemsSource="{Binding Documents}" SelectedItem="{Binding SelectedDocument}"
+                                  AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
+                                  SelectionMode="Single" MouseDoubleClick="Documents_MouseDoubleClick">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Raqam" Binding="{Binding Number, Mode=OneWay}" Width="170" />
+                                <DataGridTextColumn Header="Turi" Binding="{Binding Type, Converter={StaticResource DisplayName}, Mode=OneWay}" Width="160" />
+                                <DataGridTemplateColumn Header="Holati" Width="140">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Status, Converter={StaticResource DisplayName}, Mode=OneWay}"
+                                                       VerticalAlignment="Center" Margin="6,0" FontWeight="SemiBold">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#0369A1" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Posted">
+                                                                <Setter Property="Foreground" Value="#15803D" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                                                <Setter Property="Foreground" Value="#DC2626" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Yetkazib beruvchi" Binding="{Binding SupplierName, Mode=OneWay}" Width="*" />
+                                <DataGridTextColumn Header="Mahsulotlar" Binding="{Binding LineCount, Mode=OneWay}" Width="100" ElementStyle="{StaticResource RightCell}" />
+                                <DataGridTextColumn Header="Summa" Binding="{Binding TotalCost, Converter={StaticResource Money}, Mode=OneWay}" Width="130" ElementStyle="{StaticResource RightCell}" />
+                                <DataGridTextColumn Header="Yaratilgan" Binding="{Binding CreatedAt, StringFormat={}{0:dd.MM.yyyy HH:mm}, Mode=OneWay}" Width="140" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+            </TabItem>
+
+            <!-- ================= KAM QOLGANLAR ================= -->
+            <TabItem Header="Kam qolganlar">
+                <Border Style="{StaticResource Card}" Margin="0,10,0,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding LowStockSummary}" VerticalAlignment="Center" Foreground="#334155" TextWrapping="Wrap" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <ui:Button Content="Yangilash" Command="{Binding LoadLowStockCommand}" MinHeight="40" Padding="12,0" Margin="0,0,8,0" />
+                                <ui:Button Content="Shulardan kirim yaratish" Command="{Binding ReceiptFromLowStockCommand}"
+                                           Appearance="Primary" MinHeight="40" Padding="16,0" />
+                            </StackPanel>
+                        </Grid>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding LowStock}" AutoGenerateColumns="False" IsReadOnly="True"
+                                  HeadersVisibility="Column">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Mahsulot" Binding="{Binding Name, Mode=OneWay}" Width="*" />
+                                <DataGridTextColumn Header="Qoldiq" Binding="{Binding Quantity, Converter={StaticResource Qty}, Mode=OneWay}" Width="110" ElementStyle="{StaticResource RightCell}" />
+                                <DataGridTextColumn Header="Minimal" Binding="{Binding MinQuantity, Converter={StaticResource Qty}, Mode=OneWay}" Width="110" ElementStyle="{StaticResource RightCell}" />
+                                <DataGridTextColumn Header="Birlik" Binding="{Binding Unit, Converter={StaticResource DisplayName}, Mode=OneWay}" Width="90" />
+                                <DataGridTemplateColumn Width="Auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Harakatlar" Padding="10,2"
+                                                    Command="{Binding DataContext.ShowProductHistoryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+            </TabItem>
+
+            <!-- ================= YETKAZIB BERUVCHILAR ================= -->
+            <TabItem Header="Yetkazib beruvchilar" DataContext="{Binding Suppliers}">
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="380" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Style="{StaticResource Card}" Margin="0,0,16,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding TotalDebtText}" FontWeight="SemiBold" Foreground="#0F172A" VerticalAlignment="Center" />
+                                <CheckBox Grid.Column="1" Content="Nofaollarni ko'rsatish" IsChecked="{Binding ShowInactive}" />
+                            </Grid>
+                            <DataGrid Grid.Row="1" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}"
+                                      AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" SelectionMode="Single">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Nomi" Binding="{Binding Name, Mode=OneWay}" Width="*" />
+                                    <DataGridTextColumn Header="Telefon" Binding="{Binding Phone, Mode=OneWay}" Width="140" />
+                                    <DataGridTextColumn Header="INN" Binding="{Binding Inn, Mode=OneWay}" Width="110" />
+                                    <DataGridTextColumn Header="Qarzimiz" Binding="{Binding Debt, Converter={StaticResource Money}, Mode=OneWay}" Width="120" ElementStyle="{StaticResource RightCell}" />
+                                    <DataGridCheckBoxColumn Header="Faol" Binding="{Binding IsActive, Mode=OneWay}" Width="60" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource Card}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Text="{Binding FormTitle}" FontSize="18" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,12" />
+                                <TextBlock Text="Nomi" Style="{StaticResource Label}" />
+                                <ui:TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MinHeight="38" Margin="0,0,0,10" />
+                                <TextBlock Text="Telefon" Style="{StaticResource Label}" />
+                                <ui:TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" MinHeight="38" Margin="0,0,0,10" />
+                                <TextBlock Text="INN" Style="{StaticResource Label}" />
+                                <ui:TextBox Text="{Binding Inn, UpdateSourceTrigger=PropertyChanged}" MinHeight="38" Margin="0,0,0,10" />
+                                <TextBlock Text="Izoh" Style="{StaticResource Label}" />
+                                <ui:TextBox Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}" MinHeight="38" Margin="0,0,0,12" />
+
+                                <WrapPanel>
+                                    <ui:Button Content="Saqlash" Command="{Binding SaveCommand}" Appearance="Primary" MinHeight="38" Padding="16,0" Margin="0,0,8,8" />
+                                    <ui:Button Content="Yangi" Command="{Binding NewCommand}" MinHeight="38" Padding="16,0" Margin="0,0,8,8" />
+                                    <ui:Button Content="{Binding ToggleActiveText}" Command="{Binding ToggleActiveCommand}" MinHeight="38" Padding="16,0" Margin="0,0,8,8"
+                                               Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}}" />
+                                </WrapPanel>
+
+                                <TextBlock Text="{Binding Message}" Style="{StaticResource MessageText}" />
+
+                                <!-- To'lov -->
+                                <StackPanel Margin="0,16,0,0" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}}">
+                                    <Separator Margin="0,0,0,12" />
+                                    <TextBlock Text="{Binding DebtText}" FontSize="16" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,0,0,10" />
+                                    <TextBlock Text="To'lov summasi (so'm)" Style="{StaticResource Label}" />
+                                    <ui:TextBox Text="{Binding PaymentAmountText, UpdateSourceTrigger=PropertyChanged}" MinHeight="38" Margin="0,0,0,8" />
+                                    <ui:TextBox Text="{Binding PaymentNote, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Izoh (ixtiyoriy)" MinHeight="38" Margin="0,0,0,8" />
+                                    <ui:Button Content="To'lovni yozish" Command="{Binding AddPaymentCommand}" MinHeight="38" Padding="16,0" HorizontalAlignment="Left" />
+
+                                    <TextBlock Text="To'lovlar tarixi" Style="{StaticResource Label}" Margin="0,16,0,6" />
+                                    <ItemsControl ItemsSource="{Binding Payments}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="White" CornerRadius="8" Padding="10,6" Margin="0,0,0,4">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding CreatedAt, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Foreground="#64748B" FontSize="12" />
+                                                            <TextBlock Text="{Binding Note}" TextWrapping="Wrap" />
+                                                        </StackPanel>
+                                                        <TextBlock Grid.Column="1" FontWeight="SemiBold" VerticalAlignment="Center">
+                                                            <Run Text="{Binding Amount, Converter={StaticResource Money}, Mode=OneWay}" /> <Run Text="so'm" />
+                                                        </TextBlock>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- ================= NARX SOZLAMALARI (faqat rahbar) ================= -->
+            <TabItem Header="Narx sozlamalari"
+                     Visibility="{Binding IsOwner, Converter={StaticResource BoolToVisibility}}">
+                <Border Style="{StaticResource Card}" Margin="0,10,0,0" DataContext="{Binding Pricing}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="380" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Margin="0,0,24,0">
+                            <TextBlock Text="Kirimda sotuv narxi qanday hisoblanadi" FontSize="18" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,8" />
+                            <TextBlock TextWrapping="Wrap" Foreground="#475569" Margin="0,0,0,16"
+                                       Text="Yangi narx = yangi kirim narxi + ustama, yuqoriga yaxlitlanadi va ombordagi hamma tovarga qo'llanadi. Ustama tartibi: mahsulotning o'z ustamasi → kategoriya ustamasi → umumiy ustama. Kirim oynasida narxni qo'lda o'zgartirish mumkin." />
+
+                            <TextBlock Text="Umumiy ustama (%)" Style="{StaticResource Label}" />
+                            <ui:TextBox Text="{Binding DefaultMarkupText, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Masalan, 20 (bo'sh = yo'q)" MinHeight="38" Margin="0,0,0,10" />
+
+                            <TextBlock Text="Yaxlitlash (so'm)" Style="{StaticResource Label}" />
+                            <ComboBox ItemsSource="{Binding RoundingSteps}" SelectedItem="{Binding RoundingStep}" MinHeight="38" Margin="0,0,0,10" />
+
+                            <TextBlock Text="{Binding ExampleText}" Foreground="#0369A1" TextWrapping="Wrap" Margin="0,0,0,16" />
+
+                            <ui:Button Content="Saqlash" Command="{Binding SaveCommand}" Appearance="Primary" MinHeight="40" Padding="20,0" HorizontalAlignment="Left" />
+                            <TextBlock Text="{Binding Message}" Style="{StaticResource MessageText}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Kategoriya ustamalari (%)" FontSize="16" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,0,0,4" />
+                            <TextBlock Text="Bo'sh qoldirilsa umumiy ustama ishlatiladi." Foreground="#64748B" Margin="0,0,0,10" />
+                            <DataGrid ItemsSource="{Binding Categories}" AutoGenerateColumns="False" HeadersVisibility="Column"
+                                      CanUserAddRows="False" CanUserDeleteRows="False" MaxHeight="460">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Kategoriya" Binding="{Binding Name, Mode=OneWay}" IsReadOnly="True" Width="*" />
+                                    <DataGridTextColumn Header="Ustama %" Binding="{Binding MarkupText, UpdateSourceTrigger=PropertyChanged}" Width="120" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </TabItem>
+        </TabControl>
+
+        <TextBlock Grid.Row="1" Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" Margin="0,8,0,0" />
+    </Grid>
+</UserControl>
