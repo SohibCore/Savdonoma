@@ -14,10 +14,11 @@ public class ReceiptModel
 
     public DateTime Date { get; set; }
     public string Cashier { get; set; } = "";
+    public string Address { get; set; } = "";
 
     public List<ReceiptItem> Items { get; set; } = new();
 
-    public PaymentMethod PaymentType { get; set; } 
+    public PaymentMethod PaymentType { get; set; }
     public decimal Paid { get; set; }
 
     public decimal Total => Items.Sum(i => i.Quantity * i.Price);

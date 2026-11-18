@@ -67,14 +67,23 @@ namespace Savdonoma.Data.Configurations
                 .HasColumnName("SELF_REGISTER")
                 .IsRequired();
 
+            builder.Property(x => x.Address)
+                .HasColumnOrder(8)
+                .HasColumnName("ADDRESS")
+                .HasColumnType("varchar(500)")
+                .HasMaxLength(500)
+                .HasDefaultValue("NULL")
+                .HasSentinel("NULL")
+                .IsRequired();
+
             builder.Property(x => x.CreatedAt)
-               .HasColumnOrder(8)
+               .HasColumnOrder(9)
                .HasColumnName("CREATED_AT")
                .HasColumnType("timestamp with time zone")
                .IsRequired(false);
 
             builder.Property(x => x.UpdatedAt)
-                .HasColumnOrder(9)
+                .HasColumnOrder(10)
                 .HasColumnName("UPDATED_AT")
                 .HasColumnType("timestamp with time zone")
                 .IsRequired(false);

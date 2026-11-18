@@ -35,9 +35,14 @@ namespace Savdonoma.Printing
             parts.Add(e.CenterAlign());
             parts.Add(e.SetStyles(PrintStyle.Bold | PrintStyle.DoubleHeight));
             parts.Add(e.PrintLine(model.ShopName));
+            parts.Add(e.PrintLine(model.Address));
             parts.Add(e.SetStyles(PrintStyle.None));
 
-            parts.Add(e.CenterAlign());
+            parts.Add(e.PrintLine(Line()));
+            parts.Add(e.PrintLine("Kassir: " + model.Cashier));
+            parts.Add(e.PrintLine("Sana: " + model.Date.ToString("dd.MM.yyyy" + "HH:mm")));
+
+            parts.Add(e.LeftAlign());
             parts.Add(e.PrintLine(Line()));
             parts.Add(e.PrintLine("Sana: " + DateTime.Now.ToString("dd.MM.yyyy")));
             parts.Add(e.PrintLine("Vaqt: " + DateTime.Now.ToString("HH:mm")));
