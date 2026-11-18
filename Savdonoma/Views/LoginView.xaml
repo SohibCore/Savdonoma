@@ -133,6 +133,38 @@
                     </StackPanel>
 
                     <StackPanel Margin="0,0,0,10">
+                        <TextBlock Text="INN" Foreground="#475569" Margin="0,0,0,4" />
+                        <TextBox Text="{Binding Inn, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="48" MaxLength="20" />
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRegistration}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,0,0,10">
+                        <TextBlock Text="Do‘kon manzili" Foreground="#475569" Margin="0,0,0,4" />
+                        <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="48" MaxLength="500" />
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRegistration}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,0,0,10">
                         <TextBlock Text="Ism-familiya" Foreground="#475569" Margin="0,0,0,4" />
                         <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
                                 Height="48" />

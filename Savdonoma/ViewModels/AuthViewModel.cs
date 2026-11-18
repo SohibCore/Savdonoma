@@ -27,6 +27,12 @@ namespace Savdonoma.ViewModels
         private string orgName = "";
 
         [ObservableProperty]
+        private string inn = "";
+
+        [ObservableProperty]
+        private string address = "";
+
+        [ObservableProperty]
         private string userName = "";
 
         [ObservableProperty]
@@ -76,6 +82,8 @@ namespace Savdonoma.ViewModels
                         new CreateUserDto
                         {
                             OrgName = OrgName,
+                            INN = Inn,
+                            Address = Address,
                             FullName = FullName,
                             UserName = UserName,
                             Password = Password,

@@ -88,6 +88,27 @@ public class DatabaseTests : IDisposable
         return current;
     }
 
+    [Fact]
+    public async Task First_owner_registration_saves_store_address_and_inn()
+    {
+        var service = new UserService(_db, new CurrentUserService(), new FakeLicense());
+
+        await service.RegisterFirstOwnerAsync(new CreateUserDto
+        {
+            FullName = "Do‘kon egasi",
+            UserName = "owner",
+            Password = "1234",
+            OrgName = "Do‘kon",
+            INN = "123456789",
+            Address = "Toshkent shahri",
+        }, CancellationToken.None);
+
+        await using var check = _db.CreateDbContext();
+        var owner = await check.Users.SingleAsync();
+        Assert.Equal("123456789", owner.INN);
+        Assert.Equal("Toshkent shahri", owner.Address);
+    }
+
     // ---------- Audit log ----------
 
     [Fact]

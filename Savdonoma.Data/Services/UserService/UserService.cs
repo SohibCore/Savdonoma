@@ -48,6 +48,8 @@ namespace Savdonoma.Data.Services.UserService
                 UserName = userName,
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                 OrgName = dto.OrgName.Trim(),
+                INN = string.IsNullOrWhiteSpace(dto.INN) ? "NULL" : dto.INN.Trim(),
+                Address = string.IsNullOrWhiteSpace(dto.Address) ? "NULL" : dto.Address.Trim(),
                 UserRole = UserRole.Boshliq,
                 IsActive = true,
                 SelfRegister = true,

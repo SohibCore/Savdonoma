@@ -813,7 +813,7 @@ namespace Savdonoma.Data.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("CREATED_AT")
-                        .HasColumnOrder(9);
+                        .HasColumnOrder(10);
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -821,6 +821,15 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnType("varchar(350)")
                         .HasColumnName("FULL_NAME")
                         .HasColumnOrder(1);
+
+                    b.Property<string>("INN")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasDefaultValue("NULL")
+                        .HasColumnName("INN")
+                        .HasColumnOrder(9);
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
@@ -850,7 +859,7 @@ namespace Savdonoma.Data.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("UPDATED_AT")
-                        .HasColumnOrder(10);
+                        .HasColumnOrder(11);
 
                     b.Property<string>("UserName")
                         .IsRequired()

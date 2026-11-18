@@ -76,14 +76,23 @@ namespace Savdonoma.Data.Configurations
                 .HasSentinel("NULL")
                 .IsRequired();
 
+            builder.Property(x => x.INN)
+                .HasColumnOrder(9)
+                .HasColumnName("INN")
+                .HasColumnType("varchar(20)")
+                .HasMaxLength(20)
+                .HasDefaultValue("NULL")
+                .HasSentinel("NULL")
+                .IsRequired();
+
             builder.Property(x => x.CreatedAt)
-               .HasColumnOrder(9)
+               .HasColumnOrder(10)
                .HasColumnName("CREATED_AT")
                .HasColumnType("timestamp with time zone")
                .IsRequired(false);
 
             builder.Property(x => x.UpdatedAt)
-                .HasColumnOrder(10)
+                .HasColumnOrder(11)
                 .HasColumnName("UPDATED_AT")
                 .HasColumnType("timestamp with time zone")
                 .IsRequired(false);

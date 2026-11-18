@@ -165,21 +165,23 @@ namespace Savdonoma.Data.Services.Sales
             var shopName = sale.User?.OrgName;
             var receipt = new ReceiptModel
             {
+                ShopName = string.IsNullOrWhiteSpace(shopName) ? "Noma'lum do'kon" : shopName.Trim(),
                 ReceiptNumber = sale.Id,
-                Date = sale.CreatedAt,
+                Address = sale.User?.Address ?? "No'malum manzil",
+                INN = sale.User?.INN ?? "No'malum INN",
                 Cashier = sale.User?.FullName ?? "Noma'lum sotuvchi",
+                Date = sale.CreatedAt,
                 PaymentType = sale.PaymentMethod,
                 Paid = sale.ReceivedAmount ?? sale.TotalAmount,
-
-                ShopName = string.IsNullOrWhiteSpace(shopName)
-                    ? "Noma'lum do'kon"
-                    : shopName.Trim(),
 
                 Items = sale.SaleItems.Select(i => new ReceiptItem
                 {
                     Name = i.ProductName,
                     Quantity = i.Quantity,
-                    Price = i.UnitPrice
+                    Price = i.UnitPrice,
+                    Unit = i.Unit,
+                    Mxik = i.Product?.MxikCode,
+                    Barcode = i.Product?.Barcode,
                 }).ToList()
             };
 

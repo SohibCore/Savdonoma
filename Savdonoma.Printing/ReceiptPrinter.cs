@@ -10,15 +10,27 @@ namespace Savdonoma.Printing
         private readonly string _print;
 
         #region printer
-        private const int Width = 42;   // printerga qarab 42 yoki 48
-        private const int QtyW = 6, PriceW = 14, NameW = Width - QtyW - PriceW;
-        private static string Line() => new string('-', Width);
-        private static string Money(decimal v) =>
-            string.Format(CultureInfo.InvariantCulture, "{0:N0}", v)
-                  .Replace(',', ' ');
+        private const int Width = 42;       // Font A: printerga qarab 42 yoki 48
+        private const int SmallWidth = 56;  // Font B: printerga qarab sinab to'g'rilang
 
-        private static string LeftRight(string l, string r) =>
-            l + new string(' ', Math.Max(1, Width - l.Length - r.Length)) + r;
+        private static readonly NumberFormatInfo Nfi =
+            new() { NumberGroupSeparator = " ", NumberDecimalSeparator = "," };
+
+        private static string Line() => new string('-', Width);
+        private static string Money(decimal v) => v.ToString("N2", Nfi);
+
+        private static string LeftRight(string l, string r, int width = Width) =>
+            l + new string(' ', Math.Max(1, width - l.Length - r.Length)) + r;
+
+        private static string Right(string s) => s.PadLeft(Width);
+
+        // Uzun matnni width bo'yicha qatorlarga bo'ladi
+        private static IEnumerable<string> Wrap(string text, int width)
+        {
+            if (string.IsNullOrEmpty(text)) yield break;
+            for (int pos = 0; pos < text.Length; pos += width)
+                yield return text.Substring(pos, Math.Min(width, text.Length - pos));
+        }
         #endregion
 
         public ReceiptPrinter(string print)
@@ -32,41 +44,75 @@ namespace Savdonoma.Printing
             var parts = new List<byte[]>();
 
             parts.Add(e.Initialize());
+
+            // ===== Sarlavha =====
             parts.Add(e.CenterAlign());
             parts.Add(e.SetStyles(PrintStyle.Bold | PrintStyle.DoubleHeight));
             parts.Add(e.PrintLine(model.ShopName));
-            parts.Add(e.PrintLine(model.Address));
             parts.Add(e.SetStyles(PrintStyle.None));
+            foreach (var line in Wrap(model.Address, Width))
+                parts.Add(e.PrintLine(line));
 
             parts.Add(e.PrintLine(Line()));
-            parts.Add(e.PrintLine("Kassir: " + model.Cashier));
-            parts.Add(e.PrintLine("Sana: " + model.Date.ToString("dd.MM.yyyy" + "HH:mm")));
 
+            // ===== Chek ma'lumotlari =====
             parts.Add(e.LeftAlign());
+            parts.Add(e.PrintLine("Kassir: " + model.Cashier));
+            parts.Add(e.PrintLine("Sana: " + model.Date.ToString("dd.MM.yyyy HH:mm:ss")));
+            parts.Add(e.PrintLine("INN: " + model.INN));
+            parts.Add(e.PrintLine("Chek raqami: " + model.ReceiptNumber));
             parts.Add(e.PrintLine(Line()));
-            parts.Add(e.PrintLine("Sana: " + DateTime.Now.ToString("dd.MM.yyyy")));
-            parts.Add(e.PrintLine("Vaqt: " + DateTime.Now.ToString("HH:mm")));
-            parts.Add(e.PrintLine("Sotuvchi: " + model.Cashier));
 
-            foreach (var item in model.Items)
+            // ===== Mahsulotlar =====
+            decimal totalVat = 0;
+
+            for (int i = 0; i < model.Items.Count; i++)
             {
-                var first = item.Name.Length > NameW ? item.Name[..NameW] : item.Name;
-                parts.Add(e.PrintLine(first.PadRight(NameW)
-                    + item.Quantity.ToString().PadLeft(QtyW)
-                    + Money(item.Price).PadLeft(PriceW)));
+                var item = model.Items[i];
+                var sum = item.Price * item.Quantity;
+                var vat = Math.Round(sum * model.VatRate / (100 + model.VatRate), 2);
+                totalVat += vat;
 
-                if (item.Name.Length > NameW)
-                    parts.Add(e.PrintLine(item.Name[NameW..]));
+                // 1) Nom (uzun bo'lsa keyingi qatorga o'tadi)
+                foreach (var line in Wrap($"{i + 1}. {item.Name}", Width))
+                    parts.Add(e.PrintLine(line));
+
+                // 2) Miqdor x narx = summa (o'ngda)
+                parts.Add(e.PrintLine(Right($"{item.Quantity}X{Money(item.Price)}={Money(sum)}")));
+
+                // 3) QQS (o'ngda)
+                parts.Add(e.PrintLine(Right($"shu jumladan QQS {model.VatRate} % {Money(vat)}")));
+
+                // 4) Mayda shriftdagi qatorlar (bo'sh bo'lsa chiqmaydi)
+                parts.Add(e.SetStyles(PrintStyle.FontB));
+                /*if (!string.IsNullOrWhiteSpace(item.Unit))
+                    foreach (var line in Wrap("O'lchov birligi: " + item.Unit, SmallWidth))
+                        parts.Add(e.PrintLine(line));*/
+                if (!string.IsNullOrWhiteSpace(item.Mxik))
+                    foreach (var line in Wrap("MXIK: " + item.Mxik, SmallWidth))
+                        parts.Add(e.PrintLine(line));
+                if (!string.IsNullOrWhiteSpace(item.Barcode))
+                    foreach (var line in Wrap("Shtrix kod: " + item.Barcode, SmallWidth))
+                        parts.Add(e.PrintLine(line));
+                parts.Add(e.SetStyles(PrintStyle.None));
             }
 
             parts.Add(e.PrintLine(Line()));
-            parts.Add(e.PrintLine(LeftRight("To'lov turi:", model.PaymentType.ToString())));
-            parts.Add(e.PrintLine(LeftRight("Jami:", Money(model.Total) + " UZS")));
-            parts.Add(e.PrintLine(LeftRight("To'landi:", Money(model.Paid) + " UZS")));
-            if (model.Change > 0)
-                parts.Add(e.PrintLine(LeftRight("Qaytim:", Money(model.Change) + " UZS")));
 
+            // ===== JAMI (katta) =====
+            // DoubleWidth da har belgi 2 baravar keng, shuning uchun Width / 2
+            parts.Add(e.SetStyles(PrintStyle.Bold | PrintStyle.DoubleHeight | PrintStyle.DoubleWidth));
+            parts.Add(e.PrintLine(LeftRight("JAMI:", " = " + Money(model.Total), Width / 2)));
+            parts.Add(e.SetStyles(PrintStyle.None));
+
+            // ===== Jami QQS va to'lov turlari =====
+            parts.Add(e.PrintLine(LeftRight("Jami QQS", Money(totalVat))));
             parts.Add(e.PrintLine(Line()));
+            parts.Add(e.PrintLine(LeftRight("NAQD:", Money(model.Cash))));
+            parts.Add(e.PrintLine(LeftRight("BANK KARTA:", Money(model.Card))));
+            parts.Add(e.PrintLine(Line()));
+            parts.Add(e.PrintLine(LeftRight("JAMI:", Money(model.Total))));
+
             parts.Add(e.FeedLines(3));
             parts.Add(e.PartialCutAfterFeed(1));
 
