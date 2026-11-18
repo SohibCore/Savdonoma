@@ -29,7 +29,17 @@ public class SaleRoleTests : IDisposable
 
         using var db = _db.CreateDbContext();
         db.SysSettings.Add(new SystemSettings { InventoryEnabled = false, CreatedAt = DateTime.UtcNow });
-        var product = new Product { Name = "Non", NameSearch = "Non", Price = 4000, CostPrice = 3000, Unit = Unit.Dona, IsActive = true };
+        var product = new Product
+        {
+            Name = "Non",
+            NameSearch = "Non",
+            Price = 4000,
+            CostPrice = 3000,
+            Unit = Unit.Dona,
+            Barcode = "4780000000001",
+            MxikCode = "MXIK-TEST",
+            IsActive = true
+        };
         db.Products.Add(product);
         db.SaveChanges();
         _productId = product.Id;
@@ -43,6 +53,7 @@ public class SaleRoleTests : IDisposable
         var user = new User
         {
             FullName = userName, UserName = userName, Password = "x", OrgName = "S",
+            Address = "NULL", INN = "NULL",
             UserRole = role, IsActive = true, SelfRegister = role == UserRole.Boshliq,
         };
         db.Users.Add(user);
@@ -114,5 +125,35 @@ public class SaleRoleTests : IDisposable
         Assert.Single(await Sales(_seller1).GetDetailAsync(own.Id, CancellationToken.None));
         Assert.Empty(await Sales(_seller1).GetDetailAsync(other.Id, CancellationToken.None));
         Assert.Single(await Sales(_manager).GetDetailAsync(other.Id, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Receipt_loads_store_product_and_payment_details_for_preview()
+    {
+        await using (var db = _db.CreateDbContext())
+        {
+            var owner = await db.Users.SingleAsync(x => x.Id == _owner.UserId);
+            owner.Address = "Toshkent shahri";
+            owner.INN = "123456789";
+            await db.SaveChangesAsync();
+        }
+
+        var sale = await Sales(_owner).CreateAsync(new CreateSaleDto
+        {
+            PaymentMethod = PaymentMethod.Karta,
+            UserId = _owner.UserId,
+            Items = { new CreateSaleItemDto { ProductId = _productId, Quantity = 1 } }
+        }, CancellationToken.None);
+
+        var receipt = await Sales(_owner).GetReceipt(sale.Id, CancellationToken.None);
+        var item = Assert.Single(receipt.Items);
+
+        Assert.Equal("Toshkent shahri", receipt.Address);
+        Assert.Equal("123456789", receipt.INN);
+        Assert.Equal("4780000000001", item.Barcode);
+        Assert.Equal("MXIK-TEST", item.Mxik);
+        Assert.Equal(Unit.Dona, item.Unit);
+        Assert.Equal(0, receipt.Cash);
+        Assert.Equal(4000, receipt.Card);
     }
 }

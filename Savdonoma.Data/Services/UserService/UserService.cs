@@ -112,12 +112,23 @@ namespace Savdonoma.Data.Services.UserService
             await using var db = await _factory.CreateDbContextAsync(cancellation);
             await EnsureUserNameFreeAsync(db, userName, exceptId: null, cancellation);
 
+            var storeDetails = await db.Users
+                .AsNoTracking()
+                .Where(x => x.Id == _currentUser.UserId
+                         && x.OrgName == _currentUser.OrgName
+                         && x.UserRole == UserRole.Boshliq)
+                .Select(x => new { x.Address, x.INN })
+                .SingleOrDefaultAsync(cancellation)
+                ?? throw new InvalidOperationException("Do‘kon ma’lumotlari topilmadi.");
+
             var employee = new User
             {
                 FullName = dto.FullName.Trim(),
                 UserName = userName,
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                 OrgName = _currentUser.OrgName!,
+                Address = storeDetails.Address,
+                INN = storeDetails.INN,
                 UserRole = dto.UserRole,
                 IsActive = true,
                 SelfRegister = false,

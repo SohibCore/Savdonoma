@@ -59,8 +59,8 @@ namespace Savdonoma.Printing
             parts.Add(e.LeftAlign());
             parts.Add(e.PrintLine("Kassir: " + model.Cashier));
             parts.Add(e.PrintLine("Sana: " + model.Date.ToString("dd.MM.yyyy HH:mm:ss")));
-            parts.Add(e.PrintLine("INN: " + model.INN));
-            parts.Add(e.PrintLine("Chek raqami: " + model.ReceiptNumber));
+            parts.Add(e.PrintLine("Stir: " + model.INN));
+            parts.Add(e.PrintLine("#" + model.ReceiptNumber));
             parts.Add(e.PrintLine(Line()));
 
             // ===== Mahsulotlar =====
@@ -85,9 +85,9 @@ namespace Savdonoma.Printing
 
                 // 4) Mayda shriftdagi qatorlar (bo'sh bo'lsa chiqmaydi)
                 parts.Add(e.SetStyles(PrintStyle.FontB));
-                /*if (!string.IsNullOrWhiteSpace(item.Unit))
-                    foreach (var line in Wrap("O'lchov birligi: " + item.Unit, SmallWidth))
-                        parts.Add(e.PrintLine(line));*/
+                if (item.Unit.HasValue)
+                    foreach (var line in Wrap("O'lchov birligi: " + item.Unit.Value, SmallWidth))
+                        parts.Add(e.PrintLine(line));
                 if (!string.IsNullOrWhiteSpace(item.Mxik))
                     foreach (var line in Wrap("MXIK: " + item.Mxik, SmallWidth))
                         parts.Add(e.PrintLine(line));

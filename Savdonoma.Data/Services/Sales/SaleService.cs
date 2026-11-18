@@ -156,6 +156,7 @@ namespace Savdonoma.Data.Services.Sales
 
             var sale = await db.Sales
                 .Include(s => s.SaleItems)
+                .ThenInclude(i => i.Product)
                 .Include(s => s.User)
                 .FirstOrDefaultAsync(s => s.Id == saleId, cancellation);
 
@@ -173,17 +174,20 @@ namespace Savdonoma.Data.Services.Sales
                 Date = sale.CreatedAt,
                 PaymentType = sale.PaymentMethod,
                 Paid = sale.ReceivedAmount ?? sale.TotalAmount,
-
-                Items = sale.SaleItems.Select(i => new ReceiptItem
-                {
-                    Name = i.ProductName,
-                    Quantity = i.Quantity,
-                    Price = i.UnitPrice,
-                    Unit = i.Unit,
-                    Mxik = i.Product?.MxikCode,
-                    Barcode = i.Product?.Barcode,
-                }).ToList()
+                Cash = sale.PaymentMethod == PaymentMethod.Naqd ? sale.TotalAmount : 0,
+                Card = sale.PaymentMethod == PaymentMethod.Karta ? sale.TotalAmount : 0,
             };
+
+            receipt.Items = sale.SaleItems.Select(i => new ReceiptItem
+            {
+                Name = i.ProductName,
+                Quantity = i.Quantity,
+                Price = i.UnitPrice,
+                Unit = i.Unit,
+                VatRate = receipt.VatRate,
+                Mxik = i.Product?.MxikCode,
+                Barcode = i.Product?.Barcode,
+            }).ToList();
 
             return receipt;
         }

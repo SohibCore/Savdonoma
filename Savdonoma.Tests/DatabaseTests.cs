@@ -25,6 +25,8 @@ public class DatabaseTests : IDisposable
             UserName = userName,
             Password = BCrypt.Net.BCrypt.HashPassword("eski"),
             OrgName = "TestStore",
+            Address = "NULL",
+            INN = "NULL",
             UserRole = role,
             IsActive = true,
             SelfRegister = role == UserRole.Boshliq,
@@ -107,6 +109,32 @@ public class DatabaseTests : IDisposable
         var owner = await check.Users.SingleAsync();
         Assert.Equal("123456789", owner.INN);
         Assert.Equal("Toshkent shahri", owner.Address);
+    }
+
+    [Fact]
+    public async Task Creating_employee_copies_store_address_and_inn_from_owner()
+    {
+        var owner = AddUser("boss", UserRole.Boshliq);
+        await using (var db = _db.CreateDbContext())
+        {
+            var storedOwner = await db.Users.SingleAsync(x => x.Id == owner.Id);
+            storedOwner.Address = "Toshkent shahri";
+            storedOwner.INN = "123456789";
+            await db.SaveChangesAsync();
+        }
+
+        await OwnerUserService(owner).CreateEmployeeAsync(new CreateUserDto
+        {
+            FullName = "Yangi xodim",
+            UserName = "xodim",
+            Password = "1234",
+            UserRole = UserRole.Sotuvchi
+        }, CancellationToken.None);
+
+        await using var check = _db.CreateDbContext();
+        var employee = await check.Users.SingleAsync(x => x.UserName == "xodim");
+        Assert.Equal("Toshkent shahri", employee.Address);
+        Assert.Equal("123456789", employee.INN);
     }
 
     // ---------- Audit log ----------

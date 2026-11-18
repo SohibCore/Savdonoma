@@ -714,6 +714,16 @@
                                         BorderThickness="0,1,0,0" Padding="12"
                                         Style="{StaticResource ReportDetailsPanelStyle}">
                                     <StackPanel>
+                                        <StackPanel Orientation="Horizontal"
+                                                    HorizontalAlignment="Right"
+                                                    Margin="0,0,0,10">
+                                            <ui:Button Content="Chekni ko‘rish"
+                                                       Command="{Binding DataContext.ShowReceiptCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                       CommandParameter="{Binding}"
+                                                       Appearance="Primary"
+                                                       MinHeight="36"
+                                                       Padding="14,0" />
+                                        </StackPanel>
                                         <Grid Margin="0,0,0,4">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="3*" />

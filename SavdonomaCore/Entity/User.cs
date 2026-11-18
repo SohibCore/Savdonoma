@@ -7,11 +7,11 @@ namespace Savdonoma.Core.Entity
         public int Id { get; set; }
         public string FullName { get; set; } = null!;
         public string UserName { get; set; } = null!;
-        public string Address { get; set; } = null!;
+        public string Address { get; set; } = "NULL";
         public string Password { get; set; } = null!;
         public string OrgName { get; set; } = null!;
         public UserRole UserRole { get; set; }
-        public string INN { get; set; } = null!;
+        public string INN { get; set; } = "NULL";
         public bool IsActive { get; set; }
         public bool? SelfRegister { get; set; } = false;
 

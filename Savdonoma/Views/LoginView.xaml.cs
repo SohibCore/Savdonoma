@@ -15,7 +15,12 @@ namespace Savdonoma.Views
         private void PasswordInput_PasswordChanged(object sender, RoutedEventArgs e)
         {
             if (DataContext is AuthViewModel viewModel && sender is PasswordBox passwordBox)
+            {
                 viewModel.Password = passwordBox.Password;
+                PasswordPlaceholder.Visibility = passwordBox.Password.Length == 0
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
         }
 
         private void ForgotPassword_Click(object sender, RoutedEventArgs e)

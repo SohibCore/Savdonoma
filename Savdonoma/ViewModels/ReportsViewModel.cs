@@ -1,12 +1,14 @@
 ﻿using System.Windows;
 using System.ComponentModel;
 using Savdonoma.Core.Enums;
+using Savdonoma.Core.Printer;
 using CommunityToolkit.Mvvm.Input;
 using Savdonoma.Data.Services.Sales;
 using System.Collections.ObjectModel;
 using Savdonoma.Data.Services.Reports;
 using Savdonoma.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Savdonoma.Views;
 
 namespace Savdonoma.ViewModels
 {
@@ -14,6 +16,7 @@ namespace Savdonoma.ViewModels
     {
         private readonly IReportService _reports;
         private readonly ISaleService _sales;
+        private readonly IReceiptPrinter _printer;
         private readonly CurrentUserService _currentUser;
         private CancellationTokenSource? _cts;
 
@@ -38,10 +41,15 @@ namespace Savdonoma.ViewModels
         [ObservableProperty] private SaleRowDto? selectedSale;
         [ObservableProperty] private string errorMessage = "";
 
-        public ReportsViewModel(IReportService reports, ISaleService sales, CurrentUserService currentUser)
+        public ReportsViewModel(
+            IReportService reports,
+            ISaleService sales,
+            IReceiptPrinter printer,
+            CurrentUserService currentUser)
         {
             _reports = reports;
             _sales = sales;
+            _printer = printer;
             _currentUser = currentUser;
         }
 
@@ -129,6 +137,27 @@ namespace Savdonoma.ViewModels
             finally
             {
                 sale.IsLoadingDetail = false;
+            }
+        }
+
+        [RelayCommand]
+        private async Task ShowReceiptAsync(SaleRowDto? sale)
+        {
+            if (sale is null)
+                return;
+
+            ErrorMessage = "";
+            try
+            {
+                var receipt = await _sales.GetReceipt(sale.Id, CancellationToken.None);
+                var window = new ReceiptPreviewWindow(receipt, _printer);
+                if (Application.Current.MainWindow is { } owner)
+                    window.Owner = owner;
+                window.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.InnerException?.Message ?? ex.Message;
             }
         }
 
