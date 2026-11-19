@@ -5,174 +5,343 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
-             d:DesignHeight="700" d:DesignWidth="820">
+             d:DesignHeight="700" d:DesignWidth="820"
+             Background="#F8FAFC">
     <UserControl.Resources>
-        <SolidColorBrush x:Key="LicenseTextPrimary" Color="#0F172A" />
-        <SolidColorBrush x:Key="LicenseTextSecondary" Color="#64748B" />
-        <SolidColorBrush x:Key="LicenseBorder" Color="#E2E8F0" />
-
-        <Style x:Key="SectionLabelStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource LicenseTextSecondary}" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="VerticalAlignment" Value="Center" />
+        <!-- Karta -->
+        <Style x:Key="InfoCard" TargetType="Border">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#E2E8F0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Padding" Value="24,20" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.06" Color="#0F172A" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CardIconBadge" TargetType="Border">
+            <Setter Property="Width" Value="44" />
+            <Setter Property="Height" Value="44" />
+            <Setter Property="CornerRadius" Value="12" />
         </Style>
 
-        <Style x:Key="SectionValueStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource LicenseTextPrimary}" />
-            <Setter Property="FontSize" Value="13" />
+        <!-- Ma'lumot qatori (ikonka | nomi | qiymati) -->
+        <Style x:Key="InfoRow" TargetType="Border">
+            <Setter Property="BorderBrush" Value="#EEF2F6" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+            <Setter Property="Padding" Value="4,12" />
+        </Style>
+        <Style x:Key="InfoRowLast" TargetType="Border" BasedOn="{StaticResource InfoRow}">
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style x:Key="InfoIcon" TargetType="ui:SymbolIcon">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="Foreground" Value="#94A3B8" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="InfoLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#64748B" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Margin" Value="12,0,0,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="InfoValue" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#0F172A" />
+            <Setter Property="FontSize" Value="14" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="TextWrapping" Value="Wrap" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
+
+        <!-- Holat belgisi: yashil (faol), sariq (tez tugaydi), qizil (boshqa holatlar) -->
+        <Style x:Key="StatusPill" TargetType="Border">
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="12,5" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Background" Value="#FEF2F2" />
+            <Setter Property="BorderBrush" Value="#FECACA" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status}" Value="Valid">
+                    <Setter Property="Background" Value="#F0FDF4" />
+                    <Setter Property="BorderBrush" Value="#BBF7D0" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="ExpiringSoon">
+                    <Setter Property="Background" Value="#FFFBEB" />
+                    <Setter Property="BorderBrush" Value="#FDE68A" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="StatusPillText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#B91C1C" />
+            <Setter Property="Text" Value="Noto‘g‘ri litsenziya" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status}" Value="Valid">
+                    <Setter Property="Foreground" Value="#15803D" />
+                    <Setter Property="Text" Value="Faol" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="ExpiringSoon">
+                    <Setter Property="Foreground" Value="#B45309" />
+                    <Setter Property="Text" Value="Tez orada tugaydi" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Expired">
+                    <Setter Property="Text" Value="Muddati tugagan" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="NoLicense">
+                    <Setter Property="Text" Value="Faollashtirilmagan" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="WrongMachine">
+                    <Setter Property="Text" Value="Boshqa kompyuter uchun" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="StatusDot" TargetType="Ellipse">
+            <Setter Property="Width" Value="8" />
+            <Setter Property="Height" Value="8" />
+            <Setter Property="Margin" Value="0,0,6,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Fill" Value="#DC2626" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status}" Value="Valid">
+                    <Setter Property="Fill" Value="#16A34A" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="ExpiringSoon">
+                    <Setter Property="Fill" Value="#F59E0B" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  Background="#F1F5F9">
-        <Grid MaxWidth="760"
-              HorizontalAlignment="Center"
-              Margin="28,24">
-            <StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,22">
-                    <Border Width="48" Height="48" CornerRadius="14">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#38BDF8" Offset="0" />
-                                <GradientStop Color="#4F46E5" Offset="1" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <TextBlock Text="S"
-                                   Foreground="White"
-                                   FontSize="25"
-                                   FontWeight="ExtraBold"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
-                    </Border>
-                    <StackPanel VerticalAlignment="Center" Margin="14,0,0,0">
-                        <TextBlock Text="TijoratUz"
-                                   Foreground="{StaticResource LicenseTextPrimary}"
-                                   FontSize="23"
-                                   FontWeight="Bold" />
-                        <TextBlock Text="Dastur litsenziyasini faollashtirish"
-                                   Foreground="{StaticResource LicenseTextSecondary}"
-                                   FontSize="13"
-                                   Margin="0,2,0,0" />
-                    </StackPanel>
-                </StackPanel>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <!-- Stretch + MaxWidth: sahifa markazida turadi -->
+        <StackPanel Margin="24" MaxWidth="780" HorizontalAlignment="Stretch" VerticalAlignment="Center">
 
-                <Border Background="White"
-                        BorderBrush="{StaticResource LicenseBorder}"
-                        BorderThickness="1"
-                        CornerRadius="14"
-                        Padding="20"
-                        Margin="0,0,0,16">
-                    <StackPanel>
-                        <TextBlock Text="Litsenziya holati"
-                                   Foreground="{StaticResource LicenseTextPrimary}"
-                                   FontSize="16"
-                                   FontWeight="SemiBold"
-                                   Margin="0,0,0,16" />
+            <!-- Sarlavha -->
+            <StackPanel HorizontalAlignment="Center" Margin="0,0,0,22">
+                <Border Width="60" Height="60" CornerRadius="18" HorizontalAlignment="Center">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#38BDF8" Offset="0" />
+                            <GradientStop Color="#6366F1" Offset="1" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="30" Foreground="White"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="Litsenziya" FontSize="26" FontWeight="Bold" Foreground="#0F172A"
+                           HorizontalAlignment="Center" Margin="0,12,0,0" />
+                <TextBlock Text="Dastur litsenziyasi va faollashtirish" FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" Margin="0,4,0,0" />
+            </StackPanel>
+
+            <!-- ================= LITSENZIYA HOLATI ================= -->
+            <Border Style="{StaticResource InfoCard}" Margin="0,0,0,18">
+                <StackPanel>
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource CardIconBadge}" Background="#EFF6FF">
+                            <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="22" Foreground="#2563EB"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Litsenziya holati" FontSize="18" FontWeight="SemiBold" Foreground="#1E293B" />
+                            <TextBlock Text="Joriy litsenziya haqida ma’lumot" FontSize="12" Foreground="#64748B" Margin="0,2,0,0" />
+                        </StackPanel>
+                        <Border Grid.Column="2" Style="{StaticResource StatusPill}">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Style="{StaticResource StatusDot}" />
+                                <TextBlock Style="{StaticResource StatusPillText}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Border Style="{StaticResource InfoRow}">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="170" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0" Text="Do'kon" Style="{StaticResource SectionLabelStyle}" Margin="0,0,12,10" />
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ShopName}" Style="{StaticResource SectionValueStyle}" Margin="0,0,0,10" />
-                            <TextBlock Grid.Row="1" Text="Holat" Style="{StaticResource SectionLabelStyle}" Margin="0,0,12,10" />
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding StatusText}" Style="{StaticResource SectionValueStyle}" Margin="0,0,0,10" />
-                            <TextBlock Grid.Row="2" Text="Tugash sanasi" Style="{StaticResource SectionLabelStyle}" Margin="0,0,12,10" />
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ExpiryText}" Style="{StaticResource SectionValueStyle}" Margin="0,0,0,10" />
-                            <TextBlock Grid.Row="3" Text="Qolgan muddat" Style="{StaticResource SectionLabelStyle}" Margin="0,0,12,0" />
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding DaysLeftText}" Style="{StaticResource SectionValueStyle}" />
-                            <TextBlock Grid.Row="4" Text="Machine ID" Style="{StaticResource SectionLabelStyle}" Margin="0,0,12,0" />
-                            <TextBox Grid.Row="4" Grid.Column="1"
-                                     Text="{Binding MachineId}"
-                                     IsReadOnly="True"
-                                     IsTabStop="False"
-                                     TextWrapping="Wrap"
-                                     VerticalAlignment="Center"
-                                     Background="Transparent"
-                                     BorderThickness="0"
-                                     Padding="0"
-                                     Foreground="{StaticResource LicenseTextPrimary}"
-                                     FontSize="13"
-                                     FontWeight="SemiBold"
-                                     ToolTip="Litsenziya olish uchun ushbu ID ni nusxalab yuboring." />
+                            <ui:SymbolIcon Symbol="BuildingShop24" Style="{StaticResource InfoIcon}" />
+                            <TextBlock Grid.Column="1" Text="Do‘kon" Style="{StaticResource InfoLabel}" />
+                            <TextBlock Grid.Column="2" Text="{Binding ShopName}" Style="{StaticResource InfoValue}" />
                         </Grid>
-                    </StackPanel>
-                </Border>
+                    </Border>
+                    <Border Style="{StaticResource InfoRow}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="170" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Symbol="Info24" Style="{StaticResource InfoIcon}" />
+                            <TextBlock Grid.Column="1" Text="Holat" Style="{StaticResource InfoLabel}" />
+                            <TextBlock Grid.Column="2" Text="{Binding StatusText}" Style="{StaticResource InfoValue}" />
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource InfoRow}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="170" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Symbol="CalendarLtr24" Style="{StaticResource InfoIcon}" />
+                            <TextBlock Grid.Column="1" Text="Tugash sanasi" Style="{StaticResource InfoLabel}" />
+                            <TextBlock Grid.Column="2" Text="{Binding ExpiryText}" Style="{StaticResource InfoValue}" />
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource InfoRow}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="170" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Symbol="Clock24" Style="{StaticResource InfoIcon}" />
+                            <TextBlock Grid.Column="1" Text="Qolgan muddat" Style="{StaticResource InfoLabel}" />
+                            <TextBlock Grid.Column="2" Text="{Binding DaysLeftText}" Style="{StaticResource InfoValue}" />
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource InfoRowLast}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="170" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Symbol="Desktop24" Style="{StaticResource InfoIcon}" />
+                            <TextBlock Grid.Column="1" Text="Machine ID" Style="{StaticResource InfoLabel}" />
+                            <TextBox Grid.Column="2"
+                                     Text="{Binding MachineId, Mode=OneWay}"
+                                     IsReadOnly="True" IsTabStop="False" TextWrapping="Wrap"
+                                     VerticalAlignment="Center" Background="Transparent" BorderThickness="0"
+                                     Padding="0" Foreground="#0F172A" FontSize="14" FontWeight="SemiBold"
+                                     FontFamily="Consolas"
+                                     ToolTip="Litsenziya olish uchun ushbu ID ni nusxalab yuboring." />
+                            <Grid Grid.Column="3" Margin="12,0,0,0" VerticalAlignment="Center">
+                                <ui:Button Content="Nusxalash" Icon="{ui:SymbolIcon Copy24}"
+                                           Command="{Binding CopyMachineIdCommand}" MinHeight="34" Padding="12,0"
+                                           ToolTip="Machine ID ni nusxalash" />
+                                <!-- Nusxalangandan keyin 2 soniya ko'rinadi -->
+                                <Border Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="6"
+                                        IsHitTestVisible="False">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding MachineIdCopied}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <ui:SymbolIcon Symbol="Checkmark24" FontSize="16" Foreground="#15803D" />
+                                        <TextBlock Text="Nusxalandi" Foreground="#15803D" FontWeight="SemiBold"
+                                                   Margin="6,0,0,0" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Border>
 
-                <Border Background="White"
-                        BorderBrush="{StaticResource LicenseBorder}"
-                        BorderThickness="1"
-                        CornerRadius="14"
-                        Padding="20">
-                    <StackPanel>
-                        <TextBlock Text="Yangi litsenziyani faollashtirish"
-                                   Foreground="{StaticResource LicenseTextPrimary}"
-                                   FontSize="18"
-                                   FontWeight="SemiBold" />
-                        <TextBlock Text="Sizga yuborilgan .lic faylni tanlang yoki litsenziya kodini maydonga joylang. .key fayllarini tanlamang."
-                                   Foreground="{StaticResource LicenseTextSecondary}"
-                                   FontSize="13"
-                                   TextWrapping="Wrap"
-                                   Margin="0,6,0,16" />
+            <!-- ================= FAOLLASHTIRISH ================= -->
+            <Border Style="{StaticResource InfoCard}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource CardIconBadge}" Background="#EEF2FF">
+                            <ui:SymbolIcon Symbol="Key24" FontSize="22" Foreground="#4F46E5"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Yangi litsenziyani faollashtirish" FontSize="18" FontWeight="SemiBold" Foreground="#1E293B" />
+                            <TextBlock Text="Sizga yuborilgan .lic faylni tanlang yoki litsenziya kodini maydonga joylang. .key fayllarini tanlamang."
+                                       FontSize="12" Foreground="#64748B" Margin="0,2,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
 
-                        <ui:TextBox Text="{Binding LicenseKey, UpdateSourceTrigger=PropertyChanged}"
-                                    PlaceholderText="Litsenziya kodi shu yerda ko'rinadi"
-                                    AcceptsReturn="True"
-                                    TextWrapping="Wrap"
-                                    VerticalContentAlignment="Top"
-                                    MinHeight="124"
-                                    MaxHeight="190"
-                                    Padding="12"
-                                    FontSize="13"
-                                    Margin="0,0,0,14"
-                                    ToolTip="Faqat litsenziya kodi yoki .lic fayl ichidagi matnni kiriting." />
-
-                        <WrapPanel>
-                            <ui:Button Content="Litsenziya faylini tanlash"
-                                       Command="{Binding LoadFromFileCommand}"
-                                       MinHeight="44"
-                                       Padding="16,0"
-                                       Margin="0,0,10,8" />
-                            <ui:Button Content="Faollashtirish"
-                                       Command="{Binding ActivateCommand}"
-                                       Appearance="Primary"
-                                       MinHeight="44"
-                                       Padding="20,0"
-                                       Margin="0,0,0,8" />
-                        </WrapPanel>
-
-                        <Border CornerRadius="8"
+                    <ui:TextBox Text="{Binding LicenseKey, UpdateSourceTrigger=PropertyChanged}"
+                                PlaceholderText="Litsenziya kodi shu yerda ko‘rinadi"
+                                AcceptsReturn="True"
+                                TextWrapping="Wrap"
+                                VerticalContentAlignment="Top"
+                                VerticalScrollBarVisibility="Auto"
+                                MinHeight="120"
+                                MaxHeight="190"
                                 Padding="12"
-                                Margin="0,8,0,0">
-                            <Border.Style>
-                                <Style TargetType="Border">
-                                    <Setter Property="Background" Value="#F0FDF4" />
-                                    <Setter Property="BorderBrush" Value="#BBF7D0" />
-                                    <Setter Property="BorderThickness" Value="1" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ResultIsError}" Value="True">
-                                            <Setter Property="Background" Value="#FEF2F2" />
-                                            <Setter Property="BorderBrush" Value="#FECACA" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-                            <TextBlock Text="{Binding ResultMessage}"
-                                       Foreground="#166534"
-                                       TextWrapping="Wrap"
-                                       FontSize="13">
+                                FontSize="13"
+                                FontFamily="Consolas"
+                                Margin="0,0,0,14"
+                                ToolTip="Faqat litsenziya kodi yoki .lic fayl ichidagi matnni kiriting." />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <ui:Button Content="Litsenziya faylini tanlash" Icon="{ui:SymbolIcon FolderOpen24}"
+                                   Command="{Binding LoadFromFileCommand}"
+                                   HorizontalAlignment="Stretch" MinHeight="44" />
+                        <ui:Button Grid.Column="2" Content="Faollashtirish" Icon="{ui:SymbolIcon Checkmark24}"
+                                   Command="{Binding ActivateCommand}" Appearance="Primary"
+                                   HorizontalAlignment="Stretch" MinHeight="44" />
+                    </Grid>
+
+                    <!-- Natija: xabar bo'lmasa ko'rinmaydi -->
+                    <Border CornerRadius="8" Padding="12,10" Margin="0,14,0,0" BorderThickness="1">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#F0FDF4" />
+                                <Setter Property="BorderBrush" Value="#BBF7D0" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ResultIsError}" Value="True">
+                                        <Setter Property="Background" Value="#FEF2F2" />
+                                        <Setter Property="BorderBrush" Value="#FECACA" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ResultMessage}" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon FontSize="18" VerticalAlignment="Top" Margin="0,0,10,0">
+                                <ui:SymbolIcon.Style>
+                                    <Style TargetType="ui:SymbolIcon">
+                                        <Setter Property="Symbol" Value="CheckmarkCircle24" />
+                                        <Setter Property="Foreground" Value="#15803D" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ResultIsError}" Value="True">
+                                                <Setter Property="Symbol" Value="ErrorCircle24" />
+                                                <Setter Property="Foreground" Value="#B91C1C" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ui:SymbolIcon.Style>
+                            </ui:SymbolIcon>
+                            <TextBlock Grid.Column="1" Text="{Binding ResultMessage}" TextWrapping="Wrap" FontSize="13"
+                                       VerticalAlignment="Center">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="#166534" />
@@ -184,16 +353,17 @@
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
-                        </Border>
-                    </StackPanel>
-                </Border>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Border>
 
+            <!-- Ogohlantirish -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                <ui:SymbolIcon Symbol="LockClosed24" FontSize="14" Foreground="#94A3B8" VerticalAlignment="Center" />
                 <TextBlock Text="Xavfsizlik uchun private.key faylini hech kimga bermang."
-                           Foreground="{StaticResource LicenseTextSecondary}"
-                           FontSize="12"
-                           TextWrapping="Wrap"
-                           Margin="2,14,2,0" />
+                           Foreground="#64748B" FontSize="12" Margin="6,0,0,0" VerticalAlignment="Center" />
             </StackPanel>
-        </Grid>
+        </StackPanel>
     </ScrollViewer>
 </UserControl>

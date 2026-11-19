@@ -21,6 +21,8 @@ namespace Savdonoma.ViewModels
         [ObservableProperty] private string licenseKey = ""; //Kiritilgan litsenziya kalitini saqlaydi
         [ObservableProperty] private string resultMessage = ""; //Natija yoki xatolik xabarini ko‘rsatadi
         [ObservableProperty] private bool resultIsError; //Natija xatolik ekanligini bildiruvchi bool qiymat
+        [ObservableProperty] private LicenseStatus status; // Holat belgisining rangi uchun (yashil / sariq / qizil)
+        [ObservableProperty] private bool machineIdCopied; // "Nusxalandi" belgisini ko'rsatish uchun
 
         // Faollashtirish oynasi shu event orqali yopiladi
         public event Action? Activated;
@@ -39,6 +41,7 @@ namespace Savdonoma.ViewModels
             var s = _license.Current;
             ShopName = s.ShopName ?? "-";
             StatusText = s.Message;
+            Status = s.Status;
 
             if (s.IsPerpetual)
                 ExpiryText = "Doimiy (muddatsiz)";
@@ -70,6 +73,24 @@ namespace Savdonoma.ViewModels
             {
                 SetResult(state.Message, true);
             }
+        }
+
+        [RelayCommand]
+        private async Task CopyMachineIdAsync() // Machine ID ni litsenziya so'rash uchun nusxalaydi
+        {
+            try
+            {
+                Clipboard.SetText(MachineId);
+            }
+            catch (Exception ex)
+            {
+                SetResult("Nusxalab bo'lmadi: " + ex.Message, true);
+                return;
+            }
+
+            MachineIdCopied = true;
+            await Task.Delay(2000);
+            MachineIdCopied = false;
         }
 
         [RelayCommand]

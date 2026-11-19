@@ -13,11 +13,8 @@
         <conv:DisplayNameConverter x:Key="DisplayName" />
         <conv:MoneyConverter x:Key="Money" />
         <conv:QuantityConverter x:Key="Qty" />
-        <Style x:Key="RightCell" TargetType="TextBlock">
-            <Setter Property="HorizontalAlignment" Value="Right" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="Margin" Value="6,0" />
-        </Style>
+        <!-- Jadval yacheykalari: umumiy TableCellText (Styles/TableStyles.xaml) asosida -->
+        <Style x:Key="RightCell" TargetType="TextBlock" BasedOn="{StaticResource TableCellText}" />
     </ui:FluentWindow.Resources>
 
     <Grid>
@@ -34,16 +31,15 @@
             <TextBlock x:Name="SubText" Foreground="#64748B" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>
 
-        <DataGrid x:Name="MovementsGrid" Grid.Row="2" Margin="20,0,20,20" AutoGenerateColumns="False" IsReadOnly="True"
-                  HeadersVisibility="Column" CanUserAddRows="False">
+        <DataGrid x:Name="MovementsGrid" Grid.Row="2" Margin="20,0,20,20" Style="{StaticResource TableGrid}" IsReadOnly="True">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Sana" Binding="{Binding CreatedAt, StringFormat={}{0:dd.MM.yyyy HH:mm}, Mode=OneWay}" Width="130" />
-                <DataGridTextColumn Header="Harakat" Binding="{Binding Type, Converter={StaticResource DisplayName}, Mode=OneWay}" Width="160" />
-                <DataGridTemplateColumn Header="Miqdor" Width="90">
+                <DataGridTextColumn Header="Sana" Binding="{Binding CreatedAt, StringFormat={}{0:dd.MM.yyyy HH:mm}, Mode=OneWay}" Width="1.3*" ElementStyle="{StaticResource TableCellText}" />
+                <DataGridTextColumn Header="Harakat" Binding="{Binding Type, Converter={StaticResource DisplayName}, Mode=OneWay}" Width="1.5*" ElementStyle="{StaticResource TableCellText}" />
+                <DataGridTemplateColumn Header="Miqdor" Width="0.9*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Quantity, Converter={StaticResource Qty}, Mode=OneWay}"
-                                       HorizontalAlignment="Right" VerticalAlignment="Center" Margin="6,0" FontWeight="SemiBold">
+                                       VerticalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" FontWeight="SemiBold">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="#15803D" />
@@ -58,12 +54,12 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Qoldiq" Binding="{Binding BalanceAfter, Converter={StaticResource Qty}, Mode=OneWay}" Width="90"
+                <DataGridTextColumn Header="Qoldiq" Binding="{Binding BalanceAfter, Converter={StaticResource Qty}, Mode=OneWay}" Width="0.9*"
                                     ElementStyle="{StaticResource RightCell}" />
-                <DataGridTextColumn Header="Narx" Binding="{Binding CostPrice, Converter={StaticResource Money}, Mode=OneWay}" Width="100"
+                <DataGridTextColumn Header="Narx" Binding="{Binding CostPrice, Converter={StaticResource Money}, Mode=OneWay}" Width="1*"
                                     ElementStyle="{StaticResource RightCell}" />
-                <DataGridTextColumn Header="Hujjat / chek" Binding="{Binding Reference, Mode=OneWay}" Width="170" />
-                <DataGridTextColumn Header="Izoh" Binding="{Binding Note, Mode=OneWay}" Width="*" />
+                <DataGridTextColumn Header="Hujjat / chek" Binding="{Binding Reference, Mode=OneWay}" Width="1.6*" ElementStyle="{StaticResource TableCellText}" />
+                <DataGridTextColumn Header="Izoh" Binding="{Binding Note, Mode=OneWay}" Width="2*" ElementStyle="{StaticResource TableCellText}" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

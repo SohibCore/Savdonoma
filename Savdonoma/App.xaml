@@ -11,6 +11,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ui:ThemesDictionary Theme="Light" />
                 <ui:ControlsDictionary />
+                <ResourceDictionary Source="/TijoratUz;component/Styles/TableStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style x:Key="TableRowStyle" TargetType="ListViewItem">

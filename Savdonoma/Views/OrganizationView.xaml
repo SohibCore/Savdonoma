@@ -1,26 +1,146 @@
 <UserControl x:Class="Savdonoma.Views.OrganizationView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              Background="#F8FAFC">
     <UserControl.Resources>
-        <Style x:Key="OrganizationEditFieldStyle" TargetType="TextBox">
-            <Setter Property="Padding" Value="10,8" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="BorderBrush" Value="#CBD5E1" />
+        <!-- Karta -->
+        <Style x:Key="InfoCard" TargetType="Border">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#E2E8F0" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Padding" Value="24,20" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.06" Color="#0F172A" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Karta sarlavhasidagi ikonka foni -->
+        <Style x:Key="CardIconBadge" TargetType="Border">
+            <Setter Property="Width" Value="44" />
+            <Setter Property="Height" Value="44" />
+            <Setter Property="CornerRadius" Value="12" />
+        </Style>
+
+        <!-- Ko'rish rejimi: bitta qator (ikonka | nomi | qiymati) -->
+        <Style x:Key="InfoRow" TargetType="Border">
+            <Setter Property="BorderBrush" Value="#EEF2F6" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+            <Setter Property="Padding" Value="4,12" />
+        </Style>
+        <Style x:Key="InfoRowLast" TargetType="Border" BasedOn="{StaticResource InfoRow}">
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style x:Key="InfoIcon" TargetType="ui:SymbolIcon">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="Foreground" Value="#94A3B8" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="InfoLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#64748B" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Margin" Value="12,0,0,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="InfoValue" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#0F172A" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <!-- Tahrirlash rejimi -->
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#475569" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+        <Style x:Key="FieldBox" TargetType="ui:TextBox" BasedOn="{StaticResource {x:Type ui:TextBox}}">
+            <Setter Property="MinHeight" Value="40" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Margin" Value="0,0,0,14" />
+        </Style>
+
+        <!-- Xabarlar: matn bo'sh bo'lsa ko'rinmaydi -->
+        <Style x:Key="ErrorBanner" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#B91C1C" />
+            <Setter Property="Background" Value="#FEF2F2" />
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="Margin" Value="0,12,0,0" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Style.Triggers>
+                <Trigger Property="Text" Value="">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SuccessBanner" TargetType="TextBlock" BasedOn="{StaticResource ErrorBanner}">
+            <Setter Property="Foreground" Value="#15803D" />
+            <Setter Property="Background" Value="#F0FDF4" />
+        </Style>
+
+        <!-- IsEditing / IsOwnerEditing bo'yicha ko'rinish -->
+        <Style x:Key="ShowWhenViewing" TargetType="FrameworkElement">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ShowWhenEditing" TargetType="FrameworkElement">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ShowWhenOwnerViewing" TargetType="FrameworkElement">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsOwnerEditing}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ShowWhenOwnerEditing" TargetType="FrameworkElement">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsOwnerEditing}" Value="True">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="24" MaxWidth="900" HorizontalAlignment="Left">
-            <TextBlock Text="Do‘kon haqida" FontSize="26" FontWeight="Bold"
-                       Foreground="#0F172A" />
-            <TextBlock Text="Do‘kon va uning egasi ma’lumotlari"
-                       Margin="0,6,0,22" FontSize="14" Foreground="#64748B" />
 
-            <TextBlock Text="{Binding ErrorMessage}" Foreground="#B91C1C"
-                       TextWrapping="Wrap" Margin="0,0,0,14" />
-            <TextBlock Text="Ma’lumotlar yuklanmoqda..." Foreground="#64748B"
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <!-- Stretch + MaxWidth: sahifa markazida turadi -->
+        <StackPanel Margin="24" MaxWidth="780" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+
+            <!-- Sarlavha -->
+            <StackPanel HorizontalAlignment="Center" Margin="0,0,0,22">
+                <Border Width="60" Height="60" CornerRadius="18" HorizontalAlignment="Center">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#38BDF8" Offset="0" />
+                            <GradientStop Color="#6366F1" Offset="1" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <ui:SymbolIcon Symbol="BuildingShop24" FontSize="30" Foreground="White"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="Do‘kon haqida" FontSize="26" FontWeight="Bold" Foreground="#0F172A"
+                           HorizontalAlignment="Center" Margin="0,12,0,0" />
+                <TextBlock Text="Do‘kon va uning egasi ma’lumotlari" FontSize="14" Foreground="#64748B"
+                           HorizontalAlignment="Center" Margin="0,4,0,0" />
+            </StackPanel>
+
+            <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource ErrorBanner}" Margin="0,0,0,14" />
+            <TextBlock Text="Ma’lumotlar yuklanmoqda..." Foreground="#64748B" HorizontalAlignment="Center"
                        Margin="0,0,0,14">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
@@ -34,289 +154,239 @@
                 </TextBlock.Style>
             </TextBlock>
 
-            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1"
-                    CornerRadius="14" Padding="22" Margin="0,0,0,16">
+            <!-- ================= DO'KON MA'LUMOTLARI ================= -->
+            <Border Style="{StaticResource InfoCard}" Margin="0,0,0,18">
                 <StackPanel>
-                    <Grid Margin="0,0,0,16">
-                        <TextBlock Text="Do‘kon ma’lumotlari" FontSize="18"
-                                   FontWeight="SemiBold" Foreground="#1E293B"
-                                   VerticalAlignment="Center" />
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="Tahrirlash" Command="{Binding BeginEditCommand}"
-                                    Padding="16,8" Background="#2563EB" Foreground="White"
-                                    BorderThickness="0" Cursor="Hand">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                            <Button Content="Saqlash" Command="{Binding SaveOrganizationCommand}"
-                                    Padding="16,8" Background="#16A34A" Foreground="White"
-                                    BorderThickness="0" Cursor="Hand" Margin="8,0,0,0">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                            <Button Content="Bekor qilish" Command="{Binding CancelEditCommand}"
-                                    Padding="16,8" Background="#E2E8F0" Foreground="#334155"
-                                    BorderThickness="0" Cursor="Hand" Margin="8,0,0,0">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource CardIconBadge}" Background="#EFF6FF">
+                            <ui:SymbolIcon Symbol="BuildingShop24" FontSize="22" Foreground="#2563EB"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Do‘kon ma’lumotlari" FontSize="18" FontWeight="SemiBold" Foreground="#1E293B" />
+                            <TextBlock Text="Chek va hujjatlarda ko‘rinadi" FontSize="12" Foreground="#64748B" Margin="0,2,0,0" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ShowWhenViewing}">
+                                <ui:Button Content="Tahrirlash" Icon="{ui:SymbolIcon Edit24}" Appearance="Primary"
+                                       Command="{Binding BeginEditCommand}" MinHeight="38" Padding="14,0" />
+                            </Border>
+                            <StackPanel Orientation="Horizontal" Style="{StaticResource ShowWhenEditing}">
+                                <ui:Button Content="Saqlash" Icon="{ui:SymbolIcon Checkmark24}" Appearance="Success"
+                                       Command="{Binding SaveOrganizationCommand}" MinHeight="38" Padding="14,0" />
+                                <ui:Button Content="Bekor qilish" Icon="{ui:SymbolIcon Dismiss24}" Appearance="Secondary"
+                                       Command="{Binding CancelEditCommand}" MinHeight="38" Padding="14,0" Margin="8,0,0,0" />
+                            </StackPanel>
                         </StackPanel>
                     </Grid>
-                    <Grid>
+
+                    <!-- Ko'rish rejimi -->
+                    <StackPanel Style="{StaticResource ShowWhenViewing}">
+                        <Border Style="{StaticResource InfoRow}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="170" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="BuildingShop24" Style="{StaticResource InfoIcon}" />
+                                <TextBlock Grid.Column="1" Text="Nomi" Style="{StaticResource InfoLabel}" />
+                                <TextBlock Grid.Column="2" Text="{Binding Details.Name}" Style="{StaticResource InfoValue}" />
+                            </Grid>
+                        </Border>
+                        <Border Style="{StaticResource InfoRow}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="170" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="Location24" Style="{StaticResource InfoIcon}" />
+                                <TextBlock Grid.Column="1" Text="Manzili" Style="{StaticResource InfoLabel}" />
+                                <TextBlock Grid.Column="2" Text="{Binding Details.Address}" Style="{StaticResource InfoValue}" />
+                            </Grid>
+                        </Border>
+                        <Border Style="{StaticResource InfoRow}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="170" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="NumberSymbol24" Style="{StaticResource InfoIcon}" />
+                                <TextBlock Grid.Column="1" Text="INN" Style="{StaticResource InfoLabel}" />
+                                <TextBlock Grid.Column="2" Text="{Binding Details.INN}" Style="{StaticResource InfoValue}" />
+                            </Grid>
+                        </Border>
+                        <Border Style="{StaticResource InfoRow}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="170" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="Phone24" Style="{StaticResource InfoIcon}" />
+                                <TextBlock Grid.Column="1" Text="Telefon" Style="{StaticResource InfoLabel}" />
+                                <TextBlock Grid.Column="2" Text="{Binding Details.Phone, TargetNullValue=—}" Style="{StaticResource InfoValue}" />
+                            </Grid>
+                        </Border>
+                        <Border Style="{StaticResource InfoRowLast}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="170" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="Globe24" Style="{StaticResource InfoIcon}" />
+                                <TextBlock Grid.Column="1" Text="Veb-sayt" Style="{StaticResource InfoLabel}" />
+                                <TextBlock Grid.Column="2" Text="{Binding Details.Website, TargetNullValue=—}" Style="{StaticResource InfoValue}" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Tahrirlash rejimi -->
+                    <Grid Style="{StaticResource ShowWhenEditing}" Margin="0,8,0,0">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="180" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="16" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <Grid.Style>
-                            <Style TargetType="Grid">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsEditing}" Value="False">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Grid.Style>
-                        <TextBlock Text="Nomi" Foreground="#64748B" Margin="0,0,12,12" />
-                        <TextBlock Grid.Column="1" Text="{Binding Details.Name}" Foreground="#0F172A"
-                                   FontWeight="SemiBold" Margin="0,0,0,12" TextWrapping="Wrap" />
-                        <TextBlock Grid.Row="1" Text="Manzili" Foreground="#64748B" Margin="0,0,12,12" />
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Details.Address}"
-                                   Foreground="#0F172A" Margin="0,0,0,12" TextWrapping="Wrap" />
-                        <TextBlock Grid.Row="2" Text="INN" Foreground="#64748B" Margin="0,0,12,12" />
-                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Details.INN}"
-                                   Foreground="#0F172A" Margin="0,0,0,12" />
-                        <TextBlock Grid.Row="3" Text="Telefon" Foreground="#64748B" Margin="0,0,12,12" />
-                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Details.Phone}"
-                                   Foreground="#0F172A" Margin="0,0,0,12" />
-                        <TextBlock Grid.Row="4" Text="Veb-sayt" Foreground="#64748B" Margin="0,0,12,0" />
-                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Details.Website}"
-                                   Foreground="#0F172A" />
+
+                        <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
+                            <TextBlock Text="Nomi" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}" MaxLength="100"
+                                        Icon="{ui:SymbolIcon BuildingShop24}" Style="{StaticResource FieldBox}" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.ColumnSpan="3">
+                            <TextBlock Text="Manzili" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding EditAddress, UpdateSourceTrigger=PropertyChanged}" MaxLength="200"
+                                        Icon="{ui:SymbolIcon Location24}" Style="{StaticResource FieldBox}" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="2" Grid.Column="0">
+                            <TextBlock Text="INN" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding EditInn, UpdateSourceTrigger=PropertyChanged}" MaxLength="12"
+                                        Icon="{ui:SymbolIcon NumberSymbol24}" Style="{StaticResource FieldBox}" />
+                            <TextBlock Text="Telefon" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding EditPhone, UpdateSourceTrigger=PropertyChanged}" MaxLength="12"
+                                        Icon="{ui:SymbolIcon Phone24}" Style="{StaticResource FieldBox}" Margin="0" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="2" Grid.Column="2">
+                            <TextBlock Text="Veb-sayt" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding EditWebsite, UpdateSourceTrigger=PropertyChanged}" MaxLength="100"
+                                        Icon="{ui:SymbolIcon Globe24}" Style="{StaticResource FieldBox}" />
+                        </StackPanel>
                     </Grid>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="180" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid.Style>
-                            <Style TargetType="Grid">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Grid.Style>
-                        <TextBlock Text="Nomi" Foreground="#64748B" Margin="0,0,12,12"
-                                   VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1" Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"
-                                 MaxLength="100" Style="{StaticResource OrganizationEditFieldStyle}"
-                                 Margin="0,0,0,10" />
-                        <TextBlock Grid.Row="1" Text="Manzili" Foreground="#64748B"
-                                   Margin="0,0,12,12" VerticalAlignment="Center" />
-                        <TextBox Grid.Row="1" Grid.Column="1"
-                                 Text="{Binding EditAddress, UpdateSourceTrigger=PropertyChanged}"
-                                 MaxLength="200" Style="{StaticResource OrganizationEditFieldStyle}"
-                                 Margin="0,0,0,10" />
-                        <TextBlock Grid.Row="2" Text="INN" Foreground="#64748B"
-                                   Margin="0,0,12,12" VerticalAlignment="Center" />
-                        <TextBox Grid.Row="2" Grid.Column="1"
-                                 Text="{Binding EditInn, UpdateSourceTrigger=PropertyChanged}"
-                                 MaxLength="12" Style="{StaticResource OrganizationEditFieldStyle}"
-                                 Margin="0,0,0,10" />
-                        <TextBlock Grid.Row="3" Text="Telefon" Foreground="#64748B"
-                                   Margin="0,0,12,12" VerticalAlignment="Center" />
-                        <TextBox Grid.Row="3" Grid.Column="1"
-                                 Text="{Binding EditPhone, UpdateSourceTrigger=PropertyChanged}"
-                                 MaxLength="12" Style="{StaticResource OrganizationEditFieldStyle}"
-                                 Margin="0,0,0,10" />
-                        <TextBlock Grid.Row="4" Text="Veb-sayt" Foreground="#64748B"
-                                   Margin="0,0,12,0" VerticalAlignment="Center" />
-                        <TextBox Grid.Row="4" Grid.Column="1"
-                                 Text="{Binding EditWebsite, UpdateSourceTrigger=PropertyChanged}"
-                                 MaxLength="100" Style="{StaticResource OrganizationEditFieldStyle}" />
-                    </Grid>
+
+                    <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource SuccessBanner}" />
                 </StackPanel>
             </Border>
 
-            <TextBlock Text="{Binding StatusMessage}" Foreground="#15803D"
-                       TextWrapping="Wrap" Margin="0,0,0,14" />
-
-            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1"
-                    CornerRadius="14" Padding="22">
+            <!-- ================= DO'KON EGASI ================= -->
+            <Border Style="{StaticResource InfoCard}">
                 <StackPanel>
-                    <Grid Margin="0,0,0,16">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Width="42" Height="42" CornerRadius="13" Background="#EEF2FF">
-                                <TextBlock Text="E" Foreground="#4F46E5" FontSize="18"
-                                           FontWeight="Bold" HorizontalAlignment="Center"
-                                           VerticalAlignment="Center" />
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource CardIconBadge}" Background="#EEF2FF">
+                            <ui:SymbolIcon Symbol="Person24" FontSize="22" Foreground="#4F46E5"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Do‘kon egasi" FontSize="18" FontWeight="SemiBold" Foreground="#1E293B" />
+                            <TextBlock Text="Egasi profil ma’lumotlari" FontSize="12" Foreground="#64748B" Margin="0,2,0,0" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ShowWhenOwnerViewing}">
+                                <ui:Button Content="Tahrirlash" Icon="{ui:SymbolIcon Edit24}" Appearance="Primary"
+                                       Command="{Binding BeginOwnerEditCommand}" MinHeight="38" Padding="14,0" />
                             </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Do‘kon egasi" FontSize="18"
-                                           FontWeight="SemiBold" Foreground="#1E293B" />
-                                <TextBlock Text="Egasi profil ma’lumotlari" FontSize="12"
-                                           Foreground="#64748B" Margin="0,2,0,0" />
+                            <StackPanel Orientation="Horizontal" Style="{StaticResource ShowWhenOwnerEditing}">
+                                <ui:Button Content="Saqlash" Icon="{ui:SymbolIcon Checkmark24}" Appearance="Success"
+                                       Command="{Binding SaveOwnerCommand}" MinHeight="38" Padding="14,0" />
+                                <ui:Button Content="Bekor qilish" Icon="{ui:SymbolIcon Dismiss24}" Appearance="Secondary"
+                                       Command="{Binding CancelOwnerEditCommand}" MinHeight="38" Padding="14,0" Margin="8,0,0,0" />
                             </StackPanel>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
-                                    VerticalAlignment="Center">
-                            <Button Content="Tahrirlash" Command="{Binding BeginOwnerEditCommand}"
-                                    Padding="16,8" Background="#2563EB" Foreground="White"
-                                    BorderThickness="0" Cursor="Hand">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsOwnerEditing}" Value="True">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                            <Button Content="Saqlash" Command="{Binding SaveOwnerCommand}"
-                                    Padding="16,8" Background="#16A34A" Foreground="White"
-                                    BorderThickness="0" Cursor="Hand" Margin="8,0,0,0">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsOwnerEditing}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                            <Button Content="Bekor qilish" Command="{Binding CancelOwnerEditCommand}"
-                                    Padding="16,8" Background="#E2E8F0" Foreground="#334155"
-                                    BorderThickness="0" Cursor="Hand" Margin="8,0,0,0">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsOwnerEditing}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
+                    </Grid>
+
+                    <!-- Ko'rish rejimi -->
+                    <StackPanel Style="{StaticResource ShowWhenOwnerViewing}">
+                        <Border Style="{StaticResource InfoRow}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="170" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="Person24" Style="{StaticResource InfoIcon}" />
+                                <TextBlock Grid.Column="1" Text="Ism-familiyasi" Style="{StaticResource InfoLabel}" />
+                                <TextBlock Grid.Column="2" Text="{Binding Details.OwnerName}" Style="{StaticResource InfoValue}" />
+                            </Grid>
+                        </Border>
+                        <Border Style="{StaticResource InfoRowLast}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="170" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Symbol="PersonKey24" Style="{StaticResource InfoIcon}" />
+                                <TextBlock Grid.Column="1" Text="Login" Style="{StaticResource InfoLabel}" />
+                                <TextBlock Grid.Column="2" Text="{Binding Details.OwnerUserName}" Style="{StaticResource InfoValue}" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Tahrirlash rejimi -->
+                    <Grid Style="{StaticResource ShowWhenOwnerEditing}" Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Ism-familiyasi" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding OwnerEditFullName, UpdateSourceTrigger=PropertyChanged}" MaxLength="350"
+                                        Icon="{ui:SymbolIcon Person24}" Style="{StaticResource FieldBox}" />
                         </StackPanel>
-                    </Grid>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="180" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid.Style>
-                            <Style TargetType="Grid">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsOwnerEditing}" Value="False">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Grid.Style>
-                        <TextBlock Text="Ism-familiyasi" Foreground="#64748B" Margin="0,0,12,12" />
-                        <TextBlock Grid.Column="1" Text="{Binding Details.OwnerName}"
-                                   Foreground="#0F172A" Margin="0,0,0,12" />
-                        <TextBlock Grid.Row="1" Text="Login" Foreground="#64748B" Margin="0,0,12,12" />
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Details.OwnerUserName}"
-                                   Foreground="#0F172A" Margin="0,0,0,12" />
-                    </Grid>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="180" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid.Style>
-                            <Style TargetType="Grid">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsOwnerEditing}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Grid.Style>
-                        <TextBlock Text="Ism-familiyasi" Foreground="#64748B"
-                                   Margin="0,0,12,12" VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1"
-                                 Text="{Binding OwnerEditFullName, UpdateSourceTrigger=PropertyChanged}"
-                                 MaxLength="350" Style="{StaticResource OrganizationEditFieldStyle}"
-                                 Margin="0,0,0,10" />
-                        <TextBlock Grid.Row="1" Text="Login" Foreground="#64748B"
-                                   Margin="0,0,12,12" VerticalAlignment="Center" />
-                        <TextBox Grid.Row="1" Grid.Column="1"
-                                 Text="{Binding OwnerEditUserName, UpdateSourceTrigger=PropertyChanged}"
-                                 MaxLength="100" Style="{StaticResource OrganizationEditFieldStyle}"
-                                 Margin="0,0,0,10" />
-                        <TextBlock Grid.Row="2" Text="Joriy parol" Foreground="#64748B"
-                                   Margin="0,0,12,12" VerticalAlignment="Center" />
-                        <StackPanel Grid.Row="2" Grid.Column="1">
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Login" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding OwnerEditUserName, UpdateSourceTrigger=PropertyChanged}" MaxLength="100"
+                                        Icon="{ui:SymbolIcon PersonKey24}" Style="{StaticResource FieldBox}" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.ColumnSpan="3">
+                            <TextBlock Text="Joriy parol" Style="{StaticResource FieldLabel}" />
                             <PasswordBox x:Name="OwnerCurrentPasswordInput"
                                          PasswordChanged="OwnerCurrentPassword_PasswordChanged"
-                                         Padding="10,8" FontSize="14" MaxLength="100"
-                                         BorderBrush="#CBD5E1" BorderThickness="1" />
-                            <TextBlock Text="Loginni o‘zgartirsangiz, joriy parolni kiriting."
-                                       FontSize="12" Foreground="#64748B" Margin="0,5,0,0" />
+                                         MinHeight="40" FontSize="14" MaxLength="100" />
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <ui:SymbolIcon Symbol="Info24" FontSize="14" Foreground="#64748B" VerticalAlignment="Center" />
+                                <TextBlock Text="Loginni o‘zgartirsangiz, joriy parolni kiriting."
+                                           FontSize="12" Foreground="#64748B" Margin="6,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
                         </StackPanel>
                     </Grid>
-                    <TextBlock Text="{Binding OwnerErrorMessage}" Foreground="#B91C1C"
-                               TextWrapping="Wrap" Margin="0,8,0,0" />
-                    <TextBlock Text="{Binding OwnerStatusMessage}" Foreground="#15803D"
-                               TextWrapping="Wrap" Margin="0,8,0,0" />
+
+                    <TextBlock Text="{Binding OwnerErrorMessage}" Style="{StaticResource ErrorBanner}" />
+                    <TextBlock Text="{Binding OwnerStatusMessage}" Style="{StaticResource SuccessBanner}" />
                 </StackPanel>
             </Border>
         </StackPanel>

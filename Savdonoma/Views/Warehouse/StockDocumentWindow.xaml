@@ -18,15 +18,9 @@
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Margin" Value="0,0,0,5" />
         </Style>
-        <Style x:Key="RightCell" TargetType="TextBlock">
-            <Setter Property="HorizontalAlignment" Value="Right" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="Margin" Value="8,0" />
-        </Style>
-        <Style x:Key="Cell" TargetType="TextBlock">
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="Margin" Value="8,0" />
-        </Style>
+        <!-- Jadval yacheykalari: umumiy TableCellText (Styles/TableStyles.xaml) asosida -->
+        <Style x:Key="RightCell" TargetType="TextBlock" BasedOn="{StaticResource TableCellText}" />
+        <Style x:Key="Cell" TargetType="TextBlock" BasedOn="{StaticResource TableCellText}" />
         <!-- Ustama: tannarxdan arzon narx qizil -->
         <Style x:Key="MarkupCell" TargetType="TextBlock" BasedOn="{StaticResource RightCell}">
             <Style.Triggers>
@@ -134,48 +128,45 @@
             <Grid Grid.Row="3">
 
                 <!-- KIRIM -->
-                <DataGrid ItemsSource="{Binding Lines}" AutoGenerateColumns="False" IsReadOnly="True"
-                          CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column" SelectionMode="Single"
-                          MouseDoubleClick="Lines_MouseDoubleClick" RowHeight="40"
+                <DataGrid ItemsSource="{Binding Lines}" Style="{StaticResource TableGrid}" IsReadOnly="True"
+                          MouseDoubleClick="Lines_MouseDoubleClick"
                           Visibility="{Binding IsReceipt, Converter={StaticResource BoolToVisibility}}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Mahsulot" Binding="{Binding ProductName, Mode=OneWay}" Width="2*" ElementStyle="{StaticResource Cell}" />
-                        <DataGridTextColumn Header="Miqdor" Binding="{Binding QuantityDisplay, Mode=OneWay}" Width="110" ElementStyle="{StaticResource RightCell}" />
-                        <DataGridTextColumn Header="Kirim narxi" Binding="{Binding CostPriceDisplay, Mode=OneWay}" Width="120" ElementStyle="{StaticResource RightCell}" />
-                        <DataGridTextColumn Header="Summa" Binding="{Binding LineTotalText, Mode=OneWay}" Width="130" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Miqdor" Binding="{Binding QuantityDisplay, Mode=OneWay}" Width="1*" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Kirim narxi" Binding="{Binding CostPriceDisplay, Mode=OneWay}" Width="1.1*" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Summa" Binding="{Binding LineTotalText, Mode=OneWay}" Width="1.2*" ElementStyle="{StaticResource RightCell}" />
                         <DataGridTextColumn Header="Sotuv narxi" Binding="{Binding PriceChangeText, Mode=OneWay}" Width="1.4*" ElementStyle="{StaticResource Cell}" />
-                        <DataGridTextColumn Header="Ustama" Binding="{Binding MarkupText, Mode=OneWay}" Width="80" ElementStyle="{StaticResource MarkupCell}" />
+                        <DataGridTextColumn Header="Ustama" Binding="{Binding MarkupText, Mode=OneWay}" Width="0.8*" ElementStyle="{StaticResource MarkupCell}" />
                         <DataGridTemplateColumn Width="Auto" CellTemplate="{StaticResource RowActions}" />
                     </DataGrid.Columns>
                 </DataGrid>
 
                 <!-- HISOBDAN CHIQARISH -->
-                <DataGrid ItemsSource="{Binding Lines}" AutoGenerateColumns="False" IsReadOnly="True"
-                          CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column" SelectionMode="Single"
-                          MouseDoubleClick="Lines_MouseDoubleClick" RowHeight="40"
+                <DataGrid ItemsSource="{Binding Lines}" Style="{StaticResource TableGrid}" IsReadOnly="True"
+                          MouseDoubleClick="Lines_MouseDoubleClick"
                           Visibility="{Binding IsWriteOff, Converter={StaticResource BoolToVisibility}}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Mahsulot" Binding="{Binding ProductName, Mode=OneWay}" Width="2*" ElementStyle="{StaticResource Cell}" />
-                        <DataGridTextColumn Header="Miqdor" Binding="{Binding QuantityDisplay, Mode=OneWay}" Width="140" ElementStyle="{StaticResource RightCell}" />
-                        <DataGridTextColumn Header="Tannarx" Binding="{Binding CostPriceDisplay, Mode=OneWay}" Width="130" ElementStyle="{StaticResource RightCell}" />
-                        <DataGridTextColumn Header="Summa" Binding="{Binding LineTotalText, Mode=OneWay}" Width="140" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Miqdor" Binding="{Binding QuantityDisplay, Mode=OneWay}" Width="1.2*" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Tannarx" Binding="{Binding CostPriceDisplay, Mode=OneWay}" Width="1.2*" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Summa" Binding="{Binding LineTotalText, Mode=OneWay}" Width="1.2*" ElementStyle="{StaticResource RightCell}" />
                         <DataGridTemplateColumn Width="Auto" CellTemplate="{StaticResource RowActions}" />
                     </DataGrid.Columns>
                 </DataGrid>
 
                 <!-- INVENTARIZATSIYA -->
-                <DataGrid ItemsSource="{Binding Lines}" AutoGenerateColumns="False" IsReadOnly="True"
-                          CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column" SelectionMode="Single"
-                          MouseDoubleClick="Lines_MouseDoubleClick" RowHeight="40"
+                <DataGrid ItemsSource="{Binding Lines}" Style="{StaticResource TableGrid}" IsReadOnly="True"
+                          MouseDoubleClick="Lines_MouseDoubleClick"
                           Visibility="{Binding IsInventory, Converter={StaticResource BoolToVisibility}}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Mahsulot" Binding="{Binding ProductName, Mode=OneWay}" Width="2*" ElementStyle="{StaticResource Cell}" />
-                        <DataGridTextColumn Header="Tizimda" Binding="{Binding ExpectedText, Mode=OneWay}" Width="110" ElementStyle="{StaticResource RightCell}" />
-                        <DataGridTextColumn Header="Sanalgan" Binding="{Binding QuantityDisplay, Mode=OneWay}" Width="130" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Tizimda" Binding="{Binding ExpectedText, Mode=OneWay}" Width="1*" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Sanalgan" Binding="{Binding QuantityDisplay, Mode=OneWay}" Width="1.2*" ElementStyle="{StaticResource RightCell}" />
                         <DataGridTemplateColumn Header="Farq" Width="1*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding DifferenceInfo, Mode=OneWay}" VerticalAlignment="Center" Margin="8,0" FontWeight="SemiBold">
+                                    <TextBlock Text="{Binding DifferenceInfo, Mode=OneWay}" VerticalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" FontWeight="SemiBold">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Foreground" Value="#15803D" />
@@ -190,7 +181,7 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="Farq summasi" Binding="{Binding LineTotalText, Mode=OneWay}" Width="140" ElementStyle="{StaticResource RightCell}" />
+                        <DataGridTextColumn Header="Farq summasi" Binding="{Binding LineTotalText, Mode=OneWay}" Width="1.2*" ElementStyle="{StaticResource RightCell}" />
                         <DataGridTemplateColumn Width="Auto" CellTemplate="{StaticResource RowActions}" />
                     </DataGrid.Columns>
                 </DataGrid>
