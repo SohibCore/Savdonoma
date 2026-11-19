@@ -48,51 +48,39 @@ namespace Savdonoma.Data.Configurations
                 .HasMaxLength(500)
                 .IsRequired();
 
-            builder.Property(x => x.IsActive)
+            builder.Property(x => x.OrgId)
                 .HasColumnOrder(5)
+                .HasColumnName("ORGANIZATION_ID")
+                .HasColumnType("integer")
+                .IsRequired();
+
+            builder.Property(x => x.IsActive)
+                .HasColumnOrder(6)
                 .HasColumnType("boolean")
                 .HasColumnName("IS_ACTIVE")
                 .IsRequired();
 
             builder.Property(x => x.UserRole)
-               .HasColumnOrder(6)
+               .HasColumnOrder(7)
                .HasColumnName("USER_ROLE")
                .HasColumnType("text")
                .HasConversion<string>()
                .IsRequired();
 
             builder.Property(x => x.SelfRegister)
-                .HasColumnOrder(7)
+                .HasColumnOrder(8)
                 .HasColumnType("boolean")
                 .HasColumnName("SELF_REGISTER")
                 .IsRequired();
 
-            builder.Property(x => x.Address)
-                .HasColumnOrder(8)
-                .HasColumnName("ADDRESS")
-                .HasColumnType("varchar(500)")
-                .HasMaxLength(500)
-                .HasDefaultValue("NULL")
-                .HasSentinel("NULL")
-                .IsRequired();
-
-            builder.Property(x => x.INN)
-                .HasColumnOrder(9)
-                .HasColumnName("INN")
-                .HasColumnType("varchar(20)")
-                .HasMaxLength(20)
-                .HasDefaultValue("NULL")
-                .HasSentinel("NULL")
-                .IsRequired();
-
             builder.Property(x => x.CreatedAt)
-               .HasColumnOrder(10)
+               .HasColumnOrder(9)
                .HasColumnName("CREATED_AT")
                .HasColumnType("timestamp with time zone")
                .IsRequired(false);
 
             builder.Property(x => x.UpdatedAt)
-                .HasColumnOrder(11)
+                .HasColumnOrder(10)
                 .HasColumnName("UPDATED_AT")
                 .HasColumnType("timestamp with time zone")
                 .IsRequired(false);

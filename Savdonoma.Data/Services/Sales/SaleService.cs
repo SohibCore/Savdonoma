@@ -156,20 +156,23 @@ namespace Savdonoma.Data.Services.Sales
 
             var sale = await db.Sales
                 .Include(s => s.SaleItems)
-                .ThenInclude(i => i.Product)
+                     .ThenInclude(i => i.Product)
                 .Include(s => s.User)
-                .FirstOrDefaultAsync(s => s.Id == saleId, cancellation);
+                .FirstOrDefaultAsync(s => s.Id == saleId, cancellation) ?? throw new Exception("Sotuv topilmadi");
 
-            if (sale == null)
-                throw new Exception("Sotuv topilmadi");
+            var organization = await db.Organizations
+                .AsNoTracking()
+                .Where(x => x.Id == sale.User!.OrgId)
+                .Select(x => new { x.Address, x.INN })
+                .SingleOrDefaultAsync(cancellation);
 
             var shopName = sale.User?.OrgName;
             var receipt = new ReceiptModel
             {
                 ShopName = string.IsNullOrWhiteSpace(shopName) ? "Noma'lum do'kon" : shopName.Trim(),
                 ReceiptNumber = sale.Id,
-                Address = sale.User?.Address ?? "No'malum manzil",
-                INN = sale.User?.INN ?? "No'malum INN",
+                Address = organization?.Address ?? "No'malum manzil",
+                INN = organization?.INN ?? "No'malum INN",
                 Cashier = sale.User?.FullName ?? "Noma'lum sotuvchi",
                 Date = sale.CreatedAt,
                 PaymentType = sale.PaymentMethod,

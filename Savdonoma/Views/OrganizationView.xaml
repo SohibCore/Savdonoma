@@ -1,0 +1,324 @@
+<UserControl x:Class="Savdonoma.Views.OrganizationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F8FAFC">
+    <UserControl.Resources>
+        <Style x:Key="OrganizationEditFieldStyle" TargetType="TextBox">
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="BorderBrush" Value="#CBD5E1" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24" MaxWidth="900" HorizontalAlignment="Left">
+            <TextBlock Text="Do‘kon haqida" FontSize="26" FontWeight="Bold"
+                       Foreground="#0F172A" />
+            <TextBlock Text="Do‘kon va uning egasi ma’lumotlari"
+                       Margin="0,6,0,22" FontSize="14" Foreground="#64748B" />
+
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="#B91C1C"
+                       TextWrapping="Wrap" Margin="0,0,0,14" />
+            <TextBlock Text="Ma’lumotlar yuklanmoqda..." Foreground="#64748B"
+                       Margin="0,0,0,14">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1"
+                    CornerRadius="14" Padding="22" Margin="0,0,0,16">
+                <StackPanel>
+                    <Grid Margin="0,0,0,16">
+                        <TextBlock Text="Do‘kon ma’lumotlari" FontSize="18"
+                                   FontWeight="SemiBold" Foreground="#1E293B"
+                                   VerticalAlignment="Center" />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="Tahrirlash" Command="{Binding BeginEditCommand}"
+                                    Padding="16,8" Background="#2563EB" Foreground="White"
+                                    BorderThickness="0" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="Saqlash" Command="{Binding SaveOrganizationCommand}"
+                                    Padding="16,8" Background="#16A34A" Foreground="White"
+                                    BorderThickness="0" Cursor="Hand" Margin="8,0,0,0">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="Bekor qilish" Command="{Binding CancelEditCommand}"
+                                    Padding="16,8" Background="#E2E8F0" Foreground="#334155"
+                                    BorderThickness="0" Cursor="Hand" Margin="8,0,0,0">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditing}" Value="False">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <TextBlock Text="Nomi" Foreground="#64748B" Margin="0,0,12,12" />
+                        <TextBlock Grid.Column="1" Text="{Binding Details.Name}" Foreground="#0F172A"
+                                   FontWeight="SemiBold" Margin="0,0,0,12" TextWrapping="Wrap" />
+                        <TextBlock Grid.Row="1" Text="Manzili" Foreground="#64748B" Margin="0,0,12,12" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Details.Address}"
+                                   Foreground="#0F172A" Margin="0,0,0,12" TextWrapping="Wrap" />
+                        <TextBlock Grid.Row="2" Text="INN" Foreground="#64748B" Margin="0,0,12,12" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Details.INN}"
+                                   Foreground="#0F172A" Margin="0,0,0,12" />
+                        <TextBlock Grid.Row="3" Text="Telefon" Foreground="#64748B" Margin="0,0,12,12" />
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Details.Phone}"
+                                   Foreground="#0F172A" Margin="0,0,0,12" />
+                        <TextBlock Grid.Row="4" Text="Veb-sayt" Foreground="#64748B" Margin="0,0,12,0" />
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Details.Website}"
+                                   Foreground="#0F172A" />
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <TextBlock Text="Nomi" Foreground="#64748B" Margin="0,0,12,12"
+                                   VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="100" Style="{StaticResource OrganizationEditFieldStyle}"
+                                 Margin="0,0,0,10" />
+                        <TextBlock Grid.Row="1" Text="Manzili" Foreground="#64748B"
+                                   Margin="0,0,12,12" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="1" Grid.Column="1"
+                                 Text="{Binding EditAddress, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="200" Style="{StaticResource OrganizationEditFieldStyle}"
+                                 Margin="0,0,0,10" />
+                        <TextBlock Grid.Row="2" Text="INN" Foreground="#64748B"
+                                   Margin="0,0,12,12" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="2" Grid.Column="1"
+                                 Text="{Binding EditInn, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="12" Style="{StaticResource OrganizationEditFieldStyle}"
+                                 Margin="0,0,0,10" />
+                        <TextBlock Grid.Row="3" Text="Telefon" Foreground="#64748B"
+                                   Margin="0,0,12,12" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="3" Grid.Column="1"
+                                 Text="{Binding EditPhone, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="12" Style="{StaticResource OrganizationEditFieldStyle}"
+                                 Margin="0,0,0,10" />
+                        <TextBlock Grid.Row="4" Text="Veb-sayt" Foreground="#64748B"
+                                   Margin="0,0,12,0" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="4" Grid.Column="1"
+                                 Text="{Binding EditWebsite, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="100" Style="{StaticResource OrganizationEditFieldStyle}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="{Binding StatusMessage}" Foreground="#15803D"
+                       TextWrapping="Wrap" Margin="0,0,0,14" />
+
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1"
+                    CornerRadius="14" Padding="22">
+                <StackPanel>
+                    <Grid Margin="0,0,0,16">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="42" Height="42" CornerRadius="13" Background="#EEF2FF">
+                                <TextBlock Text="E" Foreground="#4F46E5" FontSize="18"
+                                           FontWeight="Bold" HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Do‘kon egasi" FontSize="18"
+                                           FontWeight="SemiBold" Foreground="#1E293B" />
+                                <TextBlock Text="Egasi profil ma’lumotlari" FontSize="12"
+                                           Foreground="#64748B" Margin="0,2,0,0" />
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                                    VerticalAlignment="Center">
+                            <Button Content="Tahrirlash" Command="{Binding BeginOwnerEditCommand}"
+                                    Padding="16,8" Background="#2563EB" Foreground="White"
+                                    BorderThickness="0" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsOwnerEditing}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="Saqlash" Command="{Binding SaveOwnerCommand}"
+                                    Padding="16,8" Background="#16A34A" Foreground="White"
+                                    BorderThickness="0" Cursor="Hand" Margin="8,0,0,0">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsOwnerEditing}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="Bekor qilish" Command="{Binding CancelOwnerEditCommand}"
+                                    Padding="16,8" Background="#E2E8F0" Foreground="#334155"
+                                    BorderThickness="0" Cursor="Hand" Margin="8,0,0,0">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsOwnerEditing}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsOwnerEditing}" Value="False">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <TextBlock Text="Ism-familiyasi" Foreground="#64748B" Margin="0,0,12,12" />
+                        <TextBlock Grid.Column="1" Text="{Binding Details.OwnerName}"
+                                   Foreground="#0F172A" Margin="0,0,0,12" />
+                        <TextBlock Grid.Row="1" Text="Login" Foreground="#64748B" Margin="0,0,12,12" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Details.OwnerUserName}"
+                                   Foreground="#0F172A" Margin="0,0,0,12" />
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsOwnerEditing}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <TextBlock Text="Ism-familiyasi" Foreground="#64748B"
+                                   Margin="0,0,12,12" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding OwnerEditFullName, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="350" Style="{StaticResource OrganizationEditFieldStyle}"
+                                 Margin="0,0,0,10" />
+                        <TextBlock Grid.Row="1" Text="Login" Foreground="#64748B"
+                                   Margin="0,0,12,12" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="1" Grid.Column="1"
+                                 Text="{Binding OwnerEditUserName, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="100" Style="{StaticResource OrganizationEditFieldStyle}"
+                                 Margin="0,0,0,10" />
+                        <TextBlock Grid.Row="2" Text="Joriy parol" Foreground="#64748B"
+                                   Margin="0,0,12,12" VerticalAlignment="Center" />
+                        <StackPanel Grid.Row="2" Grid.Column="1">
+                            <PasswordBox x:Name="OwnerCurrentPasswordInput"
+                                         PasswordChanged="OwnerCurrentPassword_PasswordChanged"
+                                         Padding="10,8" FontSize="14" MaxLength="100"
+                                         BorderBrush="#CBD5E1" BorderThickness="1" />
+                            <TextBlock Text="Loginni o‘zgartirsangiz, joriy parolni kiriting."
+                                       FontSize="12" Foreground="#64748B" Margin="0,5,0,0" />
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock Text="{Binding OwnerErrorMessage}" Foreground="#B91C1C"
+                               TextWrapping="Wrap" Margin="0,8,0,0" />
+                    <TextBlock Text="{Binding OwnerStatusMessage}" Foreground="#15803D"
+                               TextWrapping="Wrap" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

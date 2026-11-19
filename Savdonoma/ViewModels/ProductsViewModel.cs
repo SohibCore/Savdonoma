@@ -143,6 +143,8 @@ namespace Savdonoma.ViewModels
             }
         }
 
+        public Task ReloadInventoryModeAsync() => LoadInventoryModeAsync();
+
         partial void OnEditingIdChanged(int? value)
         {
             OnPropertyChanged(nameof(IsCreating));

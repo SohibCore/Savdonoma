@@ -84,7 +84,7 @@ namespace Savdonoma.Data.Services.Pricing
 
             if (settings is null)
             {
-                settings = new SystemSettings { CreatedAt = now };
+                settings = new Savdonoma.Core.Entity.SystemSettings { CreatedAt = now };
                 db.SysSettings.Add(settings);
             }
 

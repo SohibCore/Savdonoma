@@ -1,10 +1,15 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Data.Sqlite;
 using Savdonoma.Core.Entity;
 using Savdonoma.Core.Enums;
 using Savdonoma.Core.Licensing;
+using Savdonoma.Data;
 using Savdonoma.Data.Licensing;
 using Savdonoma.Data.Services.Authservice;
 using Savdonoma.Data.Services.Reports;
+using Savdonoma.Data.Services.SystemSetting;
 using Savdonoma.Data.Services.UserService;
 using Savdonoma.Services;
 
@@ -25,8 +30,6 @@ public class DatabaseTests : IDisposable
             UserName = userName,
             Password = BCrypt.Net.BCrypt.HashPassword("eski"),
             OrgName = "TestStore",
-            Address = "NULL",
-            INN = "NULL",
             UserRole = role,
             IsActive = true,
             SelfRegister = role == UserRole.Boshliq,
@@ -34,6 +37,24 @@ public class DatabaseTests : IDisposable
         };
         db.Users.Add(user);
         db.SaveChanges();
+
+        if (role == UserRole.Boshliq)
+        {
+            var organization = new Organization
+            {
+                OwnerId = user.Id,
+                Name = user.OrgName,
+                Address = "",
+                INN = "NULL",
+                Phone = "",
+                Website = ""
+            };
+            db.Organizations.Add(organization);
+            db.SaveChanges();
+            user.OrgId = organization.Id;
+            db.SaveChanges();
+        }
+
         return user;
     }
 
@@ -42,8 +63,13 @@ public class DatabaseTests : IDisposable
         using var db = _db.CreateDbContext();
         var product = new Product
         {
-            Name = name, NameSearch = name, Price = price, Unit = Unit.Dona,
-            IsActive = true, Quantity = 10, CreatedAt = DateTime.UtcNow,
+            Name = name,
+            NameSearch = name,
+            Price = price,
+            Unit = Unit.Dona,
+            IsActive = true,
+            Quantity = 10,
+            CreatedAt = DateTime.UtcNow,
         };
         db.Products.Add(product);
         db.SaveChanges();
@@ -78,7 +104,10 @@ public class DatabaseTests : IDisposable
         var current = new CurrentUserService();
         current.SignIn(new AuthResultDto
         {
-            UserId = owner.Id, UserName = owner.UserName, OrgName = owner.OrgName, UserRole = owner.UserRole,
+            UserId = owner.Id,
+            UserName = owner.UserName,
+            OrgName = owner.OrgName,
+            UserRole = owner.UserRole,
         });
         return new UserService(_db, current, new FakeLicense());
     }
@@ -93,22 +122,172 @@ public class DatabaseTests : IDisposable
     [Fact]
     public async Task First_owner_registration_saves_store_address_and_inn()
     {
-        var service = new UserService(_db, new CurrentUserService(), new FakeLicense());
+        var currentUser = new CurrentUserService();
+        var service = new UserService(_db, currentUser, new FakeLicense());
 
-        await service.RegisterFirstOwnerAsync(new CreateUserDto
+        var result = await service.RegisterFirstOwnerAsync(new CreateUserDto
         {
             FullName = "Do‘kon egasi",
             UserName = "owner",
             Password = "1234",
             OrgName = "Do‘kon",
-            INN = "123456789",
-            Address = "Toshkent shahri",
+            OrgINN = "123456789",
+            OrgAddress = "Toshkent shahri",
+            Phone = "998901234567",
+            Website = "shop.uz",
+        }, CancellationToken.None);
+        currentUser.SignIn(result);
+
+        await using var check = _db.CreateDbContext();
+        var owner = await check.Organizations.SingleAsync(x => x.Name == "Do‘kon");
+        Assert.Equal("123456789", owner.INN);
+        Assert.Equal("Toshkent shahri", owner.Address);
+        Assert.Equal("998901234567", owner.Phone);
+        Assert.Equal("shop.uz", owner.Website);
+        var registeredUser = await check.Users.SingleAsync();
+        Assert.Equal(owner.Id, registeredUser.OrgId);
+        Assert.Equal(registeredUser.Id, owner.OwnerId);
+
+        var details = await service.GetOrganizationDetailsAsync(CancellationToken.None);
+        Assert.Equal(registeredUser.Id, details.OwnerId);
+        Assert.Equal("Do‘kon", details.Name);
+        Assert.Equal("Do‘kon egasi", details.OwnerName);
+        Assert.Equal("owner", details.OwnerUserName);
+    }
+
+    [Fact]
+    public async Task Organization_migration_preserves_existing_owner_store_data()
+    {
+        await using var connection = new SqliteConnection("DataSource=:memory:");
+        await connection.OpenAsync();
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseSqlite(connection)
+            .Options;
+
+        await using var db = new AppDbContext(options);
+        await db.GetService<IMigrator>().MigrateAsync("20261118122723_r");
+        await db.Database.ExecuteSqlRawAsync(@"
+INSERT INTO SYS_USER
+    (FULL_NAME, USER_NAME, PASSWORD, ORG_NAME, IS_ACTIVE, USER_ROLE,
+     SELF_REGISTER, INN, ADDRESS, CREATED_AT, UPDATED_AT)
+VALUES
+    ('Legacy owner', 'legacy', 'hash', 'Legacy store', 1,
+     'Boshliq', 1, '123456789', 'Old store address', CURRENT_TIMESTAMP, NULL);");
+
+        await db.Database.MigrateAsync();
+
+        await using var columnsCommand = connection.CreateCommand();
+        columnsCommand.CommandText = "PRAGMA table_info('SYS_USER');";
+        await using var reader = await columnsCommand.ExecuteReaderAsync();
+        var userColumns = new List<string>();
+        while (await reader.ReadAsync())
+            userColumns.Add(reader.GetString(1));
+
+        Assert.DoesNotContain("INN", userColumns);
+
+        var owner = await db.Users.SingleAsync();
+        var organization = await db.Organizations.SingleAsync();
+        Assert.Equal("Old store address", organization.Address);
+        Assert.Equal("123456789", organization.INN);
+        Assert.Equal(owner.Id, organization.OwnerId);
+        Assert.Equal(organization.Id, owner.OrgId);
+    }
+
+    [Fact]
+    public async Task Owner_can_update_organization_details_and_rename_its_users()
+    {
+        var owner = AddUser("boss", UserRole.Boshliq);
+        var employee = AddUser("seller", UserRole.Sotuvchi);
+        await using (var db = _db.CreateDbContext())
+        {
+            var storedEmployee = await db.Users.SingleAsync(x => x.Id == employee.Id);
+            storedEmployee.OrgId = owner.OrgId;
+            await db.SaveChangesAsync();
+        }
+
+        var currentUser = new CurrentUserService();
+        currentUser.SignIn(new AuthResultDto
+        {
+            UserId = owner.Id,
+            UserName = owner.UserName,
+            OrgName = owner.OrgName,
+            UserRole = owner.UserRole,
+        });
+        var service = new UserService(_db, currentUser, new FakeLicense());
+
+        await service.UpdateOrganizationAsync(new UpdateOrganizationDto
+        {
+            Name = "Yangilangan do‘kon",
+            Address = "Yangi manzil",
+            INN = "987654321",
+            Phone = "998901234567",
+            Website = "new-shop.uz",
         }, CancellationToken.None);
 
         await using var check = _db.CreateDbContext();
-        var owner = await check.Users.SingleAsync();
-        Assert.Equal("123456789", owner.INN);
-        Assert.Equal("Toshkent shahri", owner.Address);
+        var organization = await check.Organizations.SingleAsync(x => x.OwnerId == owner.Id);
+        Assert.Equal("Yangilangan do‘kon", organization.Name);
+        Assert.Equal("Yangi manzil", organization.Address);
+        Assert.Equal("987654321", organization.INN);
+        Assert.Equal("998901234567", organization.Phone);
+        Assert.Equal("new-shop.uz", organization.Website);
+        Assert.Equal("Yangilangan do‘kon", (await check.Users.SingleAsync(x => x.Id == owner.Id)).OrgName);
+        Assert.Equal("Yangilangan do‘kon", (await check.Users.SingleAsync(x => x.Id == employee.Id)).OrgName);
+        Assert.Equal("Yangilangan do‘kon", currentUser.OrgName);
+    }
+
+    [Fact]
+    public async Task Non_owner_cannot_update_organization_details()
+    {
+        var employee = AddUser("seller", UserRole.Sotuvchi);
+        var currentUser = new CurrentUserService();
+        currentUser.SignIn(new AuthResultDto
+        {
+            UserId = employee.Id,
+            UserName = employee.UserName,
+            OrgName = employee.OrgName,
+            UserRole = employee.UserRole,
+        });
+        var service = new UserService(_db, currentUser, new FakeLicense());
+
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
+            service.UpdateOrganizationAsync(new UpdateOrganizationDto
+            {
+                Name = "Ruxsatsiz",
+                Address = "Manzil",
+                INN = "123456789",
+            }, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Owner_can_change_inventory_mode_from_settings()
+    {
+        var owner = AddUser("boss", UserRole.Boshliq);
+        await using (var db = _db.CreateDbContext())
+        {
+            db.SysSettings.Add(new SystemSettings
+            {
+                InventoryEnabled = true,
+                CreatedAt = DateTime.UtcNow,
+            });
+            await db.SaveChangesAsync();
+        }
+
+        var currentUser = new CurrentUserService();
+        currentUser.SignIn(new AuthResultDto
+        {
+            UserId = owner.Id,
+            UserName = owner.UserName,
+            OrgName = owner.OrgName,
+            UserRole = owner.UserRole,
+        });
+
+        var service = new SystemSettingsService(_db, currentUser);
+        var settings = await service.GetInventorySettingsAsync(CancellationToken.None);
+        settings.InventoryEnabled = false;
+
+        Assert.True(await service.Update(settings, CancellationToken.None));
+        Assert.Equal(false, await service.GetInventoryEnabledAsync(CancellationToken.None));
     }
 
     [Fact]
@@ -117,7 +296,7 @@ public class DatabaseTests : IDisposable
         var owner = AddUser("boss", UserRole.Boshliq);
         await using (var db = _db.CreateDbContext())
         {
-            var storedOwner = await db.Users.SingleAsync(x => x.Id == owner.Id);
+            var storedOwner = await db.Organizations.SingleAsync(x => x.OwnerId == owner.Id);
             storedOwner.Address = "Toshkent shahri";
             storedOwner.INN = "123456789";
             await db.SaveChangesAsync();
@@ -133,8 +312,9 @@ public class DatabaseTests : IDisposable
 
         await using var check = _db.CreateDbContext();
         var employee = await check.Users.SingleAsync(x => x.UserName == "xodim");
-        Assert.Equal("Toshkent shahri", employee.Address);
-        Assert.Equal("123456789", employee.INN);
+        var organization = await check.Organizations.SingleAsync(x => x.OwnerId == owner.Id);
+        Assert.Equal(organization.Id, employee.OrgId);
+        Assert.Equal("Toshkent shahri", organization.Address);
     }
 
     // ---------- Audit log ----------
@@ -317,7 +497,10 @@ public class DatabaseTests : IDisposable
         // To'g'ri joriy parol bilan login va parol o'zgaradi
         await service.UpdateAsync(new UpdateUserDto
         {
-            Id = owner.Id, UserName = "Rahbar", Password = "yangi123", CurrentPassword = "eski",
+            Id = owner.Id,
+            UserName = "Rahbar",
+            Password = "yangi123",
+            CurrentPassword = "eski",
         }, CancellationToken.None);
 
         var login = await new AuthService(_db).Login(

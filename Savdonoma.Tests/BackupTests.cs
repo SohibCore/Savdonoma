@@ -1,6 +1,6 @@
+using Savdonoma.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Savdonoma.Data;
 
 namespace Savdonoma.Tests;
 

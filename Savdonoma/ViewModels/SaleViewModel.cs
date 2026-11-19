@@ -164,6 +164,8 @@ namespace Savdonoma.ViewModels
             }
         }
 
+        public Task ReloadInventoryModeAsync() => LoadInventoryModeAsync();
+
         private void LicenseStatusChanged(object? sender, LicenseState state)
         {
             Application.Current.Dispatcher.BeginInvoke(new Action(() =>

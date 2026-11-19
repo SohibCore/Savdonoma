@@ -6,6 +6,8 @@ namespace Savdonoma.Data.Services.UserService
     {
         Task<bool> HasUsersAsync(CancellationToken cancellation);
         Task<AuthResultDto> RegisterFirstOwnerAsync(CreateUserDto dto, CancellationToken cancellation);
+        Task<OrganizationDetailsDto> GetOrganizationDetailsAsync(CancellationToken cancellation);
+        Task UpdateOrganizationAsync(UpdateOrganizationDto dto, CancellationToken cancellation);
 
         // Rahbarning o'zi va xodimlar. includeInactive = true bo'lsa, nofaol xodimlar ham qaytadi.
         Task<List<UserDto>> GetListAsync(bool includeInactive, CancellationToken cancellation);

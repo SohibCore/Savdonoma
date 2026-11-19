@@ -107,6 +107,60 @@ namespace Savdonoma.Data.Migrations
                     b.ToTable("SYS_CATEGORY", (string)null);
                 });
 
+            modelBuilder.Entity("Savdonoma.Core.Entity.Organization", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("ADDRESS")
+                        .HasColumnOrder(3);
+
+                    b.Property<string>("INN")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("varchar(12)")
+                        .HasColumnName("INN")
+                        .HasColumnOrder(4);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("NAME")
+                        .HasColumnOrder(2);
+
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("integer")
+                        .HasColumnName("OWNER_ID")
+                        .HasColumnOrder(7);
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("varchar(12)")
+                        .HasColumnName("PHONE")
+                        .HasColumnOrder(5);
+
+                    b.Property<string>("Website")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("WEBSITE")
+                        .HasColumnOrder(6);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("SYS_ORGANIZATION", (string)null);
+                });
+
             modelBuilder.Entity("Savdonoma.Core.Entity.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -801,19 +855,10 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("ID")
                         .HasColumnOrder(0);
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)")
-                        .HasDefaultValue("NULL")
-                        .HasColumnName("ADDRESS")
-                        .HasColumnOrder(8);
-
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("CREATED_AT")
-                        .HasColumnOrder(10);
+                        .HasColumnOrder(9);
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -822,18 +867,14 @@ namespace Savdonoma.Data.Migrations
                         .HasColumnName("FULL_NAME")
                         .HasColumnOrder(1);
 
-                    b.Property<string>("INN")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)")
-                        .HasDefaultValue("NULL")
-                        .HasColumnName("INN")
-                        .HasColumnOrder(9);
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("IS_ACTIVE")
+                        .HasColumnOrder(6);
+
+                    b.Property<int>("OrgId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ORGANIZATION_ID")
                         .HasColumnOrder(5);
 
                     b.Property<string>("OrgName")
@@ -854,12 +895,12 @@ namespace Savdonoma.Data.Migrations
                         .IsRequired()
                         .HasColumnType("boolean")
                         .HasColumnName("SELF_REGISTER")
-                        .HasColumnOrder(7);
+                        .HasColumnOrder(8);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("UPDATED_AT")
-                        .HasColumnOrder(11);
+                        .HasColumnOrder(10);
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -872,7 +913,7 @@ namespace Savdonoma.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("USER_ROLE")
-                        .HasColumnOrder(6);
+                        .HasColumnOrder(7);
 
                     b.HasKey("Id");
 
@@ -882,6 +923,17 @@ namespace Savdonoma.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("SYS_USER", (string)null);
+                });
+
+            modelBuilder.Entity("Savdonoma.Core.Entity.Organization", b =>
+                {
+                    b.HasOne("Savdonoma.Core.Entity.User", "Owner")
+                        .WithMany("Organizations")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("Savdonoma.Core.Entity.Product", b =>
@@ -1023,6 +1075,11 @@ namespace Savdonoma.Data.Migrations
             modelBuilder.Entity("Savdonoma.Core.Entity.Supplier", b =>
                 {
                     b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("Savdonoma.Core.Entity.User", b =>
+                {
+                    b.Navigation("Organizations");
                 });
 #pragma warning restore 612, 618
         }

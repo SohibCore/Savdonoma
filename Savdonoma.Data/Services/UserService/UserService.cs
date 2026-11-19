@@ -42,24 +42,109 @@ namespace Savdonoma.Data.Services.UserService
             if (await db.Users.AnyAsync(x => x.UserName == userName, cancellation))
                 throw new InvalidOperationException("Bu login band.");
 
+            await using var transaction = await db.Database.BeginTransactionAsync(cancellation);
+
             var owner = new User
             {
-                FullName = dto.FullName.Trim(),
+                IsActive = true,
                 UserName = userName,
+                SelfRegister = true,
+                UserRole = UserRole.Boshliq,
+                FullName = dto.FullName.Trim(),
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                 OrgName = dto.OrgName.Trim(),
-                INN = string.IsNullOrWhiteSpace(dto.INN) ? "NULL" : dto.INN.Trim(),
-                Address = string.IsNullOrWhiteSpace(dto.Address) ? "NULL" : dto.Address.Trim(),
-                UserRole = UserRole.Boshliq,
-                IsActive = true,
-                SelfRegister = true,
                 CreatedAt = DateTime.UtcNow
             };
 
             db.Users.Add(owner);
             await db.SaveChangesAsync(cancellation);
 
-            return ToAuthResult(owner);
+            var org = new Organization
+            {
+                OwnerId = owner.Id,
+                Phone = dto.Phone?.Trim() ?? "",
+                Website = dto.Website?.Trim() ?? "",
+                Name = dto.OrgName.Trim(),
+                INN = dto.OrgINN.Trim(),
+                Address = dto.OrgAddress.Trim(),
+            };
+
+            db.Organizations.Add(org);
+            await db.SaveChangesAsync(cancellation);
+
+            owner.OrgId = org.Id;
+            owner.OrgName = org.Name;
+            await db.SaveChangesAsync(cancellation);
+            await transaction.CommitAsync(cancellation);
+
+            return ToAuthResult(owner, org);
+        }
+
+        public async Task<OrganizationDetailsDto> GetOrganizationDetailsAsync(CancellationToken cancellation)
+        {
+            EnsureOwner();
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
+
+            return await db.Organizations
+                .AsNoTracking()
+                .Where(x => x.OwnerId == _currentUser.UserId)
+                .Select(x => new OrganizationDetailsDto
+                {
+                    OwnerId = x.OwnerId,
+                    Name = x.Name,
+                    Address = x.Address,
+                    INN = x.INN,
+                    Phone = x.Phone,
+                    Website = x.Website,
+                    OwnerName = x.Owner.FullName,
+                    OwnerUserName = x.Owner.UserName,
+                })
+                .SingleOrDefaultAsync(cancellation)
+                ?? throw new InvalidOperationException("Do‘kon ma’lumotlari topilmadi.");
+        }
+
+        public async Task UpdateOrganizationAsync(UpdateOrganizationDto dto, CancellationToken cancellation)
+        {
+            EnsureOwner();
+            ValidateOrganizationDetails(dto);
+
+            await using var db = await _factory.CreateDbContextAsync(cancellation);
+            var organization = await db.Organizations
+                .SingleOrDefaultAsync(x => x.OwnerId == _currentUser.UserId, cancellation)
+                ?? throw new InvalidOperationException("Do‘kon ma’lumotlari topilmadi.");
+
+            var owner = await db.Users
+                .SingleOrDefaultAsync(x => x.Id == organization.OwnerId, cancellation)
+                ?? throw new InvalidOperationException("Do‘kon egasi topilmadi.");
+
+            var now = DateTime.UtcNow;
+            organization.Name = dto.Name.Trim();
+            organization.Address = dto.Address.Trim();
+            organization.INN = dto.INN.Trim();
+            organization.Phone = dto.Phone?.Trim() ?? "";
+            organization.Website = dto.Website?.Trim() ?? "";
+
+            var organizationUsers = await db.Users
+                .Where(x => x.OrgId == organization.Id)
+                .ToListAsync(cancellation);
+            foreach (var user in organizationUsers)
+            {
+                user.OrgName = organization.Name;
+                user.UpdatedAt = now;
+            }
+
+            owner.OrgName = organization.Name;
+            owner.UpdatedAt = now;
+
+            await db.SaveChangesAsync(cancellation);
+
+            _currentUser.SignIn(new AuthResultDto
+            {
+                UserId = owner.Id,
+                UserName = owner.UserName,
+                UserRole = owner.UserRole,
+                OrgName = organization.Name,
+            });
         }
 
         public async Task<List<UserDto>> GetListAsync(bool includeInactive, CancellationToken cancellation)
@@ -112,12 +197,10 @@ namespace Savdonoma.Data.Services.UserService
             await using var db = await _factory.CreateDbContextAsync(cancellation);
             await EnsureUserNameFreeAsync(db, userName, exceptId: null, cancellation);
 
-            var storeDetails = await db.Users
+            var storeDetails = await db.Organizations
                 .AsNoTracking()
-                .Where(x => x.Id == _currentUser.UserId
-                         && x.OrgName == _currentUser.OrgName
-                         && x.UserRole == UserRole.Boshliq)
-                .Select(x => new { x.Address, x.INN })
+                .Where(x => x.OwnerId == _currentUser.UserId)
+                .Select(x => new { x.Id, x.Name, x.INN })
                 .SingleOrDefaultAsync(cancellation)
                 ?? throw new InvalidOperationException("Do‘kon ma’lumotlari topilmadi.");
 
@@ -126,9 +209,8 @@ namespace Savdonoma.Data.Services.UserService
                 FullName = dto.FullName.Trim(),
                 UserName = userName,
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                OrgName = _currentUser.OrgName!,
-                Address = storeDetails.Address,
-                INN = storeDetails.INN,
+                OrgName = storeDetails.Name,
+                OrgId = storeDetails.Id,
                 UserRole = dto.UserRole,
                 IsActive = true,
                 SelfRegister = false,
@@ -245,7 +327,7 @@ namespace Savdonoma.Data.Services.UserService
 
             // Joriy sessiyadagi ma'lumotlar ham yangilansin
             if (isSelf)
-                _currentUser.SignIn(ToAuthResult(user));
+                _currentUser.SignIn(ReturnAuthResult(user));
 
             return ToDto(user);
         }
@@ -294,19 +376,60 @@ namespace Savdonoma.Data.Services.UserService
             if (string.IsNullOrWhiteSpace(dto.FullName)
                 || string.IsNullOrWhiteSpace(dto.UserName)
                 || string.IsNullOrWhiteSpace(dto.OrgName)
+                || string.IsNullOrWhiteSpace(dto.OrgAddress)
+                || string.IsNullOrWhiteSpace(dto.OrgINN)
                 || string.IsNullOrEmpty(dto.Password))
-                throw new InvalidOperationException("Barcha maydonlarni to‘ldiring.");
+                throw new InvalidOperationException("Do‘kon va egasi ma’lumotlarini to‘liq kiriting.");
+
+            if (dto.Password.Length < MinPasswordLength)
+                throw new InvalidOperationException($"Parol kamida {MinPasswordLength} ta belgidan iborat bo‘lishi kerak.");
+            if (dto.OrgName.Trim().Length > 100
+                || dto.OrgAddress.Trim().Length > 200
+                || dto.OrgINN.Trim().Length > 12
+                || (dto.Phone?.Trim().Length ?? 0) > 12
+                || (dto.Website?.Trim().Length ?? 0) > 100
+                || dto.FullName.Trim().Length > 350
+                || dto.UserName.Trim().Length > 100)
+                throw new InvalidOperationException("Kiritilgan ma’lumotlardan biri ruxsat etilgan uzunlikdan oshdi.");
+        }
+
+        private static void ValidateOrganizationDetails(UpdateOrganizationDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Name)
+                || string.IsNullOrWhiteSpace(dto.Address)
+                || string.IsNullOrWhiteSpace(dto.INN))
+                throw new InvalidOperationException("Do‘kon nomi, manzili va INN’ni to‘liq kiriting.");
+
+            if (dto.Name.Trim().Length > 100
+                || dto.Address.Trim().Length > 200
+                || dto.INN.Trim().Length > 12
+                || (dto.Phone?.Trim().Length ?? 0) > 12
+                || (dto.Website?.Trim().Length ?? 0) > 100)
+                throw new InvalidOperationException("Kiritilgan ma’lumotlardan biri ruxsat etilgan uzunlikdan oshdi.");
         }
 
         private static string NormalizeUserName(string userName) =>
             userName.Trim().ToLowerInvariant();
 
-        private static AuthResultDto ToAuthResult(User user) => new()
+        private static AuthResultDto ToAuthResult(User user, Organization organization) => new()
         {
             UserId = user.Id,
             UserName = user.UserName,
+            UserRole = user.UserRole,
+
+            INN = organization.INN,
+            Address = organization.Address,
+            OrgName = organization.Name,
+            Phone = organization.Phone,
+            Website = organization.Website,
+        };
+
+        private static AuthResultDto ReturnAuthResult(User user) => new()
+        {
+            UserId = user.Id,
+            UserName = user.UserName,
+            UserRole = user.UserRole,
             OrgName = user.OrgName,
-            UserRole = user.UserRole
         };
 
         private static UserDto ToDto(User user) => new()

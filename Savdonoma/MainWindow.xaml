@@ -162,12 +162,39 @@
                                 </Style.Triggers>
                             </Style>
                         </StackPanel.Style>
-                        <Border Background="#1E293B" BorderBrush="#334155" BorderThickness="1"
-                                CornerRadius="10" Padding="10,7" Margin="0,0,0,6"
+                        <Button Command="{Binding ChangeInventoryModeCommand}"
+                                IsEnabled="{Binding IsOwner}"
+                                Background="#1E293B" BorderBrush="#334155" BorderThickness="1"
+                                Padding="10,7" Margin="0,0,0,6"
                                 ToolTip="{Binding InventoryModeTooltip}">
-                            <TextBlock Text="{Binding InventoryModeText}" FontSize="12"
-                                       FontWeight="SemiBold" Foreground="#BFDBFE" />
-                        </Border>
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="ModeBadge"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="10" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="ModeBadge" Property="Background" Value="#334155" />
+                                            <Setter TargetName="ModeBadge" Property="BorderBrush" Value="#60A5FA" />
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter TargetName="ModeBadge" Property="Opacity" Value="0.7" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <StackPanel>
+                                <TextBlock Text="DO‘KON REJIMI" FontSize="10"
+                                           FontWeight="Bold" Foreground="#94A3B8" />
+                                <TextBlock Text="{Binding InventoryModeText}" FontSize="12"
+                                           FontWeight="SemiBold" Foreground="#BFDBFE"
+                                           Margin="0,3,0,0" />
+                            </StackPanel>
+                        </Button>
                         <Border Background="#1E293B" BorderBrush="#334155" BorderThickness="1"
                                 CornerRadius="10" Padding="10,7">
                             <TextBlock Text="{Binding TodayText}" FontSize="12"
@@ -342,6 +369,52 @@
                             <TextBlock Text="Xodimlar" FontSize="15" FontWeight="SemiBold"
                                        Margin="10,0,0,0" VerticalAlignment="Center"
                                        Style="{StaticResource NavLabelStyle}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding ShowOrganizationCommand}"
+                            Visibility="{Binding IsOwner, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Tag="{Binding IsOrganizationActive}" ToolTip="Do‘kon va egasi ma’lumotlari">
+                        <Button.Style>
+                            <Style BasedOn="{StaticResource NavButtonStyle}" TargetType="Button">
+                                <Setter Property="Height" Value="58" />
+                                <Setter Property="Margin" Value="0,3,0,8" />
+                                <Setter Property="Background" Value="#142238" />
+                                <Setter Property="BorderBrush" Value="#263A55" />
+                                <Setter Property="BorderThickness" Value="1" />
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsMainMenuExpanded}" Value="True" />
+                                            <Condition Binding="{Binding IsOrganizationActive}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="#0F766E" />
+                                        <Setter Property="BorderBrush" Value="#2DD4BF" />
+                                        <Setter Property="Foreground" Value="#FFFFFF" />
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource NavIconStyle}">
+                                <Path Width="21" Height="21" Stretch="Uniform" Fill="Transparent"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.7" StrokeLineJoin="Round"
+                                      Data="M3,10 L4,4 L20,4 L21,10 M3,10 L3,21 L21,21 L21,10 M8,21 L8,15 L16,15 L16,21 M3,10 C3,12 7,12 7,10 C7,12 11,12 11,10 C11,12 15,12 15,10 C15,12 19,12 21,10" />
+                            </Border>
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsMainMenuExpanded}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+                                <TextBlock Text="Do‘kon haqida" FontSize="14" FontWeight="SemiBold" />
+                                <TextBlock Text="Do‘kon va egasi" FontSize="11" Opacity="0.75"
+                                           Margin="0,2,0,0" />
+                            </StackPanel>
                         </StackPanel>
                     </Button>
                     <Button Click="ContactButton_Click" Height="44" Margin="0,6,0,0"

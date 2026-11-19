@@ -27,6 +27,7 @@ namespace Savdonoma.Data
         public DbSet<StockDocumentLine> StockDocumentLines { get; set; } = null!;
         public DbSet<StockMovement> StockMovements { get; set; } = null!;
         public DbSet<ProductBarcode> ProductBarcodes { get; set; } = null!;
+        public DbSet<Organization> Organizations { get; set; } = null!;
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {

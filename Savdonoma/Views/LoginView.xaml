@@ -77,7 +77,7 @@
             </Setter>
         </Style>
 
-        <Style x:Key="RegistrationFieldStyle" TargetType="StackPanel">
+        <Style x:Key="RegistrationPanelStyle" TargetType="Grid">
             <Setter Property="Visibility" Value="Collapsed" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsRegistration}" Value="True">
@@ -121,7 +121,28 @@
                     </Grid.ColumnDefinitions>
 
                     <Grid Grid.Column="0">
-                        <Border Background="#FFFFFF" CornerRadius="24,0,0,24" />
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Grid.ColumnSpan" Value="1" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRegistration}" Value="True">
+                                        <Setter Property="Grid.ColumnSpan" Value="2" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Border Background="#FFFFFF">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="24,0,0,24" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsRegistration}" Value="True">
+                                            <Setter Property="CornerRadius" Value="24" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                        </Border>
                         <Grid Margin="34,30,34,24">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -166,160 +187,235 @@
                                 <Border Height="1" Background="#E5ECF8" Margin="0,24,0,0" />
                             </StackPanel>
 
-                            <StackPanel Grid.Row="1" VerticalAlignment="Center"
-                                        HorizontalAlignment="Center" MaxWidth="330"
-                                        Margin="0,22,0,20">
-                                <StackPanel Margin="0,0,0,13" Style="{StaticResource RegistrationFieldStyle}">
-                                    <TextBlock Text="Do‘kon nomi" Foreground="#172554"
-                                               FontSize="13" FontWeight="SemiBold" Margin="0,0,0,7" />
-                                    <TextBox Style="{StaticResource AuthTextBoxStyle}" Tag="Do‘kon nomi"
-                                             Text="{Binding OrgName, UpdateSourceTrigger=PropertyChanged}" />
-                                </StackPanel>
-
-                                <StackPanel Margin="0,0,0,13" Style="{StaticResource RegistrationFieldStyle}">
-                                    <TextBlock Text="INN" Foreground="#172554"
-                                               FontSize="13" FontWeight="SemiBold" Margin="0,0,0,7" />
-                                    <TextBox Style="{StaticResource AuthTextBoxStyle}" Tag="INN"
-                                             MaxLength="20"
-                                             Text="{Binding Inn, UpdateSourceTrigger=PropertyChanged}" />
-                                </StackPanel>
-
-                                <StackPanel Margin="0,0,0,13" Style="{StaticResource RegistrationFieldStyle}">
-                                    <TextBlock Text="Do‘kon manzili" Foreground="#172554"
-                                               FontSize="13" FontWeight="SemiBold" Margin="0,0,0,7" />
-                                    <TextBox Style="{StaticResource AuthTextBoxStyle}" Tag="Do‘kon manzili"
-                                             MaxLength="500"
-                                             Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}" />
-                                </StackPanel>
-
-                                <StackPanel Margin="0,0,0,13" Style="{StaticResource RegistrationFieldStyle}">
-                                    <TextBlock Text="Ism-familiya" Foreground="#172554"
-                                               FontSize="13" FontWeight="SemiBold" Margin="0,0,0,7" />
-                                    <TextBox Style="{StaticResource AuthTextBoxStyle}" Tag="Ism-familiyangiz"
-                                             Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" />
-                                </StackPanel>
-
-                                <TextBlock Foreground="#172554" FontSize="13"
-                                           FontWeight="SemiBold" Margin="0,0,0,7">
-                                    <Run Text="&#xE77B; " FontFamily="Segoe MDL2 Assets"
-                                         Foreground="#172554" />
-                                    <Run Text="Login" />
-                                </TextBlock>
-                                <TextBox Style="{StaticResource AuthTextBoxStyle}"
-                                         Tag="Foydalanuvchi logini"
-                                         Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}"
-                                         Margin="0,0,0,17" />
-
-                                <TextBlock Foreground="#172554" FontSize="13"
-                                           FontWeight="SemiBold" Margin="0,0,0,7">
-                                    <Run Text="&#xE72E; " FontFamily="Segoe MDL2 Assets"
-                                         Foreground="#172554" />
-                                    <Run Text="Parol" />
-                                </TextBlock>
-                                <Grid Height="46" Margin="0,0,0,12">
-                                    <PasswordBox x:Name="PasswordInput"
-                                                 Style="{StaticResource AuthPasswordBoxStyle}"
-                                                 PasswordChanged="PasswordInput_PasswordChanged" />
-                                    <TextBlock x:Name="PasswordPlaceholder"
-                                               Text="Parolingizni kiriting"
-                                               Foreground="#91A1BF" FontSize="14"
-                                               Margin="16,0" VerticalAlignment="Center"
-                                               IsHitTestVisible="False" />
-                                </Grid>
-
-                                <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626"
-                                           TextWrapping="Wrap" Margin="0,0,0,8" />
-                                <Button Command="{Binding SubmitCommand}" IsDefault="True"
-                                        Height="48" BorderThickness="0" Foreground="White"
-                                        FontSize="15" FontWeight="SemiBold" Cursor="Hand">
-                                    <Button.Style>
-                                        <Style TargetType="Button">
-                                            <Setter Property="IsEnabled" Value="True" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsBusy}" Value="True">
-                                                    <Setter Property="IsEnabled" Value="False" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                    <Button.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="#1477FF" Offset="0" />
-                                            <GradientStop Color="#173BF0" Offset="1" />
-                                        </LinearGradientBrush>
-                                    </Button.Background>
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border x:Name="ButtonBorder"
-                                                    Background="{TemplateBinding Background}"
-                                                    CornerRadius="13">
-                                                <Border.Effect>
-                                                    <DropShadowEffect Color="#2563EB" BlurRadius="14"
-                                                                      ShadowDepth="5" Opacity="0.24" />
-                                                </Border.Effect>
-                                                <StackPanel Orientation="Horizontal"
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center">
-                                                    <TextBlock Text="→" FontSize="20"
-                                                               Margin="0,0,12,2" />
-                                                    <ContentPresenter VerticalAlignment="Center" />
-                                                </StackPanel>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.92" />
-                                                </Trigger>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.55" />
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                    <TextBlock Text="Davom etish" />
-                                </Button>
-
-                                <TextBlock Text="{Binding InfoMessage}" Foreground="#15803D"
-                                           TextWrapping="Wrap" Margin="0,10,0,0" />
-
-                                <StackPanel Margin="0,14,0,0"
-                                            Style="{StaticResource LoginOnlyPanelStyle}">
-                                    <Grid Margin="0,0,0,10">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Border Height="1" Background="#E5ECF8"
-                                                VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="1" Text="Yoki"
-                                                   Foreground="#94A3B8" FontSize="12"
-                                                   Margin="12,0" />
-                                        <Border Grid.Column="2" Height="1"
-                                                Background="#E5ECF8" VerticalAlignment="Center" />
-                                    </Grid>
-                                    <Button Content="ⓘ   Parolni unutdim?"
-                                            Click="ForgotPassword_Click"
-                                            Height="42" Background="White"
-                                            Foreground="#1763F5" BorderBrush="#D6E3FF"
-                                            BorderThickness="1" FontSize="13"
-                                            FontWeight="SemiBold" Cursor="Hand" />
-                                </StackPanel>
-
-                                <TextBlock Text="Birinchi kirishda do‘kon egasi avtomatik yaratiladi."
-                                           Foreground="#7586A7" FontSize="11"
-                                           TextWrapping="Wrap" Margin="0,12,0,0">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Visibility" Value="Collapsed" />
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <Grid MaxWidth="900" Margin="0,18,0,10"
+                                      HorizontalAlignment="Center">
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsRegistration}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
+                                                    <Setter Property="Width" Value="900" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </StackPanel>
+                                    </Grid.Style>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <Grid Grid.Row="0" Style="{StaticResource RegistrationPanelStyle}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Grid.Column="0" Background="#F8FAFC"
+                                                BorderBrush="#E5ECF8" BorderThickness="1"
+                                                CornerRadius="14" Padding="20"
+                                                Margin="0,0,10,0">
+                                            <StackPanel>
+                                                <TextBlock Text="Do‘kon ma’lumotlari"
+                                                           FontSize="17" FontWeight="SemiBold"
+                                                           Foreground="#172554" Margin="0,0,0,14" />
+                                                <TextBlock Text="Do‘kon nomi" Foreground="#172554"
+                                                           FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6" />
+                                                <TextBox Style="{StaticResource AuthTextBoxStyle}" Tag="Do‘kon nomi"
+                                                         MaxLength="100"
+                                                         Text="{Binding OrgName, UpdateSourceTrigger=PropertyChanged}"
+                                                         Margin="0,0,0,10" />
+                                                <TextBlock Text="Do‘kon INN" Foreground="#172554"
+                                                           FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6" />
+                                                <TextBox Style="{StaticResource AuthTextBoxStyle}" Tag="Do‘kon INN"
+                                                         MaxLength="12"
+                                                         Text="{Binding OrgINN, UpdateSourceTrigger=PropertyChanged}"
+                                                         Margin="0,0,0,10" />
+                                                <TextBlock Text="Do‘kon manzili" Foreground="#172554"
+                                                           FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6" />
+                                                <TextBox Style="{StaticResource AuthTextBoxStyle}" Tag="Do‘kon manzili"
+                                                         MaxLength="200"
+                                                         Text="{Binding OrgAddress, UpdateSourceTrigger=PropertyChanged}"
+                                                         Margin="0,0,0,10" />
+                                                <TextBlock Text="Telefon (ixtiyoriy)" Foreground="#172554"
+                                                           FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6" />
+                                                <TextBox Style="{StaticResource AuthTextBoxStyle}" Tag="Do‘kon telefoni"
+                                                         MaxLength="12"
+                                                         Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
+                                                         Margin="0,0,0,10" />
+                                                <TextBlock Text="Veb-sayt (ixtiyoriy)" Foreground="#172554"
+                                                           FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6" />
+                                                <TextBox Style="{StaticResource AuthTextBoxStyle}" Tag="Do‘kon veb-sayti"
+                                                         MaxLength="100"
+                                                         Text="{Binding Website, UpdateSourceTrigger=PropertyChanged}" />
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border Grid.Column="1" Background="#F8FAFC"
+                                                BorderBrush="#E5ECF8" BorderThickness="1"
+                                                CornerRadius="14" Padding="20"
+                                                Margin="10,0,0,0">
+                                            <StackPanel>
+                                                <TextBlock Text="Egasi ma’lumotlari"
+                                                           FontSize="17" FontWeight="SemiBold"
+                                                           Foreground="#172554" Margin="0,0,0,14" />
+                                                <TextBlock Text="Ism-familiya" Foreground="#172554"
+                                                           FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6" />
+                                                <TextBox Style="{StaticResource AuthTextBoxStyle}" Tag="Ism-familiyangiz"
+                                                         Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
+                                                         Margin="0,0,0,10" />
+                                                <TextBlock Text="Login" Foreground="#172554"
+                                                           FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6" />
+                                                <TextBox Style="{StaticResource AuthTextBoxStyle}"
+                                                         Tag="Foydalanuvchi logini"
+                                                         Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}"
+                                                         Margin="0,0,0,10" />
+                                                <TextBlock Text="Parol" Foreground="#172554"
+                                                           FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6" />
+                                                <Grid Height="46">
+                                                    <PasswordBox x:Name="RegistrationPasswordInput"
+                                                                 Style="{StaticResource AuthPasswordBoxStyle}"
+                                                                 PasswordChanged="PasswordInput_PasswordChanged" />
+                                                    <TextBlock x:Name="RegistrationPasswordPlaceholder"
+                                                               Text="Parolingizni kiriting"
+                                                               Foreground="#91A1BF" FontSize="14"
+                                                               Margin="16,0" VerticalAlignment="Center"
+                                                               IsHitTestVisible="False" />
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+
+                                    <StackPanel Grid.Row="1" MaxWidth="560"
+                                                HorizontalAlignment="Center" Margin="0,16,0,0">
+                                        <StackPanel Style="{StaticResource LoginOnlyPanelStyle}">
+                                            <TextBlock Foreground="#172554" FontSize="13"
+                                                       FontWeight="SemiBold" Margin="0,0,0,6">
+                                                <Run Text="&#xE77B; " FontFamily="Segoe MDL2 Assets"
+                                                     Foreground="#172554" />
+                                                <Run Text="Login" />
+                                            </TextBlock>
+                                            <TextBox Style="{StaticResource AuthTextBoxStyle}"
+                                                     Tag="Foydalanuvchi logini"
+                                                     Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}"
+                                                     Margin="0,0,0,12" />
+
+                                            <TextBlock Foreground="#172554" FontSize="13"
+                                                       FontWeight="SemiBold" Margin="0,0,0,6">
+                                                <Run Text="&#xE72E; " FontFamily="Segoe MDL2 Assets"
+                                                     Foreground="#172554" />
+                                                <Run Text="Parol" />
+                                            </TextBlock>
+                                            <Grid Height="46" Margin="0,0,0,10">
+                                                <PasswordBox x:Name="PasswordInput"
+                                                             Style="{StaticResource AuthPasswordBoxStyle}"
+                                                             PasswordChanged="PasswordInput_PasswordChanged" />
+                                                <TextBlock x:Name="PasswordPlaceholder"
+                                                           Text="Parolingizni kiriting"
+                                                           Foreground="#91A1BF" FontSize="14"
+                                                           Margin="16,0" VerticalAlignment="Center"
+                                                           IsHitTestVisible="False" />
+                                            </Grid>
+                                        </StackPanel>
+
+                                        <TextBlock Text="{Binding ErrorMessage}" Foreground="#DC2626"
+                                                   TextWrapping="Wrap" Margin="0,0,0,8" />
+                                        <Button Command="{Binding SubmitCommand}" IsDefault="True"
+                                                Height="48" BorderThickness="0" Foreground="White"
+                                                FontSize="15" FontWeight="SemiBold" Cursor="Hand">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="IsEnabled" Value="True" />
+                                                    <Setter Property="Width" Value="280" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                                            <Setter Property="IsEnabled" Value="False" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsRegistration}" Value="True">
+                                                            <Setter Property="Width" Value="420" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                            <Button.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                    <GradientStop Color="#1477FF" Offset="0" />
+                                                    <GradientStop Color="#173BF0" Offset="1" />
+                                                </LinearGradientBrush>
+                                            </Button.Background>
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="ButtonBorder"
+                                                            Background="{TemplateBinding Background}"
+                                                            CornerRadius="13">
+                                                        <Border.Effect>
+                                                            <DropShadowEffect Color="#2563EB" BlurRadius="14"
+                                                                              ShadowDepth="5" Opacity="0.24" />
+                                                        </Border.Effect>
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center">
+                                                            <TextBlock Text="→" FontSize="20"
+                                                                       Margin="0,0,12,2" />
+                                                            <ContentPresenter VerticalAlignment="Center" />
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.92" />
+                                                        </Trigger>
+                                                        <Trigger Property="IsEnabled" Value="False">
+                                                            <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.55" />
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                            <TextBlock Text="Davom etish" />
+                                        </Button>
+
+                                        <TextBlock Text="{Binding InfoMessage}" Foreground="#15803D"
+                                                   TextWrapping="Wrap" Margin="0,10,0,0" />
+
+                                        <StackPanel Margin="0,14,0,0"
+                                                    Style="{StaticResource LoginOnlyPanelStyle}">
+                                            <Grid Margin="0,0,0,10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Border Height="1" Background="#E5ECF8"
+                                                        VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="1" Text="Yoki"
+                                                           Foreground="#94A3B8" FontSize="12"
+                                                           Margin="12,0" />
+                                                <Border Grid.Column="2" Height="1"
+                                                        Background="#E5ECF8" VerticalAlignment="Center" />
+                                            </Grid>
+                                            <Button Content="ⓘ   Parolni unutdim?"
+                                                    Click="ForgotPassword_Click"
+                                                    Height="42" Background="White"
+                                                    Foreground="#1763F5" BorderBrush="#D6E3FF"
+                                                    BorderThickness="1" FontSize="13"
+                                                    FontWeight="SemiBold" Cursor="Hand" />
+                                        </StackPanel>
+
+                                        <TextBlock Text="Birinchi kirishda do‘kon egasi avtomatik yaratiladi."
+                                                   Foreground="#7586A7" FontSize="11"
+                                                   TextWrapping="Wrap" Margin="0,10,0,0">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsRegistration}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+                            </ScrollViewer>
 
                             <Viewbox Grid.Row="2" Stretch="Fill" Opacity="0.72"
                                      HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
@@ -355,6 +451,16 @@
 
                     <Border Grid.Column="1" Margin="0" Padding="34,30"
                             CornerRadius="22" ClipToBounds="True">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Visible" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRegistration}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                                 <GradientStop Color="#07183F" Offset="0" />

@@ -1,7 +1,6 @@
 ﻿using Savdonoma.Core.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Savdonoma.Data.Configurations
 {

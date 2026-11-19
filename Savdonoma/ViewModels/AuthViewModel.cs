@@ -27,16 +27,22 @@ namespace Savdonoma.ViewModels
         private string orgName = "";
 
         [ObservableProperty]
-        private string inn = "";
+        private string orgAddress = "";
 
         [ObservableProperty]
-        private string address = "";
+        private string orgINN = "";
 
         [ObservableProperty]
         private string userName = "";
 
         [ObservableProperty]
+        private string website = "";
+
+        [ObservableProperty]
         private string password = "";
+
+        [ObservableProperty]
+        private string phone = "";
 
         [ObservableProperty]
         private string errorMessage = "";
@@ -78,17 +84,22 @@ namespace Savdonoma.ViewModels
                 AuthResultDto result;
                 if (IsRegistration)
                 {
-                    result = await _userService.RegisterFirstOwnerAsync(
-                        new CreateUserDto
-                        {
-                            OrgName = OrgName,
-                            INN = Inn,
-                            Address = Address,
-                            FullName = FullName,
-                            UserName = UserName,
-                            Password = Password,
-                            UserRole = UserRole.Boshliq
-                        }, CancellationToken.None);
+                    result = await _userService.RegisterFirstOwnerAsync(new CreateUserDto
+                    {
+                        // User Details
+                        FullName = FullName,
+                        UserName = UserName,
+                        Password = Password,
+                        UserRole = UserRole.Boshliq,
+
+                        // Organization Details
+                        OrgName = OrgName,
+                        Name = OrgName,
+                        OrgAddress = OrgAddress,
+                        OrgINN = OrgINN,
+                        Phone = Phone,
+                        Website = Website
+                    }, CancellationToken.None);
                 }
                 else
                 {

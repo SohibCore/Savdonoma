@@ -6,6 +6,8 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Savdonoma.Data.Services.SystemSetting;
+using Savdonoma.Data.Services.SystemSettings;
+using Savdonoma.Views;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Savdonoma.ViewModels
@@ -48,6 +50,9 @@ namespace Savdonoma.ViewModels
 
         [ObservableProperty]
         private bool isEmployeesActive;
+
+        [ObservableProperty]
+        private bool isOrganizationActive;
 
         [ObservableProperty]
         private bool isWarehouseActive;
@@ -131,7 +136,7 @@ namespace Savdonoma.ViewModels
                 InventoryModeText = inventoryEnabled.Value
                     ? "Qoldiq bilan"
                     : "Qoldiqsiz";
-                InventoryModeTooltip = "Do'kon rejimi";
+                InventoryModeTooltip = "Do‘kon rejimini o‘zgartirish uchun bosing";
             }
             catch (Exception ex)
             {
@@ -168,7 +173,7 @@ namespace Savdonoma.ViewModels
             };
         }
 
-        private void SetActiveSection(bool sale = false, bool products = false, bool reports = false, bool license = false, bool employees = false, bool warehouse = false)
+        private void SetActiveSection(bool sale = false, bool products = false, bool reports = false, bool license = false, bool employees = false, bool warehouse = false, bool organization = false)
         {
             IsSaleActive = sale;
             IsProductsActive = products;
@@ -176,6 +181,7 @@ namespace Savdonoma.ViewModels
             IsLicenseActive = license;
             IsEmployeesActive = employees;
             IsWarehouseActive = warehouse;
+            IsOrganizationActive = organization;
         }
 
         [RelayCommand]
@@ -293,6 +299,64 @@ namespace Savdonoma.ViewModels
             PageSubtitle = "Xodimlar va ularning tizimdagi rollarini boshqaring";
             SetActiveSection(employees: true);
             await viewModel.LoadCommand.ExecuteAsync(null);
+        }
+
+        [RelayCommand]
+        private async Task ShowOrganizationAsync()
+        {
+            if (!_currentUser.IsOwner)
+                return;
+
+            var viewModel = _sp.GetRequiredService<OrganizationViewModel>();
+            CurrentPage = viewModel;
+            PageTitle = "Do‘kon haqida";
+            PageSubtitle = "Do‘kon va egasi ma’lumotlari";
+            SetActiveSection(organization: true);
+            await viewModel.LoadAsync();
+        }
+
+        [RelayCommand]
+        private async Task ChangeInventoryModeAsync()
+        {
+            if (!_currentUser.IsOwner)
+                return;
+
+            try
+            {
+                var settings = await _settings.GetInventorySettingsAsync(CancellationToken.None);
+                var window = new InventorySetupWindow(settings.InventoryEnabled == true)
+                {
+                    Owner = Application.Current.MainWindow
+                };
+
+                if (window.ShowDialog() != true)
+                    return;
+
+                await _settings.Update(new UpdateSystemSettingsDto
+                {
+                    Id = settings.Id,
+                    InventoryEnabled = window.InventoryEnabled,
+                }, CancellationToken.None);
+
+                await LoadInventoryModeAsync();
+
+                foreach (var session in SaleSessions)
+                    await session.ReloadInventoryModeAsync();
+
+                if (CurrentPage is ProductsViewModel products)
+                {
+                    await products.ReloadInventoryModeAsync();
+                    await products.RefreshProductsCommand.ExecuteAsync(null);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    ex.Message,
+                    "Do‘kon rejimini saqlashda xatolik",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
     }
 }

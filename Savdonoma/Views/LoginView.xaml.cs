@@ -17,7 +17,10 @@ namespace Savdonoma.Views
             if (DataContext is AuthViewModel viewModel && sender is PasswordBox passwordBox)
             {
                 viewModel.Password = passwordBox.Password;
-                PasswordPlaceholder.Visibility = passwordBox.Password.Length == 0
+                var placeholder = passwordBox.Name == nameof(RegistrationPasswordInput)
+                    ? RegistrationPasswordPlaceholder
+                    : PasswordPlaceholder;
+                placeholder.Visibility = passwordBox.Password.Length == 0
                     ? Visibility.Visible
                     : Visibility.Collapsed;
             }

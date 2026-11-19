@@ -7,13 +7,13 @@ namespace Savdonoma.Core.Entity
         public int Id { get; set; }
         public string FullName { get; set; } = null!;
         public string UserName { get; set; } = null!;
-        public string Address { get; set; } = "NULL";
         public string Password { get; set; } = null!;
+        public int OrgId { get; set; }
         public string OrgName { get; set; } = null!;
         public UserRole UserRole { get; set; }
-        public string INN { get; set; } = "NULL";
         public bool IsActive { get; set; }
         public bool? SelfRegister { get; set; } = false;
+        public ICollection<Organization> Organizations { get; set; } = new List<Organization>();
 
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

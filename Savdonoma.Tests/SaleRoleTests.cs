@@ -53,11 +53,26 @@ public class SaleRoleTests : IDisposable
         var user = new User
         {
             FullName = userName, UserName = userName, Password = "x", OrgName = "S",
-            Address = "NULL", INN = "NULL",
             UserRole = role, IsActive = true, SelfRegister = role == UserRole.Boshliq,
         };
         db.Users.Add(user);
         db.SaveChanges();
+
+        if (role == UserRole.Boshliq)
+        {
+            var organization = new Organization
+            {
+                OwnerId = user.Id,
+                Name = user.OrgName,
+                Address = "",
+                Phone = "",
+                Website = ""
+            };
+            db.Organizations.Add(organization);
+            db.SaveChanges();
+            user.OrgId = organization.Id;
+            db.SaveChanges();
+        }
 
         var current = new CurrentUserService();
         current.SignIn(new AuthResultDto { UserId = user.Id, UserName = userName, OrgName = "S", UserRole = role });
@@ -132,7 +147,7 @@ public class SaleRoleTests : IDisposable
     {
         await using (var db = _db.CreateDbContext())
         {
-            var owner = await db.Users.SingleAsync(x => x.Id == _owner.UserId);
+            var owner = await db.Organizations.SingleAsync(x => x.OwnerId == _owner.UserId);
             owner.Address = "Toshkent shahri";
             owner.INN = "123456789";
             await db.SaveChangesAsync();

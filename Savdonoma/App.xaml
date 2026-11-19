@@ -45,6 +45,9 @@
             <DataTemplate DataType="{x:Type vm:EmployeesViewModel}">
                 <views:EmployeesView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:OrganizationViewModel}">
+                <views:OrganizationView />
+            </DataTemplate>
             <DataTemplate DataType="{x:Type wvm:WarehouseViewModel}">
                 <wviews:WarehouseView />
             </DataTemplate>

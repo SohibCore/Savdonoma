@@ -107,6 +107,7 @@ namespace Savdonoma
             sc.AddSingleton<LicenseViewModel>();
             sc.AddSingleton<ProductsViewModel>();
             sc.AddTransient<EmployeesViewModel>();
+            sc.AddTransient<OrganizationViewModel>();
             sc.AddTransient<PasswordResetViewModel>();
             sc.AddTransient<WarehouseViewModel>();
             sc.AddTransient<SuppliersViewModel>();
@@ -165,7 +166,7 @@ namespace Savdonoma
 
                 if (!exists)
                 {
-                    var setupWindow = new InventorySetupWindow();
+                    var setupWindow = new InventorySetupWindow(isInitialSetup: true);
                     if (setupWindow.ShowDialog() != true)
                     {
                         Shutdown();
