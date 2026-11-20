@@ -53,8 +53,22 @@ namespace Savdonoma.ViewModels
             _currentUser = currentUser;
         }
 
-        partial void OnFromDateChanged(DateTime? value) => _ = LoadAsync();
-        partial void OnToDateChanged(DateTime? value) => _ = LoadAsync();
+        partial void OnFromDateChanged(DateTime? value) { NotifyRangeButtons(); _ = LoadAsync(); }
+        partial void OnToDateChanged(DateTime? value) { NotifyRangeButtons(); _ = LoadAsync(); }
+
+        // Bugun / Shu hafta / Shu oy tugmalaridan qaysi biri tanlangani (sanalar qo'lda tanlansa ham mos keladi)
+        private static DateTime WeekStart => DateTime.Today.AddDays(-(((int)DateTime.Today.DayOfWeek + 6) % 7));
+        private static DateTime MonthStart => new(DateTime.Today.Year, DateTime.Today.Month, 1);
+        public bool IsTodayRange => FromDate == DateTime.Today && ToDate == DateTime.Today;
+        public bool IsWeekRange => FromDate == WeekStart && ToDate == DateTime.Today && !IsTodayRange;
+        public bool IsMonthRange => FromDate == MonthStart && ToDate == DateTime.Today && !IsTodayRange && !IsWeekRange;
+
+        private void NotifyRangeButtons()
+        {
+            OnPropertyChanged(nameof(IsTodayRange));
+            OnPropertyChanged(nameof(IsWeekRange));
+            OnPropertyChanged(nameof(IsMonthRange));
+        }
 
         public async Task LoadAsync()
         {
@@ -167,15 +181,13 @@ namespace Savdonoma.ViewModels
         private void ShowWeek()
         {
             var today = DateTime.Today;
-            var diff = ((int)today.DayOfWeek + 6) % 7;     // hafta dushanbadan boshlanadi
-            SetRange(today.AddDays(-diff), today);
+            SetRange(WeekStart, today);                     // hafta dushanbadan boshlanadi
         }
 
         [RelayCommand]
         private void ShowMonth()
         {
-            var today = DateTime.Today;
-            SetRange(new DateTime(today.Year, today.Month, 1), today);
+            SetRange(MonthStart, DateTime.Today);
         }
 
         [RelayCommand] private Task Refresh() => LoadAsync();

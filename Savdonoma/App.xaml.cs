@@ -20,6 +20,7 @@ using Savdonoma.Data.Services.Sales;
 using Savdonoma.Data.Services.Stock;
 using Savdonoma.Data.Services.Pricing;
 using Savdonoma.Data.Services.Reports;
+using Savdonoma.Data.Services.DashboardService;
 using Savdonoma.Data.Services.Products;
 using Savdonoma.Data.Services.Categories;
 using Savdonoma.Data.Services.Authservice;
@@ -90,6 +91,7 @@ namespace Savdonoma
             sc.AddTransient<IUserService, UserService>();
             sc.AddTransient<ISaleService, SaleService>();
             sc.AddTransient<IReportService, ReportService>();
+            sc.AddTransient<IDashboardService, DashboardService>();
             sc.AddTransient<IReceiptPrinter>(_ => new ReceiptPrinter("Xprinter XP-80C"));
             sc.AddTransient<IProductService, ProductService>();
             sc.AddTransient<ICategoryService, CategoryService>();
@@ -104,6 +106,7 @@ namespace Savdonoma
             sc.AddTransient<SaleViewModel>();
             sc.AddTransient<AuthViewModel>();
             sc.AddSingleton<ReportsViewModel>();
+            sc.AddSingleton<DashboardViewModel>();
             sc.AddSingleton<LicenseViewModel>();
             sc.AddSingleton<ProductsViewModel>();
             sc.AddTransient<EmployeesViewModel>();

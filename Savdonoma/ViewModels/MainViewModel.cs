@@ -37,6 +37,9 @@ namespace Savdonoma.ViewModels
         private string pageSubtitle = "Mahsulot tanlang va savdoni yakunlang";
 
         [ObservableProperty]
+        private bool isDashboardActive;
+
+        [ObservableProperty]
         private bool isSaleActive = false;
 
         [ObservableProperty]
@@ -136,7 +139,9 @@ namespace Savdonoma.ViewModels
                 InventoryModeText = inventoryEnabled.Value
                     ? "Qoldiq bilan"
                     : "Qoldiqsiz";
-                InventoryModeTooltip = "Do‘kon rejimini o‘zgartirish uchun bosing";
+                InventoryModeTooltip = inventoryEnabled.Value
+                    ? "Sotuvda ombor qoldig‘i hisobga olinadi"
+                    : "Sotuvda ombor qoldig‘i hisobga olinmaydi";
             }
             catch (Exception ex)
             {
@@ -173,8 +178,9 @@ namespace Savdonoma.ViewModels
             };
         }
 
-        private void SetActiveSection(bool sale = false, bool products = false, bool reports = false, bool license = false, bool employees = false, bool warehouse = false, bool organization = false)
+        private void SetActiveSection(bool sale = false, bool products = false, bool reports = false, bool license = false, bool employees = false, bool warehouse = false, bool organization = false, bool dashboard = false)
         {
+            IsDashboardActive = dashboard;
             IsSaleActive = sale;
             IsProductsActive = products;
             IsReportsActive = reports;
@@ -194,6 +200,17 @@ namespace Savdonoma.ViewModels
         {
             if (IsSaleActive && value != null)
                 CurrentPage = value;
+        }
+
+        [RelayCommand]
+        private async Task ShowDashboardAsync()
+        {
+            var viewModel = _sp.GetRequiredService<DashboardViewModel>();
+            CurrentPage = viewModel;
+            PageTitle = "Dashboard";
+            PageSubtitle = "Savdo ko‘rsatkichlari, top mahsulotlar va ogohlantirishlar";
+            SetActiveSection(dashboard: true);
+            await viewModel.LoadAsync();
         }
 
         [RelayCommand]

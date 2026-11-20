@@ -291,6 +291,36 @@
                 </StackPanel>
             </Border>
 
+            <!-- ================= DO'KON REJIMI ================= -->
+            <!-- Rejim holati va o'zgartirish MainViewModel'da (sotuv oynalari ham yangilanadi) -->
+            <Border Style="{StaticResource InfoCard}" Margin="0,0,0,18"
+                    DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource CardIconBadge}" Background="#ECFDF5">
+                        <ui:SymbolIcon Symbol="BoxCheckmark24" FontSize="22" Foreground="#059669"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Do‘kon rejimi" FontSize="18" FontWeight="SemiBold" Foreground="#1E293B" />
+                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                            <TextBlock Text="Joriy rejim:" FontSize="12" Foreground="#64748B" />
+                            <TextBlock Text="{Binding InventoryModeText}" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="#059669" Margin="4,0,0,0"
+                                       ToolTip="{Binding InventoryModeTooltip}" />
+                        </StackPanel>
+                    </StackPanel>
+                    <ui:Button Grid.Column="2" Content="O‘zgartirish" Icon="{ui:SymbolIcon ArrowSwap24}"
+                               Appearance="Primary" VerticalAlignment="Center"
+                               Command="{Binding ChangeInventoryModeCommand}"
+                               MinHeight="38" Padding="14,0" />
+                </Grid>
+            </Border>
+
             <!-- ================= DO'KON EGASI ================= -->
             <Border Style="{StaticResource InfoCard}">
                 <StackPanel>

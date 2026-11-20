@@ -45,6 +45,14 @@ namespace Savdonoma.Converters
             Unit.Quti => "quti",
             _ => unit.ToString()
         };
+
+        public static string Of(UserRole role) => role switch
+        {
+            UserRole.Boshliq => "Rahbar",
+            UserRole.Manager => "Menejer",
+            UserRole.Sotuvchi => "Sotuvchi",
+            _ => role.ToString()
+        };
     }
 
     public class DisplayNameConverter : IValueConverter

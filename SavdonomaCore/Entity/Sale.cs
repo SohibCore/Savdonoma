@@ -16,7 +16,7 @@ namespace Savdonoma.Core.Entity
         public DateTime? CancelledAt { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public int? UserId { get; set; }
-        public User? User { get; set; } 
+        public User? User { get; set; }
 
         //Navigation property
         public ICollection<SaleItem> SaleItems { get; set; } = new List<SaleItem>();

@@ -210,40 +210,6 @@
                     </Grid>
 
                     <StackPanel Margin="0,14,0,0" Style="{StaticResource ExpandedOnlyStyle}">
-                        <Button Command="{Binding ChangeInventoryModeCommand}"
-                                IsEnabled="{Binding IsOwner}"
-                                Background="#1E293B" BorderBrush="#334155" BorderThickness="1"
-                                Padding="10,7" Margin="0,0,0,6" Cursor="Hand"
-                                FocusVisualStyle="{x:Null}"
-                                ToolTip="{Binding InventoryModeTooltip}">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="ModeBadge"
-                                            Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="10" Padding="{TemplateBinding Padding}">
-                                        <ContentPresenter />
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="ModeBadge" Property="Background" Value="#334155" />
-                                            <Setter TargetName="ModeBadge" Property="BorderBrush" Value="#60A5FA" />
-                                        </Trigger>
-                                        <Trigger Property="IsEnabled" Value="False">
-                                            <Setter TargetName="ModeBadge" Property="Opacity" Value="0.7" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                            <StackPanel>
-                                <TextBlock Text="DO‘KON REJIMI" FontSize="10"
-                                           FontWeight="Bold" Foreground="#94A3B8" />
-                                <TextBlock Text="{Binding InventoryModeText}" FontSize="12"
-                                           FontWeight="SemiBold" Foreground="#BFDBFE"
-                                           Margin="0,3,0,0" />
-                            </StackPanel>
-                        </Button>
                         <Border Background="#1E293B" BorderBrush="#334155" BorderThickness="1"
                                 CornerRadius="10" Padding="10,7">
                             <TextBlock Text="{Binding TodayText}" FontSize="12"
@@ -298,6 +264,13 @@
 
                     <Border Style="{StaticResource NavSeparatorStyle}" />
 
+                    <Button Command="{Binding ShowDashboardCommand}" Tag="{Binding IsDashboardActive}"
+                            ToolTip="Dashboard" Style="{StaticResource NavButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Board24" Style="{StaticResource NavIconStyle}" />
+                            <TextBlock Text="Dashboard" Style="{StaticResource NavLabelStyle}" />
+                        </StackPanel>
+                    </Button>
                     <Button Command="{Binding ShowSaleCommand}" Tag="{Binding IsSaleActive}"
                             ToolTip="Sotuv" Style="{StaticResource NavButtonStyle}">
                         <StackPanel Orientation="Horizontal">

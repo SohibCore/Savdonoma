@@ -11,11 +11,12 @@
             <ResourceDictionary.MergedDictionaries>
                 <ui:ThemesDictionary Theme="Light" />
                 <ui:ControlsDictionary />
+                <ResourceDictionary Source="/TijoratUz;component/Styles/AppTheme.xaml" />
                 <ResourceDictionary Source="/TijoratUz;component/Styles/TableStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style x:Key="TableRowStyle" TargetType="ListViewItem">
-                <Setter Property="BorderBrush" Value="#E5E7EB" />
+                <Setter Property="BorderBrush" Value="#EEF2F6" />
                 <Setter Property="BorderThickness" Value="0,0,0,1" />
                 <Setter Property="Background" Value="White" />
                 <Setter Property="Cursor" Value="Hand" />
@@ -23,11 +24,11 @@
                 <Setter Property="Padding" Value="0" />
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="#EFF6FF" />
+                        <Setter Property="Background" Value="#F8FAFC" />
                     </Trigger>
                     <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="#DBEAFE" />
-                        <Setter Property="BorderBrush" Value="#BFDBFE" />
+                        <Setter Property="Background" Value="#EFF6FF" />
+                        <Setter Property="BorderBrush" Value="#DBEAFE" />
                     </Trigger>
                 </Style.Triggers>
             </Style>
@@ -39,6 +40,9 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type vm:ProductsViewModel}">
                 <views:ProductsView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+                <views:DashboardView />
             </DataTemplate>
             <DataTemplate DataType="{x:Type vm:ReportsViewModel}">
                 <views:ReportsView />

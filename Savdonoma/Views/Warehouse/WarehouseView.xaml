@@ -6,6 +6,7 @@
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              xmlns:conv="clr-namespace:Savdonoma.Converters"
              mc:Ignorable="d"
+             Background="#F8FAFC"
              d:DesignHeight="760" d:DesignWidth="1200">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
@@ -13,17 +14,8 @@
         <conv:MoneyConverter x:Key="Money" />
         <conv:QuantityConverter x:Key="Qty" />
 
-        <Style x:Key="Card" TargetType="Border">
-            <Setter Property="Background" Value="#E2E8F0" />
-            <Setter Property="CornerRadius" Value="12" />
-            <Setter Property="Padding" Value="18" />
-        </Style>
-        <Style x:Key="Label" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#475569" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Margin" Value="0,0,0,5" />
-        </Style>
+        <Style x:Key="Card" TargetType="Border" BasedOn="{StaticResource AppCard}" />
+        <Style x:Key="Label" TargetType="TextBlock" BasedOn="{StaticResource AppFieldLabel}" />
         <!-- Jadval yacheykalari: umumiy TableCellText (Styles/TableStyles.xaml) asosida -->
         <Style x:Key="RightCell" TargetType="TextBlock" BasedOn="{StaticResource TableCellText}" />
         <Style x:Key="CenterCheck" TargetType="CheckBox">
@@ -31,13 +23,12 @@
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="IsHitTestVisible" Value="False" />
         </Style>
-        <Style x:Key="MessageText" TargetType="TextBlock">
-            <Setter Property="TextWrapping" Value="Wrap" />
+        <Style x:Key="MessageText" TargetType="TextBlock" BasedOn="{StaticResource AppSuccessBanner}">
             <Setter Property="Margin" Value="0,8,0,0" />
-            <Setter Property="Foreground" Value="#15803D" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding HasError}" Value="True">
-                    <Setter Property="Foreground" Value="#DC2626" />
+                    <Setter Property="Foreground" Value="#B91C1C" />
+                    <Setter Property="Background" Value="#FEF2F2" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -123,7 +114,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Margin="20">
+    <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
@@ -146,11 +137,26 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <WrapPanel Grid.Row="0" Margin="0,0,0,12">
-                            <ui:Button Content="Kirim" Icon="{ui:SymbolIcon ArrowDownload24}" Command="{Binding NewReceiptCommand}" Appearance="Primary" MinHeight="40" Padding="16,0" Margin="0,0,8,0" />
-                            <ui:Button Content="Hisobdan chiqarish" Icon="{ui:SymbolIcon DeleteDismiss24}" Command="{Binding NewWriteOffCommand}" MinHeight="40" Padding="16,0" Margin="0,0,8,0" />
-                            <ui:Button Content="Inventarizatsiya" Icon="{ui:SymbolIcon ClipboardTaskListLtr24}" Command="{Binding NewInventoryCommand}" MinHeight="40" Padding="16,0" Margin="0,0,8,0" />
-                        </WrapPanel>
+                        <Grid Grid.Row="0" Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppBlueSoft}">
+                                <ui:SymbolIcon Symbol="DocumentText24" FontSize="20" Foreground="{StaticResource AppBlue}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Ombor hujjatlari" Style="{StaticResource AppCardTitle}" />
+                                <TextBlock Text="Kirim, hisobdan chiqarish va inventarizatsiya" Style="{StaticResource AppCardSubtitle}" />
+                            </StackPanel>
+                            <WrapPanel Grid.Column="2" VerticalAlignment="Center">
+                                <ui:Button Content="Kirim" Icon="{ui:SymbolIcon ArrowDownload24}" Command="{Binding NewReceiptCommand}" Appearance="Primary" MinHeight="40" Padding="16,0" Margin="8,0,0,0" />
+                                <ui:Button Content="Hisobdan chiqarish" Icon="{ui:SymbolIcon DeleteDismiss24}" Command="{Binding NewWriteOffCommand}" Appearance="Secondary" MinHeight="40" Padding="16,0" Margin="8,0,0,0" />
+                                <ui:Button Content="Inventarizatsiya" Icon="{ui:SymbolIcon ClipboardTaskListLtr24}" Command="{Binding NewInventoryCommand}" Appearance="Secondary" MinHeight="40" Padding="16,0" Margin="8,0,0,0" />
+                            </WrapPanel>
+                        </Grid>
 
                         <WrapPanel Grid.Row="1" Margin="0,0,0,12">
                             <ComboBox ItemsSource="{Binding TypeFilters}" SelectedItem="{Binding SelectedTypeFilter}"
@@ -161,7 +167,7 @@
                             <DatePicker SelectedDate="{Binding FromDate}" Width="140" Margin="0,0,8,0" VerticalAlignment="Center" />
                             <TextBlock Text="gacha" VerticalAlignment="Center" Margin="4,0,6,0" Foreground="#475569" />
                             <DatePicker SelectedDate="{Binding ToDate}" Width="140" Margin="0,0,8,0" VerticalAlignment="Center" />
-                            <ui:Button Content="Yangilash" Icon="{ui:SymbolIcon ArrowClockwise24}" Command="{Binding LoadDocumentsCommand}" MinHeight="36" Padding="12,0" />
+                            <ui:Button Content="Yangilash" Icon="{ui:SymbolIcon ArrowClockwise24}" Command="{Binding LoadDocumentsCommand}" Appearance="Secondary" MinHeight="36" Padding="12,0" />
                         </WrapPanel>
 
                         <DataGrid Grid.Row="2" ItemsSource="{Binding Documents}" SelectedItem="{Binding SelectedDocument}"
@@ -222,10 +228,19 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="{Binding LowStockSummary}" VerticalAlignment="Center" Foreground="#334155" TextWrapping="Wrap" />
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <ui:Button Content="Yangilash" Icon="{ui:SymbolIcon ArrowClockwise24}" Command="{Binding LoadLowStockCommand}" MinHeight="40" Padding="12,0" Margin="0,0,8,0" />
-                                <ui:Button Content="Shulardan kirim yaratish" Command="{Binding ReceiptFromLowStockCommand}"
+                            <StackPanel Orientation="Horizontal">
+                                <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppRedSoft}">
+                                    <ui:SymbolIcon Symbol="Warning24" FontSize="20" Foreground="{StaticResource AppRed}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Qoldig‘i kam mahsulotlar" Style="{StaticResource AppCardTitle}" />
+                                    <TextBlock Text="{Binding LowStockSummary}" Style="{StaticResource AppCardSubtitle}" />
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <ui:Button Content="Yangilash" Icon="{ui:SymbolIcon ArrowClockwise24}" Command="{Binding LoadLowStockCommand}" Appearance="Secondary" MinHeight="40" Padding="12,0" Margin="0,0,8,0" />
+                                <ui:Button Content="Shulardan kirim yaratish" Icon="{ui:SymbolIcon ArrowDownload24}" Command="{Binding ReceiptFromLowStockCommand}"
                                            Appearance="Primary" MinHeight="40" Padding="16,0" />
                             </StackPanel>
                         </Grid>
@@ -238,9 +253,10 @@
                                 <DataGridTemplateColumn Header="Amal" Width="Auto">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Button Content="Harakatlar" Padding="10,2"
-                                                    Command="{Binding DataContext.ShowProductHistoryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding}" />
+                                            <ui:Button Content="Harakatlar" Icon="{ui:SymbolIcon History24}" Appearance="Secondary"
+                                                       Padding="10,2" Margin="4,2"
+                                                       Command="{Binding DataContext.ShowProductHistoryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                       CommandParameter="{Binding}" />
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -275,8 +291,17 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding TotalDebtText}" FontWeight="SemiBold" Foreground="#0F172A" VerticalAlignment="Center" />
-                                <CheckBox Grid.Column="1" Content="Nofaollarni ko'rsatish" IsChecked="{Binding ShowInactive}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppIndigoSoft}">
+                                        <ui:SymbolIcon Symbol="VehicleTruckProfile24" FontSize="20" Foreground="{StaticResource AppIndigo}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="Yetkazib beruvchilar" Style="{StaticResource AppCardTitle}" />
+                                        <TextBlock Text="{Binding TotalDebtText}" Style="{StaticResource AppCardSubtitle}" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <CheckBox Grid.Column="1" Content="Nofaollarni ko'rsatish" IsChecked="{Binding ShowInactive}" VerticalAlignment="Center" />
                             </Grid>
                             <DataGrid Grid.Row="1" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}"
                                       Style="{StaticResource TableGrid}" IsReadOnly="True">
@@ -294,7 +319,13 @@
                     <Border Grid.Column="1" Style="{StaticResource Card}">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel>
-                                <TextBlock Text="{Binding FormTitle}" FontSize="18" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,12" />
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppGreenSoft}">
+                                        <ui:SymbolIcon Symbol="Edit24" FontSize="20" Foreground="{StaticResource AppGreen}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Text="{Binding FormTitle}" Style="{StaticResource AppCardTitle}" Margin="12,0,0,0" />
+                                </StackPanel>
                                 <TextBlock Text="Nomi" Style="{StaticResource Label}" />
                                 <ui:TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MinHeight="38" Margin="0,0,0,10" />
                                 <TextBlock Text="Telefon" Style="{StaticResource Label}" />
@@ -305,9 +336,9 @@
                                 <ui:TextBox Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}" MinHeight="38" Margin="0,0,0,12" />
 
                                 <WrapPanel>
-                                    <ui:Button Content="Saqlash" Command="{Binding SaveCommand}" Appearance="Primary" MinHeight="38" Padding="16,0" Margin="0,0,8,8" />
-                                    <ui:Button Content="Yangi" Command="{Binding NewCommand}" MinHeight="38" Padding="16,0" Margin="0,0,8,8" />
-                                    <ui:Button Content="{Binding ToggleActiveText}" Command="{Binding ToggleActiveCommand}" MinHeight="38" Padding="16,0" Margin="0,0,8,8"
+                                    <ui:Button Content="Saqlash" Icon="{ui:SymbolIcon Checkmark24}" Command="{Binding SaveCommand}" Appearance="Primary" MinHeight="38" Padding="16,0" Margin="0,0,8,8" />
+                                    <ui:Button Content="Yangi" Icon="{ui:SymbolIcon Add24}" Command="{Binding NewCommand}" Appearance="Secondary" MinHeight="38" Padding="16,0" Margin="0,0,8,8" />
+                                    <ui:Button Content="{Binding ToggleActiveText}" Command="{Binding ToggleActiveCommand}" Appearance="Secondary" MinHeight="38" Padding="16,0" Margin="0,0,8,8"
                                                Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}}" />
                                 </WrapPanel>
 
@@ -320,13 +351,13 @@
                                     <TextBlock Text="To'lov summasi (so'm)" Style="{StaticResource Label}" />
                                     <ui:TextBox Text="{Binding PaymentAmountText, UpdateSourceTrigger=PropertyChanged}" MinHeight="38" Margin="0,0,0,8" />
                                     <ui:TextBox Text="{Binding PaymentNote, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Izoh (ixtiyoriy)" MinHeight="38" Margin="0,0,0,8" />
-                                    <ui:Button Content="To'lovni yozish" Command="{Binding AddPaymentCommand}" MinHeight="38" Padding="16,0" HorizontalAlignment="Left" />
+                                    <ui:Button Content="To'lovni yozish" Icon="{ui:SymbolIcon Money24}" Appearance="Success" Command="{Binding AddPaymentCommand}" MinHeight="38" Padding="16,0" HorizontalAlignment="Left" />
 
                                     <TextBlock Text="To'lovlar tarixi" Style="{StaticResource Label}" Margin="0,16,0,6" />
                                     <ItemsControl ItemsSource="{Binding Payments}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Background="White" CornerRadius="8" Padding="10,6" Margin="0,0,0,4">
+                                                <Border Style="{StaticResource AppSubCard}" Padding="10,6" Margin="0,0,0,6">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*" />
@@ -367,7 +398,13 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Margin="0,0,24,0">
-                            <TextBlock Text="Kirimda sotuv narxi qanday hisoblanadi" FontSize="18" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,8" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppAmberSoft}">
+                                    <ui:SymbolIcon Symbol="Tag24" FontSize="20" Foreground="{StaticResource AppAmber}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="Sotuv narxi qanday hisoblanadi" Style="{StaticResource AppCardTitle}" Margin="12,0,0,0" />
+                            </StackPanel>
                             <TextBlock TextWrapping="Wrap" Foreground="#475569" Margin="0,0,0,16"
                                        Text="Yangi narx = yangi kirim narxi + ustama, yuqoriga yaxlitlanadi va ombordagi hamma tovarga qo'llanadi. Ustama tartibi: mahsulotning o'z ustamasi → kategoriya ustamasi → umumiy ustama. Kirim oynasida narxni qo'lda o'zgartirish mumkin." />
 
@@ -379,12 +416,12 @@
 
                             <TextBlock Text="{Binding ExampleText}" Foreground="#0369A1" TextWrapping="Wrap" Margin="0,0,0,16" />
 
-                            <ui:Button Content="Saqlash" Command="{Binding SaveCommand}" Appearance="Primary" MinHeight="40" Padding="20,0" HorizontalAlignment="Left" />
+                            <ui:Button Content="Saqlash" Icon="{ui:SymbolIcon Checkmark24}" Command="{Binding SaveCommand}" Appearance="Primary" MinHeight="40" Padding="20,0" HorizontalAlignment="Left" />
                             <TextBlock Text="{Binding Message}" Style="{StaticResource MessageText}" />
                         </StackPanel>
 
                         <StackPanel Grid.Column="1">
-                            <TextBlock Text="Kategoriya ustamalari (%)" FontSize="16" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,0,0,4" />
+                            <TextBlock Text="Kategoriya ustamalari (%)" Style="{StaticResource AppCardTitle}" Margin="0,0,0,4" />
                             <TextBlock Text="Bo'sh qoldirilsa umumiy ustama ishlatiladi." Foreground="#64748B" Margin="0,0,0,10" />
                             <DataGrid ItemsSource="{Binding Categories}" Style="{StaticResource TableGrid}" MaxHeight="460">
                                 <DataGrid.Columns>
@@ -398,6 +435,6 @@
             </TabItem>
         </TabControl>
 
-        <TextBlock Grid.Row="1" Text="{Binding ErrorMessage}" Foreground="#DC2626" TextWrapping="Wrap" Margin="0,8,0,0" />
+        <TextBlock Grid.Row="1" Text="{Binding ErrorMessage}" Style="{StaticResource AppErrorBanner}" Margin="0,8,0,0" />
     </Grid>
 </UserControl>

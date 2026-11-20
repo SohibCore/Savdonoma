@@ -1,0 +1,549 @@
+<UserControl x:Class="Savdonoma.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:Savdonoma.Converters"
+             xmlns:vm="clr-namespace:Savdonoma.ViewModels"
+             Background="#F8FAFC">
+    <UserControl.Resources>
+        <conv:MoneyConverter x:Key="Money" />
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#E2E8F0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Padding" Value="20,18" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.06" Color="#0F172A" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="IconBadge" TargetType="Border">
+            <Setter Property="Width" Value="42" />
+            <Setter Property="Height" Value="42" />
+            <Setter Property="CornerRadius" Value="12" />
+        </Style>
+
+        <Style x:Key="KpiLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#64748B" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="KpiValue" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#0F172A" />
+            <Setter Property="FontSize" Value="26" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Margin" Value="0,10,0,0" />
+        </Style>
+        <Style x:Key="KpiHint" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#94A3B8" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Margin" Value="0,4,0,0" />
+        </Style>
+
+        <Style x:Key="CardTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#1E293B" />
+            <Setter Property="FontSize" Value="17" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <!-- Davr tugmalari: umumiy segment tugma (Styles/AppTheme.xaml), Tag=True bo'lsa tanlangan -->
+        <Style x:Key="PeriodButton" TargetType="Button" BasedOn="{StaticResource AppSegmentButton}" />
+
+        <Style x:Key="EmptyText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#94A3B8" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,24" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+
+            <!-- ================= YUQORI PANEL ================= -->
+            <Grid Margin="0,0,0,18">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="4">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Bugun" Style="{StaticResource PeriodButton}" Tag="{Binding IsToday}"
+                                Command="{Binding SelectPeriodCommand}"
+                                CommandParameter="{x:Static vm:DashboardPeriod.Today}" />
+                        <Button Content="Shu hafta" Style="{StaticResource PeriodButton}" Tag="{Binding IsWeek}"
+                                Command="{Binding SelectPeriodCommand}"
+                                CommandParameter="{x:Static vm:DashboardPeriod.Week}" />
+                        <Button Content="Shu oy" Style="{StaticResource PeriodButton}" Tag="{Binding IsMonth}"
+                                Command="{Binding SelectPeriodCommand}"
+                                CommandParameter="{x:Static vm:DashboardPeriod.Month}" />
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="16" Foreground="#64748B" />
+                        <TextBlock Text="{Binding PeriodText}" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="#1E293B" Margin="6,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding SalesScopeText}" FontSize="12" Foreground="#94A3B8" Margin="0,2,0,0" />
+                </StackPanel>
+
+                <ui:Button Grid.Column="2" Content="Yangilash" Icon="{ui:SymbolIcon ArrowClockwise24}"
+                           Appearance="Secondary" Command="{Binding RefreshCommand}"
+                           MinHeight="38" Padding="14,0" VerticalAlignment="Center" />
+            </Grid>
+
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="#B91C1C" Background="#FEF2F2"
+                       Padding="12,8" Margin="0,0,0,14" TextWrapping="Wrap">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <Trigger Property="Text" Value="">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+
+            <!-- ================= ASOSIY KO'RSATKICHLAR ================= -->
+            <UniformGrid Columns="4" Margin="-8,0,-8,0">
+                <Border Style="{StaticResource Card}" Margin="8,0">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="Jami savdo" Style="{StaticResource KpiLabel}" VerticalAlignment="Center" />
+                            <Border Style="{StaticResource IconBadge}" Background="#EFF6FF" HorizontalAlignment="Right">
+                                <ui:SymbolIcon Symbol="Money24" FontSize="20" Foreground="#2563EB"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                        <TextBlock Style="{StaticResource KpiValue}">
+                            <Run Text="{Binding TotalAmount, Converter={StaticResource Money}, Mode=OneWay}" />
+                            <Run Text="so‘m" FontSize="14" FontWeight="SemiBold" Foreground="#64748B" />
+                        </TextBlock>
+                        <TextBlock Text="Tugallangan sotuvlar summasi" Style="{StaticResource KpiHint}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Card}" Margin="8,0">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="Cheklar soni" Style="{StaticResource KpiLabel}" VerticalAlignment="Center" />
+                            <Border Style="{StaticResource IconBadge}" Background="#ECFDF5" HorizontalAlignment="Right">
+                                <ui:SymbolIcon Symbol="Receipt24" FontSize="20" Foreground="#059669"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                        <TextBlock Text="{Binding SalesCount}" Style="{StaticResource KpiValue}" />
+                        <TextBlock Text="Tugallangan sotuvlar" Style="{StaticResource KpiHint}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Card}" Margin="8,0">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="O‘rtacha chek" Style="{StaticResource KpiLabel}" VerticalAlignment="Center" />
+                            <Border Style="{StaticResource IconBadge}" Background="#EEF2FF" HorizontalAlignment="Right">
+                                <ui:SymbolIcon Symbol="DataTrending24" FontSize="20" Foreground="#4F46E5"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                        <TextBlock Style="{StaticResource KpiValue}">
+                            <Run Text="{Binding AverageCheck, Converter={StaticResource Money}, Mode=OneWay}" />
+                            <Run Text="so‘m" FontSize="14" FontWeight="SemiBold" Foreground="#64748B" />
+                        </TextBlock>
+                        <TextBlock Text="Bir chekka to‘g‘ri keladi" Style="{StaticResource KpiHint}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Card}" Margin="8,0">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="Bekor qilingan" Style="{StaticResource KpiLabel}" VerticalAlignment="Center" />
+                            <Border Style="{StaticResource IconBadge}" Background="#FEF2F2" HorizontalAlignment="Right">
+                                <ui:SymbolIcon Symbol="DismissCircle24" FontSize="20" Foreground="#DC2626"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                        <TextBlock Text="{Binding CancelledCount}" Style="{StaticResource KpiValue}" />
+                        <TextBlock Text="Bekor qilingan cheklar" Style="{StaticResource KpiHint}" />
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- ================= TO'LOV TURLARI + TOP MAHSULOTLAR ================= -->
+            <Grid Margin="0,16,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="3*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- To'lov turlari -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                            <ui:SymbolIcon Symbol="Wallet24" FontSize="20" Foreground="#2563EB" />
+                            <TextBlock Text="To‘lov turlari" Style="{StaticResource CardTitle}" Margin="8,0,0,0" />
+                        </StackPanel>
+
+                        <!-- Naqd -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="10" Height="10" Fill="#10B981" VerticalAlignment="Center" />
+                                <TextBlock Text="Naqd" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B"
+                                           Margin="8,0,0,0" />
+                                <TextBlock FontSize="12" Foreground="#94A3B8" Margin="8,0,0,0" VerticalAlignment="Center">
+                                    <Run Text="{Binding CashCount, Mode=OneWay}" /><Run Text=" ta chek" />
+                                </TextBlock>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" FontSize="14" FontWeight="Bold" Foreground="#0F172A">
+                                <Run Text="{Binding CashTotal, Converter={StaticResource Money}, Mode=OneWay}" /><Run Text=" so‘m" />
+                            </TextBlock>
+                        </Grid>
+                        <ProgressBar Value="{Binding CashShare, Mode=OneWay}" Maximum="100" Height="8"
+                                     Margin="0,8,0,0" Foreground="#10B981" Background="#ECFDF5" BorderThickness="0" />
+                        <TextBlock FontSize="12" Foreground="#64748B" Margin="0,4,0,18">
+                            <Run Text="{Binding CashShare, StringFormat={}{0:0}, Mode=OneWay}" /><Run Text="% savdo" />
+                        </TextBlock>
+
+                        <!-- Karta -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="10" Height="10" Fill="#3B82F6" VerticalAlignment="Center" />
+                                <TextBlock Text="Karta" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B"
+                                           Margin="8,0,0,0" />
+                                <TextBlock FontSize="12" Foreground="#94A3B8" Margin="8,0,0,0" VerticalAlignment="Center">
+                                    <Run Text="{Binding CardCount, Mode=OneWay}" /><Run Text=" ta chek" />
+                                </TextBlock>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" FontSize="14" FontWeight="Bold" Foreground="#0F172A">
+                                <Run Text="{Binding CardTotal, Converter={StaticResource Money}, Mode=OneWay}" /><Run Text=" so‘m" />
+                            </TextBlock>
+                        </Grid>
+                        <ProgressBar Value="{Binding CardShare, Mode=OneWay}" Maximum="100" Height="8"
+                                     Margin="0,8,0,0" Foreground="#3B82F6" Background="#EFF6FF" BorderThickness="0" />
+                        <TextBlock FontSize="12" Foreground="#64748B" Margin="0,4,0,0">
+                            <Run Text="{Binding CardShare, StringFormat={}{0:0}, Mode=OneWay}" /><Run Text="% savdo" />
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Top mahsulotlar -->
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <ui:SymbolIcon Symbol="Trophy24" FontSize="20" Foreground="#D97706" />
+                            <TextBlock Text="Eng ko‘p sotilgan mahsulotlar" Style="{StaticResource CardTitle}" Margin="8,0,0,0" />
+                        </StackPanel>
+
+                        <TextBlock Text="Bu davrda sotuv bo‘lmagan" Style="{StaticResource EmptyText}"
+                                   Visibility="{Binding NoTopProducts, Converter={StaticResource BoolToVisibility}}" />
+
+                        <ItemsControl ItemsSource="{Binding TopProducts}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:DashboardTopProductRow}">
+                                    <Grid Margin="0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="28" Height="28" CornerRadius="8" Background="#FEF3C7"
+                                                VerticalAlignment="Top">
+                                            <TextBlock Text="{Binding Rank}" FontWeight="Bold" Foreground="#B45309"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <StackPanel Grid.Column="1" Margin="12,0,16,0">
+                                            <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold"
+                                                       Foreground="#1E293B" TextTrimming="CharacterEllipsis" />
+                                            <ProgressBar Value="{Binding Share, Mode=OneWay}" Maximum="1" Height="6"
+                                                         Margin="0,6,0,0" Foreground="#F59E0B" Background="#FEF3C7"
+                                                         BorderThickness="0" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" HorizontalAlignment="Right" MinWidth="110">
+                                            <TextBlock FontSize="14" FontWeight="Bold" Foreground="#0F172A"
+                                                       HorizontalAlignment="Right">
+                                                <Run Text="{Binding Amount, Converter={StaticResource Money}, Mode=OneWay}" /><Run Text=" so‘m" />
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding QuantityText}" FontSize="12" Foreground="#64748B"
+                                                       HorizontalAlignment="Right" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ================= XODIMLAR BO'YICHA SAVDO (rahbar va menejer) ================= -->
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0"
+                    Visibility="{Binding ShowEmployeeSales, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <ui:SymbolIcon Symbol="PeopleTeam24" FontSize="20" Foreground="#4F46E5" />
+                            <TextBlock Text="Xodimlar bo‘yicha savdo" Style="{StaticResource CardTitle}" Margin="8,0,0,0" />
+                            <ui:ProgressRing IsIndeterminate="True" Width="16" Height="16" Margin="10,0,0,0"
+                                             VerticalAlignment="Center"
+                                             Visibility="{Binding IsEmployeeLoading, Converter={StaticResource BoolToVisibility}}" />
+                        </StackPanel>
+
+                        <!-- Kun bo'yicha filtr -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource AppSegmentGroup}" Margin="0,0,12,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Bugun" Style="{StaticResource PeriodButton}"
+                                            Tag="{Binding IsEmployeeToday}" Padding="12,5"
+                                            Command="{Binding EmployeeTodayCommand}" />
+                                    <Button Content="Kecha" Style="{StaticResource PeriodButton}"
+                                            Tag="{Binding IsEmployeeYesterday}" Padding="12,5"
+                                            Command="{Binding EmployeeYesterdayCommand}" />
+                                </StackPanel>
+                            </Border>
+                            <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="16" Foreground="#64748B"
+                                           VerticalAlignment="Center" />
+                            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1"
+                                    CornerRadius="8" Padding="4,0" Margin="8,0,6,0">
+                                <DatePicker SelectedDate="{Binding EmployeeFromDate}" SelectedDateFormat="Short"
+                                            Width="120" Height="32" BorderThickness="0"
+                                            ToolTip="Boshlanish sanasi" />
+                            </Border>
+                            <TextBlock Text="—" Foreground="#94A3B8" VerticalAlignment="Center" />
+                            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1"
+                                    CornerRadius="8" Padding="4,0" Margin="6,0,0,0">
+                                <DatePicker SelectedDate="{Binding EmployeeToDate}" SelectedDateFormat="Short"
+                                            Width="120" Height="32" BorderThickness="0"
+                                            ToolTip="Tugash sanasi (bitta kun uchun ikkalasiga bir xil sana tanlang)" />
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="{Binding EmployeeErrorMessage}" Style="{StaticResource AppErrorBanner}"
+                               Margin="0,0,0,10" />
+                    <TextBlock Text="Bu kunlarda xodimlar savdosi yo‘q" Style="{StaticResource EmptyText}"
+                               Visibility="{Binding NoEmployeeSales, Converter={StaticResource BoolToVisibility}}" />
+
+                    <!-- Sarlavha qatori (ustunlar pastdagi qatorlar bilan bir xil) -->
+                    <Border Background="#F1F5F9" CornerRadius="8" Padding="12,9">
+                        <Grid TextElement.FontSize="12" TextElement.FontWeight="SemiBold" TextElement.Foreground="#64748B">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2.6*" />
+                                <ColumnDefinition Width="0.8*" />
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1.2*" />
+                                <ColumnDefinition Width="1.2*" />
+                                <ColumnDefinition Width="1.2*" />
+                                <ColumnDefinition Width="0.8*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Xodim" />
+                            <TextBlock Grid.Column="1" Text="Cheklar" HorizontalAlignment="Right" />
+                            <TextBlock Grid.Column="2" Text="Jami summa" HorizontalAlignment="Right" />
+                            <TextBlock Grid.Column="3" Text="O‘rtacha chek" HorizontalAlignment="Right" />
+                            <TextBlock Grid.Column="4" Text="Naqd" HorizontalAlignment="Right" />
+                            <TextBlock Grid.Column="5" Text="Karta" HorizontalAlignment="Right" />
+                            <TextBlock Grid.Column="6" Text="Bekor" HorizontalAlignment="Right" />
+                        </Grid>
+                    </Border>
+
+                    <ItemsControl ItemsSource="{Binding EmployeeSales}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:DashboardEmployeeRow}">
+                                <Border BorderBrush="#EEF2F6" BorderThickness="0,0,0,1" Padding="12,10">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasSales}" Value="False">
+                                                    <Setter Property="Opacity" Value="0.55" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2.6*" />
+                                            <ColumnDefinition Width="0.8*" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="1.2*" />
+                                            <ColumnDefinition Width="1.2*" />
+                                            <ColumnDefinition Width="1.2*" />
+                                            <ColumnDefinition Width="0.8*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Xodim -->
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Width="34" Height="34" CornerRadius="17" Background="#EEF2FF">
+                                                <TextBlock Text="{Binding Initials}" FontSize="12" FontWeight="Bold"
+                                                           Foreground="#4F46E5"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            </Border>
+                                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold"
+                                                           Foreground="#1E293B" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding RoleText}" FontSize="12" Foreground="#94A3B8" />
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <TextBlock Grid.Column="1" Text="{Binding SalesCount}" FontSize="14" FontWeight="SemiBold"
+                                                   Foreground="#1E293B" HorizontalAlignment="Right" VerticalAlignment="Center" />
+
+                                        <!-- Jami summa + ulush -->
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="12,0,0,0">
+                                            <TextBlock FontSize="14" FontWeight="Bold" Foreground="#0F172A"
+                                                       HorizontalAlignment="Right">
+                                                <Run Text="{Binding TotalAmount, Converter={StaticResource Money}, Mode=OneWay}" /><Run Text=" so‘m" />
+                                            </TextBlock>
+                                            <Grid Margin="0,5,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <ProgressBar Value="{Binding SharePercent, Mode=OneWay}" Maximum="100" Height="5"
+                                                             Foreground="#6366F1" Background="#EEF2FF" BorderThickness="0"
+                                                             VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="1" FontSize="11" Foreground="#64748B" Margin="6,0,0,0"
+                                                           Text="{Binding SharePercent, StringFormat={}{0:0}%}" />
+                                            </Grid>
+                                        </StackPanel>
+
+                                        <TextBlock Grid.Column="3" Text="{Binding AverageCheck, Converter={StaticResource Money}}"
+                                                   FontSize="13" Foreground="#334155"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="4" Text="{Binding CashTotal, Converter={StaticResource Money}}"
+                                                   FontSize="13" Foreground="#047857"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="5" Text="{Binding CardTotal, Converter={StaticResource Money}}"
+                                                   FontSize="13" Foreground="#1D4ED8"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="6" Text="{Binding CancelledCount}" FontSize="13"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#DC2626" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding CancelledCount}" Value="0">
+                                                            <Setter Property="Foreground" Value="#CBD5E1" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- ================= OGOHLANTIRISHLAR ================= -->
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0"
+                    Visibility="{Binding ShowStockWarnings, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Warning24" FontSize="20" Foreground="#DC2626" />
+                            <TextBlock Text="Qoldig‘i kam mahsulotlar" Style="{StaticResource CardTitle}" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#FEF3C7" CornerRadius="8" Padding="10,4">
+                                <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="#B45309">
+                                    <Run Text="Kam: " /><Run Text="{Binding LowStockCount, Mode=OneWay}" />
+                                </TextBlock>
+                            </Border>
+                            <Border Background="#FEE2E2" CornerRadius="8" Padding="10,4" Margin="8,0,0,0">
+                                <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="#B91C1C">
+                                    <Run Text="Tugagan: " /><Run Text="{Binding OutOfStockCount, Mode=OneWay}" />
+                                </TextBlock>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16"
+                                Visibility="{Binding NoLowStock, Converter={StaticResource BoolToVisibility}}">
+                        <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="18" Foreground="#059669" />
+                        <TextBlock Text="Barcha mahsulotlar yetarli" FontSize="13" Foreground="#059669"
+                                   Margin="6,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <!-- Jadval: Mahsulot | Qoldiq | Minimal -->
+                    <Border Style="{StaticResource AppTableHeaderBar}" Padding="12,10"
+                            Visibility="{Binding HasLowStock, Converter={StaticResource BoolToVisibility}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="MAHSULOT" HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="QOLDIQ" HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="2" Text="MINIMAL" HorizontalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <ItemsControl ItemsSource="{Binding LowStockItems}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:DashboardLowStockRow}">
+                                <Border BorderBrush="#EEF2F6" BorderThickness="0,0,0,1" Padding="12,12">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="3*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold"
+                                                   Foreground="#1E293B" HorizontalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        <!-- Qoldiq: kam bo'lsa sariq, tugagan bo'lsa qizil -->
+                                        <TextBlock Grid.Column="1" Text="{Binding QuantityText}" FontSize="14" FontWeight="Bold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#B45309" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsOut}" Value="True">
+                                                            <Setter Property="Foreground" Value="#DC2626" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="2" Text="{Binding MinQuantityText}" FontSize="14" FontWeight="SemiBold"
+                                                   Foreground="#334155" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -106,7 +106,7 @@ namespace Savdonoma.Data.Services.Reports
 
             var rows = await visibleSales
                 .SelectMany(s => s.SaleItems)
-                .Select(i => new { i.ProductId, i.ProductName, i.Quantity, i.LineTotal })
+                .Select(i => new { i.ProductId, i.ProductName, i.Unit, i.Quantity, i.LineTotal })
                 .ToListAsync(cancellation);
 
             return rows
@@ -114,6 +114,7 @@ namespace Savdonoma.Data.Services.Reports
                 .Select(g => new TopProductDto
                 {
                     ProductName = g.First().ProductName,
+                    Unit = g.First().Unit,
                     Quantity = g.Sum(x => x.Quantity),
                     Amount = g.Sum(x => x.LineTotal)
                 })

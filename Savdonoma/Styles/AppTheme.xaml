@@ -1,0 +1,192 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Ilovaning umumiy ko'rinishi (Dashboard uslubi):
+        - sahifa foni #F8FAFC, kartalar oq, 14px burchak, yengil soya;
+        - karta sarlavhasi: rangli ikonka foni (AppIconBadge) + qalin nom;
+        - KPI kartalari: kichik kulrang nom, katta qalin qiymat, izoh.
+        Ranglar: ko'k #2563EB, yashil #059669, binafsha #4F46E5, sariq #D97706, qizil #DC2626.
+    -->
+
+    <!-- ================= RANGLAR ================= -->
+    <SolidColorBrush x:Key="AppPageBackground" Color="#F8FAFC" />
+    <SolidColorBrush x:Key="AppCardBorder" Color="#E2E8F0" />
+    <SolidColorBrush x:Key="AppDivider" Color="#EEF2F6" />
+    <SolidColorBrush x:Key="AppTextPrimary" Color="#0F172A" />
+    <SolidColorBrush x:Key="AppTextTitle" Color="#1E293B" />
+    <SolidColorBrush x:Key="AppTextSecondary" Color="#64748B" />
+    <SolidColorBrush x:Key="AppTextMuted" Color="#94A3B8" />
+
+    <SolidColorBrush x:Key="AppBlue" Color="#2563EB" />
+    <SolidColorBrush x:Key="AppBlueSoft" Color="#EFF6FF" />
+    <SolidColorBrush x:Key="AppGreen" Color="#059669" />
+    <SolidColorBrush x:Key="AppGreenSoft" Color="#ECFDF5" />
+    <SolidColorBrush x:Key="AppIndigo" Color="#4F46E5" />
+    <SolidColorBrush x:Key="AppIndigoSoft" Color="#EEF2FF" />
+    <SolidColorBrush x:Key="AppAmber" Color="#D97706" />
+    <SolidColorBrush x:Key="AppAmberSoft" Color="#FEF3C7" />
+    <SolidColorBrush x:Key="AppRed" Color="#DC2626" />
+    <SolidColorBrush x:Key="AppRedSoft" Color="#FEF2F2" />
+
+    <!-- ================= KARTA ================= -->
+    <Style x:Key="AppCard" TargetType="Border">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="{StaticResource AppCardBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="Padding" Value="20,18" />
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.06" Color="#0F172A" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Karta ichidagi kichik blok (kulrang fon) -->
+    <Style x:Key="AppSubCard" TargetType="Border">
+        <Setter Property="Background" Value="#F8FAFC" />
+        <Setter Property="BorderBrush" Value="{StaticResource AppCardBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="12,10" />
+    </Style>
+
+    <!-- Rangli ikonka foni: Background beriladi, ichiga ui:SymbolIcon -->
+    <Style x:Key="AppIconBadge" TargetType="Border">
+        <Setter Property="Width" Value="42" />
+        <Setter Property="Height" Value="42" />
+        <Setter Property="CornerRadius" Value="12" />
+    </Style>
+    <Style x:Key="AppIconBadgeSmall" TargetType="Border">
+        <Setter Property="Width" Value="34" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="CornerRadius" Value="10" />
+    </Style>
+
+    <!-- ================= MATNLAR ================= -->
+    <Style x:Key="AppCardTitle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource AppTextTitle}" />
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="AppCardSubtitle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource AppTextSecondary}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Margin" Value="0,2,0,0" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="AppKpiLabel" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource AppTextSecondary}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="AppKpiValue" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource AppTextPrimary}" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Margin" Value="0,10,0,0" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <Style x:Key="AppKpiHint" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource AppTextMuted}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Margin" Value="0,4,0,0" />
+    </Style>
+
+    <Style x:Key="AppFieldLabel" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="#475569" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Margin" Value="0,0,0,6" />
+    </Style>
+
+    <!-- ================= XABARLAR (matn bo'sh bo'lsa ko'rinmaydi) ================= -->
+    <Style x:Key="AppErrorBanner" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="#B91C1C" />
+        <Setter Property="Background" Value="{StaticResource AppRedSoft}" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Style.Triggers>
+            <Trigger Property="Text" Value="">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </Trigger>
+            <Trigger Property="Text" Value="{x:Null}">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="AppSuccessBanner" TargetType="TextBlock" BasedOn="{StaticResource AppErrorBanner}">
+        <Setter Property="Foreground" Value="#15803D" />
+        <Setter Property="Background" Value="#F0FDF4" />
+    </Style>
+
+    <!-- ================= JADVAL SARLAVHASI (ItemsControl/ListView uchun) ================= -->
+    <Style x:Key="AppTableHeaderBar" TargetType="Border">
+        <Setter Property="Background" Value="#F1F5F9" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="12,9" />
+        <Setter Property="TextElement.FontSize" Value="12" />
+        <Setter Property="TextElement.FontWeight" Value="SemiBold" />
+        <Setter Property="TextElement.Foreground" Value="{StaticResource AppTextSecondary}" />
+    </Style>
+
+    <!-- ================= SEGMENT TUGMALAR (Bugun / Hafta / Oy) ================= -->
+    <!--
+        Tag="{Binding IsXxx}" (bool) True bo'lsa tanlangan: kulrang fon, ramka, qalin to'q yozuv.
+        Diqqat: Tag turi object, shuning uchun oddiy Trigger Value="True" (matn) bool bilan teng
+        chiqmaydi. DataTrigger qiymatni bool'ga o'girib solishtiradi.
+    -->
+    <Style x:Key="AppSegmentButton" TargetType="Button">
+        <Setter Property="Foreground" Value="#64748B" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Padding" Value="16,7" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" Background="Transparent" BorderBrush="Transparent" BorderThickness="1"
+                            CornerRadius="8" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- Tanlanmagan tugma ustiga kelganda: juda och kulrang -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="#F1F5F9" />
+                            <Setter Property="Foreground" Value="#334155" />
+                        </Trigger>
+                        <!-- Tanlangan: hover'dan keyin turadi, shuning uchun ustun -->
+                        <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="#E2E8F0" />
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="#CBD5E1" />
+                            <Setter Property="Foreground" Value="#0F172A" />
+                            <Setter Property="FontWeight" Value="Bold" />
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Segment tugmalar guruhi uchun oq ramka -->
+    <Style x:Key="AppSegmentGroup" TargetType="Border">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="{StaticResource AppCardBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="4" />
+    </Style>
+
+    <!-- Kichik yorliq (pill): Background va Foreground beriladi -->
+    <Style x:Key="AppPill" TargetType="Border">
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="10,4" />
+        <Setter Property="TextElement.FontSize" Value="12" />
+        <Setter Property="TextElement.FontWeight" Value="SemiBold" />
+    </Style>
+</ResourceDictionary>

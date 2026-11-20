@@ -3,6 +3,7 @@ using Savdonoma.Core.Entity;
 using Savdonoma.Core.Enums;
 using Savdonoma.Data.Services.Authservice;
 using Savdonoma.Data.Services.Reports;
+using Savdonoma.Data.Services.DashboardService;
 using Savdonoma.Data.Services.Sales;
 using Savdonoma.Data.Services.Sales.SaleItems;
 using Savdonoma.Data.Services.SystemSetting;
@@ -81,6 +82,7 @@ public class SaleRoleTests : IDisposable
 
     private SaleService Sales(CurrentUserService user) => new(_db, new SystemSettingsService(_db), new FakeLicense(), user);
     private ReportService Reports(CurrentUserService user) => new(_db, user);
+    private DashboardService Dashboard(CurrentUserService user) => new(_db, user);
 
     private async Task<SaleDto> Sell(CurrentUserService seller, decimal quantity)
         => await Sales(seller).CreateAsync(new CreateSaleDto
@@ -128,6 +130,40 @@ public class SaleRoleTests : IDisposable
             Assert.Equal(32_000, all.TotalAmount);
             Assert.Equal(3, all.SalesCount);
             Assert.Equal(8, (await Reports(boss).GetTopProductsAsync(today, today, CancellationToken.None)).Single().Quantity);
+        }
+    }
+
+    [Fact]
+    public async Task Employee_sales_breakdown_is_visible_only_to_owner_and_manager()
+    {
+        var first = await Sell(_seller1, 1);   //  4 000
+        await Sell(_seller1, 2);               //  8 000
+        await Sell(_seller2, 5);               // 20 000
+        await Sales(_manager).CancelAsync(first.Id, null, CancellationToken.None);
+        var today = DateTime.Today;
+
+        // Sotuvchi boshqalarning savdosini ko'ra olmaydi
+        Assert.Empty(await Dashboard(_seller1).GetEmployeeSalesAsync(today, today, CancellationToken.None));
+
+        foreach (var boss in new[] { _owner, _manager })
+        {
+            var rows = await Dashboard(boss).GetEmployeeSalesAsync(today, today, CancellationToken.None);
+
+            // Faol xodimlarning hammasi ko'rinadi, summa bo'yicha kamayish tartibida
+            Assert.Equal(4, rows.Count);
+            Assert.Equal(new[] { "vali", "ali" }, rows.Take(2).Select(r => r.FullName));
+
+            var vali = rows[0];
+            Assert.Equal(20_000, vali.TotalAmount);
+            Assert.Equal(1, vali.SalesCount);
+            Assert.Equal(20_000, vali.CashTotal);
+
+            var ali = rows[1];
+            Assert.Equal(8_000, ali.TotalAmount);   // bekor qilingan chek summaga kirmaydi
+            Assert.Equal(1, ali.SalesCount);
+            Assert.Equal(1, ali.CancelledCount);
+
+            Assert.All(rows.Skip(2), r => Assert.Equal(0, r.SalesCount));
         }
     }
 

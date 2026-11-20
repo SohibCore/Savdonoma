@@ -7,7 +7,8 @@
              xmlns:conv="clr-namespace:Savdonoma.Converters"
              mc:Ignorable="d"
              d:DesignHeight="700"
-             d:DesignWidth="1200">
+             d:DesignWidth="1200"
+             Background="#F8FAFC">
 
     <UserControl.Resources>
 
@@ -40,9 +41,9 @@
         <Style x:Key="ReportColumnCell"
                TargetType="Border">
             <Setter Property="BorderBrush"
-                    Value="#DCE3EC" />
+                    Value="#EEF2F6" />
             <Setter Property="BorderThickness"
-                    Value="0,0,1,1" />
+                    Value="0,0,0,1" />
             <Setter Property="Padding"
                     Value="12,8" />
         </Style>
@@ -51,9 +52,13 @@
                TargetType="Border"
                BasedOn="{StaticResource ReportColumnCell}">
             <Setter Property="Background"
-                    Value="#E9EEF5" />
+                    Value="#F1F5F9" />
             <Setter Property="BorderBrush"
-                    Value="#D5DDE8" />
+                    Value="#E2E8F0" />
+            <Setter Property="TextElement.Foreground"
+                    Value="#64748B" />
+            <Setter Property="TextElement.FontSize"
+                    Value="12" />
         </Style>
 
         <Style x:Key="ReportDetailsPanelStyle"
@@ -116,24 +121,8 @@
         </Style>
 
         <Style x:Key="ReportCard"
-               TargetType="Border">
-
-            <Setter Property="Background"
-                    Value="#E2E8F0" />
-
-            <Setter Property="BorderBrush"
-                    Value="{StaticResource ReportBorderBrush}" />
-
-            <Setter Property="BorderThickness"
-                    Value="1" />
-
-            <Setter Property="CornerRadius"
-                    Value="10" />
-
-            <Setter Property="Padding"
-                    Value="18" />
-
-        </Style>
+               TargetType="Border"
+               BasedOn="{StaticResource AppCard}" />
 
         <Style x:Key="ReportCardLabel"
                TargetType="TextBlock">
@@ -210,260 +199,145 @@
 
 
         <!-- =========================
-             HEADER
+             YUQORI PANEL: sana oralig'i va tez tanlash
              ========================= -->
 
-        <Grid Grid.Row="0"
-              Margin="0,0,0,20">
-
+        <Grid Grid.Row="0" Margin="0,0,0,18">
             <Grid.ColumnDefinitions>
-
-                <ColumnDefinition Width="*" />
-
                 <ColumnDefinition Width="Auto" />
-
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
+            <Border Style="{StaticResource AppSegmentGroup}">
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Bugun" Style="{StaticResource AppSegmentButton}"
+                            Tag="{Binding IsTodayRange}" Command="{Binding ShowTodayCommand}" />
+                    <Button Content="Shu hafta" Style="{StaticResource AppSegmentButton}"
+                            Tag="{Binding IsWeekRange}" Command="{Binding ShowWeekCommand}" />
+                    <Button Content="Shu oy" Style="{StaticResource AppSegmentButton}"
+                            Tag="{Binding IsMonthRange}" Command="{Binding ShowMonthCommand}" />
+                </StackPanel>
+            </Border>
 
-            <!-- Title -->
-
-            <StackPanel Grid.Column="0">
-
-                <TextBlock Text="Hisobotlar"
-                           FontSize="26"
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource ReportPrimaryText}" 
-                           HorizontalAlignment="Center"/>
-
-                <TextBlock Text="Savdo natijalari va cheklar statistikasi"
-                           FontSize="13"
-                           Margin="0,4,0,0"
-                           Foreground="{StaticResource ReportSecondaryText}" 
-                           HorizontalAlignment="Center"/>
-
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
+                <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="18" Foreground="{StaticResource AppTextSecondary}"
+                               VerticalAlignment="Center" />
+                <Border Background="White" BorderBrush="{StaticResource AppCardBorder}" BorderThickness="1"
+                        CornerRadius="8" Padding="6,1" Margin="8,0,8,0">
+                    <DatePicker SelectedDate="{Binding FromDate}" SelectedDateFormat="Short"
+                                Width="125" Height="34" BorderThickness="0" />
+                </Border>
+                <TextBlock Text="—" VerticalAlignment="Center" Foreground="{StaticResource AppTextMuted}" />
+                <Border Background="White" BorderBrush="{StaticResource AppCardBorder}" BorderThickness="1"
+                        CornerRadius="8" Padding="6,1" Margin="8,0,0,0">
+                    <DatePicker SelectedDate="{Binding ToDate}" SelectedDateFormat="Short"
+                                Width="125" Height="34" BorderThickness="0" />
+                </Border>
             </StackPanel>
 
-
-            <!-- Filters -->
-
-            <StackPanel Grid.Column="1"
-                        Orientation="Horizontal"
-                        VerticalAlignment="Center">
-
-
-                <Border Background="{StaticResource ReportCardBackground}"
-                        BorderBrush="{StaticResource ReportBorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        Padding="8,2"
-                        Margin="0,0,8,0">
-
-                    <DatePicker SelectedDate="{Binding FromDate}"
-                                SelectedDateFormat="Short"
-                                Width="125"
-                                Height="34"
-                                BorderThickness="0" />
-
-                </Border>
-
-
-                <TextBlock Text="—"
-                           VerticalAlignment="Center"
-                           Margin="0,0,8,0"
-                           Foreground="{StaticResource ReportSecondaryText}" />
-
-
-                <Border Background="{StaticResource ReportCardBackground}"
-                        BorderBrush="{StaticResource ReportBorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        Padding="8,2"
-                        Margin="0,0,12,0">
-
-                    <DatePicker SelectedDate="{Binding ToDate}"
-                                SelectedDateFormat="Short"
-                                Width="125"
-                                Height="34"
-                                BorderThickness="0" />
-
-                </Border>
-
-
-                <ui:Button Content="Bugun"
-                           Command="{Binding ShowTodayCommand}"
-                           MinHeight="38"
-                           Margin="0,0,6,0" />
-
-                <ui:Button Content="Hafta"
-                           Command="{Binding ShowWeekCommand}"
-                           MinHeight="38"
-                           Margin="0,0,6,0" />
-
-                <ui:Button Content="Oy"
-                           Command="{Binding ShowMonthCommand}"
-                           MinHeight="38"
-                           Margin="0,0,10,0" />
-
-                <ui:Button Content="↻ Yangilash"
-                           Command="{Binding RefreshCommand}"
-                           MinHeight="38" />
-
-            </StackPanel>
-
+            <ui:Button Grid.Column="2" Content="Yangilash" Icon="{ui:SymbolIcon ArrowClockwise24}"
+                       Appearance="Secondary" Command="{Binding RefreshCommand}"
+                       MinHeight="38" Padding="14,0" VerticalAlignment="Center" />
         </Grid>
 
 
         <!-- =========================
-             KPI CARDS
+             KPI KARTALAR
              ========================= -->
 
-        <Grid Grid.Row="1"
-              Margin="0,0,0,20">
+        <UniformGrid Grid.Row="1" Columns="5" Margin="-8,0,-8,16">
 
-            <Grid.ColumnDefinitions>
-
-                <ColumnDefinition Width="2*" />
-
-                <ColumnDefinition Width="*" />
-
-                <ColumnDefinition Width="*" />
-
-                <ColumnDefinition Width="*" />
-
-                <ColumnDefinition Width="*" />
-
-            </Grid.ColumnDefinitions>
-
-
-            <!-- Jami -->
-
-            <Border Grid.Column="0"
-                    Style="{StaticResource ReportCard}"
-                    Margin="0,0,10,0">
-
+            <Border Style="{StaticResource AppCard}" Margin="8,0">
                 <StackPanel>
-
-                    <TextBlock Text="JAMI SAVDO"
-                               Style="{StaticResource ReportCardLabel}" />
-
-                    <TextBlock Text="{Binding TotalAmount, Converter={StaticResource Money}}"
-                               Style="{StaticResource ReportCardValue}"
-                               Margin="0,8,0,0" />
-
-                    <TextBlock Text="so'm"
-                               FontSize="12"
-                               Foreground="{StaticResource ReportSecondaryText}"
-                               Margin="0,2,0,0" />
-
-                </StackPanel>
-
-            </Border>
-
-
-            <!-- Cheklar -->
-
-            <Border Grid.Column="1"
-                    Style="{StaticResource ReportCard}"
-                    Margin="0,0,10,0">
-
-                <StackPanel>
-
-                    <TextBlock Text="CHEKLAR"
-                               Style="{StaticResource ReportCardLabel}" />
-
-                    <TextBlock Text="{Binding SalesCount}"
-                               Style="{StaticResource ReportCardValue}"
-                               Margin="0,8,0,0" />
-
-                    <TextBlock FontSize="12"
-                               Foreground="{StaticResource ReportSecondaryText}"
-                               Margin="0,3,0,0">
-
-                        <Run Text="Bekor: " />
-
-                        <Run Text="{Binding CancelledCount}" />
-
+                    <Grid>
+                        <TextBlock Text="Jami savdo" Style="{StaticResource AppKpiLabel}" />
+                        <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppBlueSoft}"
+                                HorizontalAlignment="Right">
+                            <ui:SymbolIcon Symbol="Money24" FontSize="20" Foreground="{StaticResource AppBlue}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                    <TextBlock Style="{StaticResource AppKpiValue}">
+                        <Run Text="{Binding TotalAmount, Converter={StaticResource Money}, Mode=OneWay}" />
+                        <Run Text="so‘m" FontSize="14" FontWeight="SemiBold" Foreground="#64748B" />
                     </TextBlock>
-
+                    <TextBlock Text="Tugallangan sotuvlar summasi" Style="{StaticResource AppKpiHint}" />
                 </StackPanel>
-
             </Border>
 
-
-            <!-- Naqd -->
-
-            <Border Grid.Column="2"
-                    Style="{StaticResource ReportCard}"
-                    Margin="0,0,10,0">
-
+            <Border Style="{StaticResource AppCard}" Margin="8,0">
                 <StackPanel>
-
-                    <TextBlock Text="NAQD"
-                               Style="{StaticResource ReportCardLabel}" />
-
-                    <TextBlock Text="{Binding CashAmount, Converter={StaticResource Money}}"
-                               Style="{StaticResource ReportCardValue}"
-                               Margin="0,8,0,0" />
-
-                    <TextBlock Text="so'm"
-                               FontSize="12"
-                               Foreground="{StaticResource ReportSecondaryText}"
-                               Margin="0,2,0,0" />
-
+                    <Grid>
+                        <TextBlock Text="Cheklar" Style="{StaticResource AppKpiLabel}" />
+                        <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppGreenSoft}"
+                                HorizontalAlignment="Right">
+                            <ui:SymbolIcon Symbol="Receipt24" FontSize="20" Foreground="{StaticResource AppGreen}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                    <TextBlock Text="{Binding SalesCount}" Style="{StaticResource AppKpiValue}" />
+                    <TextBlock Style="{StaticResource AppKpiHint}">
+                        <Run Text="Bekor qilingan: " /><Run Text="{Binding CancelledCount, Mode=OneWay}"
+                                                            Foreground="{StaticResource AppRed}" FontWeight="SemiBold" />
+                    </TextBlock>
                 </StackPanel>
-
             </Border>
 
-
-            <!-- Karta -->
-
-            <Border Grid.Column="3"
-                    Style="{StaticResource ReportCard}"
-                    Margin="0,0,10,0">
-
+            <Border Style="{StaticResource AppCard}" Margin="8,0">
                 <StackPanel>
-
-                    <TextBlock Text="KARTA"
-                               Style="{StaticResource ReportCardLabel}" />
-
-                    <TextBlock Text="{Binding CardAmount, Converter={StaticResource Money}}"
-                               Style="{StaticResource ReportCardValue}"
-                               Margin="0,8,0,0" />
-
-                    <TextBlock Text="so'm"
-                               FontSize="12"
-                               Foreground="{StaticResource ReportSecondaryText}"
-                               Margin="0,2,0,0" />
-
+                    <Grid>
+                        <TextBlock Text="Naqd" Style="{StaticResource AppKpiLabel}" />
+                        <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppGreenSoft}"
+                                HorizontalAlignment="Right">
+                            <ui:SymbolIcon Symbol="Wallet24" FontSize="20" Foreground="{StaticResource AppGreen}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                    <TextBlock Style="{StaticResource AppKpiValue}">
+                        <Run Text="{Binding CashAmount, Converter={StaticResource Money}, Mode=OneWay}" />
+                        <Run Text="so‘m" FontSize="14" FontWeight="SemiBold" Foreground="#64748B" />
+                    </TextBlock>
+                    <TextBlock Text="Naqd pul bilan to‘langan" Style="{StaticResource AppKpiHint}" />
                 </StackPanel>
-
             </Border>
 
-
-            <!-- O'rtacha -->
-
-            <Border Grid.Column="4"
-                    Style="{StaticResource ReportCard}">
-
+            <Border Style="{StaticResource AppCard}" Margin="8,0">
                 <StackPanel>
-
-                    <TextBlock Text="O'RTACHA CHEK"
-                               Style="{StaticResource ReportCardLabel}" />
-
-                    <TextBlock Text="{Binding AverageCheck, Converter={StaticResource Money}}"
-                               Style="{StaticResource ReportCardValue}"
-                               Margin="0,8,0,0" />
-
-                    <TextBlock Text="so'm"
-                               FontSize="12"
-                               Foreground="{StaticResource ReportSecondaryText}"
-                               Margin="0,2,0,0" />
-
+                    <Grid>
+                        <TextBlock Text="Karta" Style="{StaticResource AppKpiLabel}" />
+                        <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppBlueSoft}"
+                                HorizontalAlignment="Right">
+                            <ui:SymbolIcon Symbol="Payment24" FontSize="20" Foreground="{StaticResource AppBlue}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                    <TextBlock Style="{StaticResource AppKpiValue}">
+                        <Run Text="{Binding CardAmount, Converter={StaticResource Money}, Mode=OneWay}" />
+                        <Run Text="so‘m" FontSize="14" FontWeight="SemiBold" Foreground="#64748B" />
+                    </TextBlock>
+                    <TextBlock Text="Karta orqali to‘langan" Style="{StaticResource AppKpiHint}" />
                 </StackPanel>
-
             </Border>
 
-        </Grid>
+            <Border Style="{StaticResource AppCard}" Margin="8,0">
+                <StackPanel>
+                    <Grid>
+                        <TextBlock Text="O‘rtacha chek" Style="{StaticResource AppKpiLabel}" />
+                        <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppIndigoSoft}"
+                                HorizontalAlignment="Right">
+                            <ui:SymbolIcon Symbol="DataTrending24" FontSize="20" Foreground="{StaticResource AppIndigo}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                    <TextBlock Style="{StaticResource AppKpiValue}">
+                        <Run Text="{Binding AverageCheck, Converter={StaticResource Money}, Mode=OneWay}" />
+                        <Run Text="so‘m" FontSize="14" FontWeight="SemiBold" Foreground="#64748B" />
+                    </TextBlock>
+                    <TextBlock Text="Bir chekka to‘g‘ri keladi" Style="{StaticResource AppKpiHint}" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
 
 
         <!-- =========================
@@ -496,25 +370,22 @@
                     </Grid.ColumnDefinitions>
 
 
-                    <StackPanel Grid.Column="0">
-
-                        <TextBlock Text="Cheklar"
-                                   FontSize="20"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource ReportPrimaryText}" 
-                                   HorizontalAlignment="Center"/>
-
-                        <TextBlock Text="{Binding SalesSubtitle}"
-                                   FontSize="12"
-                                   Margin="0,3,0,0"
-                                   Foreground="{StaticResource ReportSecondaryText}" 
-                                   HorizontalAlignment="Center"/>
-
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppGreenSoft}">
+                            <ui:SymbolIcon Symbol="ReceiptMoney24" FontSize="20" Foreground="{StaticResource AppGreen}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Cheklar" Style="{StaticResource AppCardTitle}" />
+                            <TextBlock Text="{Binding SalesSubtitle}" Style="{StaticResource AppCardSubtitle}" />
+                        </StackPanel>
                     </StackPanel>
 
 
                     <ui:Button Grid.Column="1"
                                Content="Bekor qilish"
+                               Icon="{ui:SymbolIcon DismissCircle24}"
+                               Appearance="Danger"
                                Command="{Binding CancelSaleCommand}"
                                Visibility="{Binding CanCancelSales, Converter={StaticResource BoolToVisibility}}"
                                MinHeight="40"
@@ -523,7 +394,7 @@
                 </Grid>
 
 
-                <Grid Grid.Row="1" MinHeight="42" Background="#E9EEF5"
+                <Grid Grid.Row="1" MinHeight="42" Background="#F1F5F9"
                       Width="{Binding ActualWidth, ElementName=SalesList}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.1*" />
@@ -535,23 +406,23 @@
                     </Grid.ColumnDefinitions>
                     <Border Grid.Column="0" Style="{StaticResource ReportDetailHeaderCell}">
                         <TextBlock Text="CHEK RAQAMI" FontWeight="SemiBold"
-                                   Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center" />
+                                   Foreground="#64748B" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                     <Border Grid.Column="1" Style="{StaticResource ReportDetailHeaderCell}">
                         <TextBlock Text="SANA VA VAQT" FontWeight="SemiBold"
-                                   Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center" />
+                                   Foreground="#64748B" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                     <Border Grid.Column="2" Style="{StaticResource ReportDetailHeaderCell}">
                         <TextBlock Text="TO'LOV" FontWeight="SemiBold"
-                                   Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center" />
+                                   Foreground="#64748B" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                     <Border Grid.Column="3" Style="{StaticResource ReportDetailHeaderCell}">
                         <TextBlock Text="SUMMA" FontWeight="SemiBold"
-                                   Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center" />
+                                   Foreground="#64748B" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                     <Border Grid.Column="4" Style="{StaticResource ReportDetailHeaderCell}">
                         <TextBlock Text="HOLAT" FontWeight="SemiBold"
-                                   Foreground="{StaticResource ReportPrimaryText}" VerticalAlignment="Center" />
+                                   Foreground="#64748B" FontSize="12" VerticalAlignment="Center" />
                     </Border>
                     <Border Grid.Column="5" Style="{StaticResource ReportDetailHeaderCell}" />
                 </Grid>
@@ -890,9 +761,7 @@
 
         <TextBlock Grid.Row="3"
                    Text="{Binding ErrorMessage}"
-                   Foreground="#DC2626"
-                   FontSize="13"
-                   TextWrapping="Wrap"
+                   Style="{StaticResource AppErrorBanner}"
                    Margin="0,10,0,0" />
 
     </Grid>

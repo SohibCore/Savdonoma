@@ -6,7 +6,8 @@
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
              d:DesignHeight="700"
-             d:DesignWidth="1200">
+             d:DesignWidth="1200"
+             Background="#F8FAFC">
 
     <UserControl.Resources>
 
@@ -20,13 +21,7 @@
         <SolidColorBrush x:Key="DangerText" Color="#DC2626"/>
 
         <!-- Card -->
-        <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource CardBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="18"/>
-        </Style>
+        <Style x:Key="CardStyle" TargetType="Border" BasedOn="{StaticResource AppCard}" />
 
         <!-- Field label -->
         <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
@@ -57,11 +52,11 @@
 
     </UserControl.Resources>
 
-    <Grid Margin="20">
+    <Grid Margin="24">
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="370"/>
+            <ColumnDefinition Width="380"/>
         </Grid.ColumnDefinitions>
 
         <!-- ====================================================== -->
@@ -70,7 +65,6 @@
 
         <Border Grid.Column="0"
                 Style="{StaticResource CardStyle}"
-                Background="#E2E8F0"
                 Margin="0,0,16,0">
 
             <Grid>
@@ -92,31 +86,30 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="0">
-
-                        <TextBlock Text="Mahsulotlar"
-                                   FontSize="22"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource PrimaryText}"
-                                   HorizontalAlignment="Center"/>
-
-                        <TextBlock Text="Mahsulotlarni qidiring va boshqaring"
-                                   FontSize="13"
-                                   Foreground="{StaticResource SecondaryText}"
-                                   Margin="0,4,0,0"
-                                   HorizontalAlignment="Center"/>
-
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Top">
+                        <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppBlueSoft}">
+                            <ui:SymbolIcon Symbol="Box24" FontSize="20" Foreground="{StaticResource AppBlue}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Mahsulotlar" Style="{StaticResource AppCardTitle}" />
+                            <TextBlock Text="Mahsulotlarni qidiring va boshqaring" Style="{StaticResource AppCardSubtitle}" />
+                        </StackPanel>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <ui:Button Content="Shablonni yuklab olish"
+                            <ui:Button Content="Shablon"
+                                       Icon="{ui:SymbolIcon ArrowDownload24}"
+                                       Appearance="Secondary"
                                        Command="{Binding DownloadExcelTemplateCommand}"
                                        ToolTip="Mahsulot importi uchun Excel shablonini saqlash"
                                        MinHeight="40"
                                        Padding="12,0"
                                        Margin="0,0,8,0"/>
                             <ui:Button Content="Yangilash"
+                                       Icon="{ui:SymbolIcon ArrowClockwise24}"
+                                       Appearance="Secondary"
                                        Command="{Binding RefreshProductsCommand}"
                                        IsEnabled="{Binding CanRefreshProducts}"
                                        ToolTip="Mahsulotlar ro'yxatini yangilash"
@@ -124,6 +117,8 @@
                                        Padding="12,0"
                                        Margin="0,0,8,0"/>
                             <ui:Button Content="Excel'dan import"
+                                       Icon="{ui:SymbolIcon DocumentTable24}"
+                                       Appearance="Primary"
                                        Command="{Binding ImportFromExcelCommand}"
                                        IsEnabled="{Binding CanImport}"
                                        ToolTip="Ustun sarlavhalari: Mahsulot, Qoldiq, Narx, Birlik, Shtrix-kod, KategoriyaId. KategoriyaId qiymati ixtiyoriy."
@@ -146,13 +141,13 @@
                 <ui:TextBox Grid.Row="1"
                             PlaceholderText="Mahsulot nomi yoki shtrix-kod bo'yicha qidirish..."
                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                            Icon="{ui:SymbolIcon Search24}"
                             FontSize="15"
                             MinHeight="44"
-                            Margin="0,0,0,14"
-                            HorizontalAlignment="Center" Width="733"/>
+                            Margin="0,0,0,14"/>
 
                 <!-- Products table header -->
-                <Grid Grid.Row="2" MinHeight="42" Background="#E9EEF5"
+                <Grid Grid.Row="2" MinHeight="42" Background="#F1F5F9"
                       Width="{Binding ActualWidth, ElementName=ProductsList}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2.5*" />
@@ -163,34 +158,34 @@
                         <ColumnDefinition Width="1*" />
                         <ColumnDefinition Width="1.5*" />
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8">
-                        <TextBlock Text="MAHSULOT" FontWeight="SemiBold" Foreground="#111827"
+                    <Border Grid.Column="0" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="12,8">
+                        <TextBlock Text="MAHSULOT" FontWeight="SemiBold" FontSize="12" Foreground="#64748B"
                                    VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="1" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8">
-                        <TextBlock Text="QOLDIQ" FontWeight="SemiBold" Foreground="#111827"
+                    <Border Grid.Column="1" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="12,8">
+                        <TextBlock Text="QOLDIQ" FontWeight="SemiBold" FontSize="12" Foreground="#64748B"
                                    VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="2" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8">
-                        <TextBlock Text="NARX" FontWeight="SemiBold" Foreground="#111827"
+                    <Border Grid.Column="2" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="12,8">
+                        <TextBlock Text="NARX" FontWeight="SemiBold" FontSize="12" Foreground="#64748B"
                                    VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="3" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8"
+                    <Border Grid.Column="3" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="12,8"
                             ToolTip="O'rtacha kirim narxi (1 birlik)">
-                        <TextBlock Text="TANNARX" FontWeight="SemiBold" Foreground="#111827"
+                        <TextBlock Text="TANNARX" FontWeight="SemiBold" FontSize="12" Foreground="#64748B"
                                    VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="4" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8"
+                    <Border Grid.Column="4" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="12,8"
                             ToolTip="Narxning tannarxga nisbatan ustamasi">
-                        <TextBlock Text="USTAMA" FontWeight="SemiBold" Foreground="#111827"
+                        <TextBlock Text="USTAMA" FontWeight="SemiBold" FontSize="12" Foreground="#64748B"
                                    VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="5" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8">
-                        <TextBlock Text="BIRLIK" FontWeight="SemiBold" Foreground="#111827"
+                    <Border Grid.Column="5" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="12,8">
+                        <TextBlock Text="BIRLIK" FontWeight="SemiBold" FontSize="12" Foreground="#64748B"
                                    VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
                     <Border Grid.Column="6" BorderBrush="#D5DDE8" BorderThickness="0,0,0,1" Padding="12,8">
-                        <TextBlock Text="SHTRIX-KOD" FontWeight="SemiBold" Foreground="#111827"
+                        <TextBlock Text="SHTRIX-KOD" FontWeight="SemiBold" FontSize="12" Foreground="#64748B"
                                    VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
                 </Grid>
@@ -221,12 +216,12 @@
                                     <ColumnDefinition Width="1*" />
                                     <ColumnDefinition Width="1.5*" />
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
+                                <Border Grid.Column="0" Padding="12,8">
                                     <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
                                                HorizontalAlignment="Center" TextAlignment="Center"
                                                TextWrapping="Wrap" />
                                 </Border>
-                                <Border Grid.Column="1" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
+                                <Border Grid.Column="1" Padding="12,8">
                                     <TextBlock VerticalAlignment="Center"
                                                HorizontalAlignment="Center" TextAlignment="Center">
                                         <TextBlock.Style>
@@ -242,17 +237,17 @@
                                         </TextBlock.Style>
                                     </TextBlock>
                                 </Border>
-                                <Border Grid.Column="2" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
+                                <Border Grid.Column="2" Padding="12,8">
                                     <TextBlock Text="{Binding Price, StringFormat={}{0:N0}}"
                                                VerticalAlignment="Center"
                                                HorizontalAlignment="Center" TextAlignment="Center" />
                                 </Border>
-                                <Border Grid.Column="3" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
+                                <Border Grid.Column="3" Padding="12,8">
                                     <TextBlock Text="{Binding CostPriceText, Mode=OneWay}" Foreground="#475569"
                                                VerticalAlignment="Center"
                                                HorizontalAlignment="Center" TextAlignment="Center" />
                                 </Border>
-                                <Border Grid.Column="4" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
+                                <Border Grid.Column="4" Padding="12,8">
                                     <TextBlock Text="{Binding ActualMarkupText, Mode=OneWay}"
                                                VerticalAlignment="Center"
                                                HorizontalAlignment="Center" TextAlignment="Center">
@@ -270,7 +265,7 @@
                                         </TextBlock.Style>
                                     </TextBlock>
                                 </Border>
-                                <Border Grid.Column="5" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
+                                <Border Grid.Column="5" Padding="12,8">
                                     <TextBlock Text="{Binding Unit}"
                                                VerticalAlignment="Center"
                                                HorizontalAlignment="Center" TextAlignment="Center" />
@@ -297,9 +292,7 @@
         <!-- ====================================================== -->
 
         <Border Grid.Column="1"
-                Style="{StaticResource CardStyle}"
-                Background="#E2E8F0"
-                BorderThickness="0,1,1,1">
+                Style="{StaticResource CardStyle}">
 
             <Grid>
 
@@ -310,20 +303,21 @@
 
                 <!-- Form header -->
 
-                <StackPanel Grid.Row="0"
-                            Margin="0,0,0,16">
-
-                    <TextBlock Text="{Binding FormTitle}"
-                               FontSize="20"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource PrimaryText}"/>
-
-                    <TextBlock Text="{Binding FormDescription}"
-                               FontSize="13"
-                               Foreground="{StaticResource SecondaryText}"
-                               Margin="0,4,0,0"/>
-
-                </StackPanel>
+                <Grid Grid.Row="0" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppGreenSoft}"
+                            VerticalAlignment="Top">
+                        <ui:SymbolIcon Symbol="BoxEdit24" FontSize="20" Foreground="{StaticResource AppGreen}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding FormTitle}" Style="{StaticResource AppCardTitle}" />
+                        <TextBlock Text="{Binding FormDescription}" Style="{StaticResource AppCardSubtitle}" />
+                    </StackPanel>
+                </Grid>
 
 
                 <!-- Form -->
@@ -488,25 +482,17 @@
                                            MinHeight="40" Padding="12,0" Margin="8,0,0,0"/>
                             </Grid>
                             <ui:Button Content="Harakatlar tarixi" Command="{Binding ShowHistoryCommand}"
+                                       Icon="{ui:SymbolIcon History24}" Appearance="Secondary"
                                        MinHeight="40" HorizontalAlignment="Stretch"/>
                         </StackPanel>
 
 
                         <!-- Error -->
 
-                        <Border Background="#FEF2F2"
-                                BorderBrush="#FECACA"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                Padding="10"
-                                Margin="0,0,0,16">
-
-                            <TextBlock Text="{Binding ErrorMessage}"
-                                       Foreground="{StaticResource DangerText}"
-                                       TextWrapping="Wrap"
-                                       FontSize="13"/>
-
-                        </Border>
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   Style="{StaticResource AppErrorBanner}"
+                                   FontSize="13"
+                                   Margin="0,0,0,16"/>
 
 
                         <StackPanel Orientation="Vertical"
@@ -516,6 +502,7 @@
                             <!-- Save -->
                             <ui:Button Content="Saqlash"
                                        Command="{Binding SaveCommand}"
+                                       Icon="{ui:SymbolIcon Checkmark24}"
                                        Appearance="Primary"
                                        MinHeight="46"
                                        HorizontalAlignment="Stretch"
@@ -524,6 +511,8 @@
                             <!-- New product -->
                             <ui:Button Content="Yangi mahsulot"
                                        Command="{Binding NewProductCommand}"
+                                       Icon="{ui:SymbolIcon Add24}"
+                                       Appearance="Secondary"
                                        MinHeight="44"
                                        HorizontalAlignment="Stretch"
                                        Margin="0,0,0,8"/>
@@ -531,6 +520,8 @@
                             <!-- Deactivate -->
                             <ui:Button Content="Ro'yxatdan olib tashlash"
                                        Command="{Binding DeactivateCommand}"
+                                       Icon="{ui:SymbolIcon Delete24}"
+                                       Appearance="Danger"
                                        MinHeight="44"
                                        HorizontalAlignment="Stretch"
                                        Margin="0,0,0,8"/>

@@ -4,17 +4,18 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
+             Background="#F8FAFC"
              d:DesignHeight="700" d:DesignWidth="1100">
-    <Grid Margin="20">
+    <Grid Margin="24">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="340" />
+            <ColumnDefinition Width="360" />
         </Grid.ColumnDefinitions>
 
         <!-- ======== CHAP: Xodimlar jadvali ======== -->
-        <Border Grid.Column="0" Background="#E2E8F0" BorderBrush="#E2E8F0"
-                BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,16,0">
+        <Border Grid.Column="0" Style="{StaticResource AppCard}" Margin="0,0,16,0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -23,45 +24,38 @@
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <StackPanel>
-                        <TextBlock Text="Xodimlar" FontSize="22" FontWeight="Bold"
-                                   Foreground="#0F172A" />
-                        <TextBlock Text="Do'koningiz xodimlari ro'yxati"
-                                   Foreground="#64748B" Margin="0,4,0,0" />
+                    <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppIndigoSoft}">
+                        <ui:SymbolIcon Symbol="PeopleTeam24" FontSize="20" Foreground="{StaticResource AppIndigo}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Xodimlar" Style="{StaticResource AppCardTitle}" />
+                        <TextBlock Text="Do‘koningiz xodimlari va ularning rollari" Style="{StaticResource AppCardSubtitle}" />
                     </StackPanel>
-                    <CheckBox Grid.Column="1" Content="Nofaollarni ko'rsatish"
+                    <CheckBox Grid.Column="2" Content="Nofaollarni ko‘rsatish"
                               IsChecked="{Binding ShowInactive}"
                               VerticalAlignment="Center" Foreground="#334155" FontSize="14" />
                 </Grid>
 
                 <!-- Jadval header -->
-                <Grid Grid.Row="1" MinHeight="42" Background="#E9EEF5">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*" />
-                        <ColumnDefinition Width="1.5*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="110" />
-                    </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8">
-                        <TextBlock Text="ISM-FAMILIYA" FontWeight="SemiBold" Foreground="#111827"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Border>
-                    <Border Grid.Column="1" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8">
-                        <TextBlock Text="LOGIN" FontWeight="SemiBold" Foreground="#111827"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Border>
-                    <Border Grid.Column="2" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="12,8">
-                        <TextBlock Text="ROL" FontWeight="SemiBold" Foreground="#111827"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Border>
-                    <Border Grid.Column="3" BorderBrush="#D5DDE8" BorderThickness="0,0,0,1" Padding="12,8">
-                        <TextBlock Text="AMALLAR" FontWeight="SemiBold" Foreground="#111827"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Border>
-                </Grid>
+                <Border Grid.Row="1" Style="{StaticResource AppTableHeaderBar}" Padding="0,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="1.5*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="110" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="XODIM" Margin="16,0,0,0" />
+                        <TextBlock Grid.Column="1" Text="LOGIN" HorizontalAlignment="Center" />
+                        <TextBlock Grid.Column="2" Text="ROL" HorizontalAlignment="Center" />
+                        <TextBlock Grid.Column="3" Text="AMALLAR" HorizontalAlignment="Center" />
+                    </Grid>
+                </Border>
 
                 <!-- Xodimlar ro'yxati -->
                 <ListView x:Name="EmployeesList" Grid.Row="2"
@@ -75,7 +69,7 @@
                           ItemContainerStyle="{StaticResource TableRowStyle}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Grid MinHeight="42">
+                            <Grid MinHeight="52">
                                 <Grid.Style>
                                     <Style TargetType="Grid">
                                         <Style.Triggers>
@@ -94,19 +88,25 @@
                                 </Grid.ColumnDefinitions>
 
                                 <!-- Ism-familiya -->
-                                <Border Grid.Column="0" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
-                                    <TextBlock Text="{Binding FullName}" VerticalAlignment="Center"
-                                               HorizontalAlignment="Center" TextAlignment="Center" />
+                                <Border Grid.Column="0" Padding="12,8">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="34" Height="34" CornerRadius="17" Background="{StaticResource AppIndigoSoft}">
+                                            <ui:SymbolIcon Symbol="Person24" FontSize="18" Foreground="{StaticResource AppIndigo}"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <TextBlock Text="{Binding FullName}" VerticalAlignment="Center" Margin="10,0,0,0"
+                                                   FontWeight="SemiBold" Foreground="#1E293B" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
                                 </Border>
 
                                 <!-- Login -->
-                                <Border Grid.Column="1" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="12,8">
-                                    <TextBlock Text="{Binding UserName}" VerticalAlignment="Center"
+                                <Border Grid.Column="1" Padding="12,8">
+                                    <TextBlock Text="{Binding UserName}" VerticalAlignment="Center" Foreground="#475569"
                                                HorizontalAlignment="Center" TextAlignment="Center" />
                                 </Border>
 
                                 <!-- Rol -->
-                                <Border Grid.Column="2" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,6">
+                                <Border Grid.Column="2" Padding="8,6">
                                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Border CornerRadius="12" Padding="8,3" HorizontalAlignment="Center">
                                             <Border.Style>
@@ -295,13 +295,17 @@
         </Border>
 
         <!-- ======== O'NG: Yaratish / Tahrirlash formasi ======== -->
-        <Border Grid.Column="1" Background="#E2E8F0" BorderBrush="#E2E8F0"
-                BorderThickness="1" CornerRadius="12" Padding="20">
+        <Border Grid.Column="1" Style="{StaticResource AppCard}" VerticalAlignment="Top">
             <StackPanel>
                 <!-- Sarlavha: Yaratish yoki Tahrirlash -->
-                <TextBlock FontSize="20" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,18">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                    <Border Style="{StaticResource AppIconBadge}" Background="{StaticResource AppBlueSoft}">
+                        <ui:SymbolIcon Symbol="PersonAdd24" FontSize="20" Foreground="{StaticResource AppBlue}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                <TextBlock Margin="12,0,0,0">
                     <TextBlock.Style>
-                        <Style TargetType="TextBlock">
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource AppCardTitle}">
                             <Setter Property="Text" Value="Xodim yaratish" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsEditing}" Value="True">
@@ -314,18 +318,19 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
+                </StackPanel>
 
-                <TextBlock Text="Ism-familiya" Foreground="#475569" Margin="0,0,0,5" />
-                <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
-                         Height="38" Padding="9,6" Margin="0,0,0,13" />
+                <TextBlock Text="Ism-familiya" Style="{StaticResource AppFieldLabel}" />
+                <ui:TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
+                            Icon="{ui:SymbolIcon Person24}" MinHeight="40" Margin="0,0,0,13" />
 
-                <TextBlock Text="Login" Foreground="#475569" Margin="0,0,0,5" />
-                <TextBox Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}"
-                         Height="38" Padding="9,6" Margin="0,0,0,13" />
+                <TextBlock Text="Login" Style="{StaticResource AppFieldLabel}" />
+                <ui:TextBox Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}"
+                            Icon="{ui:SymbolIcon PersonKey24}" MinHeight="40" Margin="0,0,0,13" />
 
-                <TextBlock Foreground="#475569" Margin="0,0,0,5" TextWrapping="Wrap">
+                <TextBlock TextWrapping="Wrap">
                     <TextBlock.Style>
-                        <Style TargetType="TextBlock">
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource AppFieldLabel}">
                             <Setter Property="Text" Value="Parol" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsEditing}" Value="True">
@@ -336,7 +341,7 @@
                     </TextBlock.Style>
                 </TextBlock>
                 <PasswordBox x:Name="EmployeePassword" PasswordChanged="EmployeePassword_PasswordChanged"
-                             Height="38" Padding="9,6" Margin="0,0,0,13" />
+                             MinHeight="40" Margin="0,0,0,13" />
 
                 <!-- Xodim uchun: rol -->
                 <StackPanel>
@@ -350,10 +355,10 @@
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
-                    <TextBlock Text="Rol" Foreground="#475569" Margin="0,0,0,5" />
+                    <TextBlock Text="Rol" Style="{StaticResource AppFieldLabel}" />
                     <ComboBox ItemsSource="{Binding Roles}" SelectedValuePath="Value" DisplayMemberPath="Name"
                               SelectedValue="{Binding SelectedRole}"
-                              Height="38" Padding="8,5" Margin="0,0,0,18" />
+                              MinHeight="40" Margin="0,0,0,18" />
                 </StackPanel>
 
                 <!-- Rahbar uchun: joriy parol (login yoki parol o'zgarsa talab qilinadi) -->
@@ -368,22 +373,21 @@
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
-                    <TextBlock Text="Joriy parolingiz" Foreground="#475569" Margin="0,0,0,5" />
+                    <TextBlock Text="Joriy parolingiz" Style="{StaticResource AppFieldLabel}" />
                     <PasswordBox x:Name="CurrentPasswordInput" PasswordChanged="CurrentPassword_PasswordChanged"
-                                 Height="38" Padding="9,6" Margin="0,0,0,5" />
+                                 MinHeight="40" Margin="0,0,0,5" />
                     <TextBlock Text="Login yoki parolni o'zgartirish uchun joriy parolingizni kiriting."
                                Foreground="#64748B" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,18" />
                 </StackPanel>
 
                 <!-- Status xabar -->
-                <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap"
-                           Margin="0,0,0,12">
+                <TextBlock Text="{Binding StatusMessage}" Margin="0,0,0,12">
                     <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Foreground" Value="#15803D" />
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource AppSuccessBanner}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding HasError}" Value="True">
-                                    <Setter Property="Foreground" Value="#DC2626" />
+                                    <Setter Property="Foreground" Value="#B91C1C" />
+                                    <Setter Property="Background" Value="#FEF2F2" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -391,42 +395,19 @@
                 </TextBlock>
 
                 <!-- ===== Yaratish rejimidagi tugma ===== -->
-                <Button Content="Xodimni saqlash" Command="{Binding CreateCommand}"
-                        Height="42" Background="#2563EB" Foreground="White"
-                        BorderThickness="0" FontWeight="SemiBold" Cursor="Hand">
-                    <Button.Style>
-                        <Style TargetType="Button">
+                <ui:Button Content="Xodimni saqlash" Command="{Binding CreateCommand}"
+                           Icon="{ui:SymbolIcon Checkmark24}" Appearance="Primary"
+                           HorizontalAlignment="Stretch" MinHeight="42">
+                    <ui:Button.Style>
+                        <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsEditing}" Value="True">
                                     <Setter Property="Visibility" Value="Collapsed" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Button.Style>
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="ButtonBorder"
-                                    Background="{TemplateBinding Background}"
-                                    CornerRadius="6"
-                                    Padding="{TemplateBinding Padding}">
-                                <ContentPresenter HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"
-                                                  TextElement.Foreground="{TemplateBinding Foreground}" />
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="ButtonBorder" Property="Background" Value="#1D4ED8" />
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="ButtonBorder" Property="Background" Value="#1E40AF" />
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.55" />
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                    </ui:Button.Style>
+                </ui:Button>
 
                 <!-- ===== Tahrirlash rejimidagi tugmalar ===== -->
                 <StackPanel>
@@ -442,60 +423,14 @@
                     </StackPanel.Style>
 
                     <!-- Yangilash tugmasi -->
-                    <Button Content="Yangilash" Command="{Binding UpdateCommand}"
-                            Height="42" Background="#10B981" Foreground="White"
-                            BorderThickness="0" FontWeight="SemiBold" Cursor="Hand"
-                            Margin="0,0,0,8">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="ButtonBorder"
-                                        Background="{TemplateBinding Background}"
-                                        CornerRadius="6"
-                                        Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"
-                                                      TextElement.Foreground="{TemplateBinding Foreground}" />
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="ButtonBorder" Property="Background" Value="#059669" />
-                                    </Trigger>
-                                    <Trigger Property="IsPressed" Value="True">
-                                        <Setter TargetName="ButtonBorder" Property="Background" Value="#047857" />
-                                    </Trigger>
-                                    <Trigger Property="IsEnabled" Value="False">
-                                        <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.55" />
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
+                    <ui:Button Content="Saqlash" Command="{Binding UpdateCommand}"
+                               Icon="{ui:SymbolIcon Checkmark24}" Appearance="Success"
+                               HorizontalAlignment="Stretch" MinHeight="42" Margin="0,0,0,8" />
 
                     <!-- Bekor qilish tugmasi -->
-                    <Button Content="Bekor qilish" Command="{Binding CancelEditCommand}"
-                            Height="42" Background="#94A3B8" Foreground="White"
-                            BorderThickness="0" FontWeight="SemiBold" Cursor="Hand">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="ButtonBorder"
-                                        Background="{TemplateBinding Background}"
-                                        CornerRadius="6"
-                                        Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"
-                                                      TextElement.Foreground="{TemplateBinding Foreground}" />
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="ButtonBorder" Property="Background" Value="#64748B" />
-                                    </Trigger>
-                                    <Trigger Property="IsPressed" Value="True">
-                                        <Setter TargetName="ButtonBorder" Property="Background" Value="#475569" />
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
+                    <ui:Button Content="Bekor qilish" Command="{Binding CancelEditCommand}"
+                               Icon="{ui:SymbolIcon Dismiss24}" Appearance="Secondary"
+                               HorizontalAlignment="Stretch" MinHeight="42" />
                 </StackPanel>
             </StackPanel>
         </Border>

@@ -6,18 +6,16 @@
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
              d:DesignHeight="700"
-             d:DesignWidth="1200">
+             d:DesignWidth="1200"
+             Background="#F8FAFC">
     <UserControl.Resources>
         <SolidColorBrush x:Key="CardBackground" Color="#FFFFFF" />
         <SolidColorBrush x:Key="BorderBrush" Color="#E2E8F0" />
         <SolidColorBrush x:Key="PrimaryText" Color="#0F172A" />
         <SolidColorBrush x:Key="SecondaryText" Color="#64748B" />
         <SolidColorBrush x:Key="LightBackground" Color="#F8FAFC" />
-        <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource CardBackground}" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="12" />
+        <!-- Kassa ekrani ixcham: umumiy karta, kichikroq ichki bo'shliq bilan -->
+        <Style x:Key="CardStyle" TargetType="Border" BasedOn="{StaticResource AppCard}">
             <Setter Property="Padding" Value="14" />
         </Style>
         <Style x:Key="TableHeaderStyle" TargetType="GridViewColumnHeader">
@@ -123,7 +121,7 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource CardStyle}"
-                Background="#E2E8F0" Margin="0,0,10,8">
+                Margin="0,0,10,8">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -135,19 +133,24 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <StackPanel>
-                        <TextBlock Text="Savat" FontSize="19" FontWeight="Bold" Foreground="{StaticResource PrimaryText}" />
-                        <TextBlock Text="Tanlangan mahsulotlar va miqdorlar"
-                                   FontSize="12" Foreground="{StaticResource SecondaryText}" Margin="0,2,0,0" />
+                    <StackPanel Orientation="Horizontal">
+                        <Border Style="{StaticResource AppIconBadgeSmall}" Background="{StaticResource AppBlueSoft}">
+                            <ui:SymbolIcon Symbol="Cart24" FontSize="18" Foreground="{StaticResource AppBlue}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Savat" Style="{StaticResource AppCardTitle}" />
+                            <TextBlock Text="Tanlangan mahsulotlar va miqdorlar" Style="{StaticResource AppCardSubtitle}" />
+                        </StackPanel>
                     </StackPanel>
-                    <Border Grid.Column="1" Background="#EFF6FF" CornerRadius="8" Padding="10,6"
+                    <Border Grid.Column="1" Style="{StaticResource AppPill}" Background="{StaticResource AppBlueSoft}"
                             VerticalAlignment="Center">
                         <TextBlock Text="SOTUV" FontSize="10" FontWeight="Bold" Foreground="#1D4ED8" />
                     </Border>
                 </Grid>
 
                 <!-- Savat header -->
-                <Grid Grid.Row="1" MinHeight="38" Background="#E9EEF5"
+                <Grid Grid.Row="1" MinHeight="38" Background="#F1F5F9"
                       Width="{Binding ActualWidth, ElementName=CartList}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
@@ -156,20 +159,20 @@
                         <ColumnDefinition Width="1.2*" />
                         <ColumnDefinition Width="1.8*" />
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
-                        <TextBlock Text="MAHSULOT" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Grid.Column="0" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="8,6">
+                        <TextBlock Text="MAHSULOT" FontWeight="SemiBold" FontSize="11" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="1" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
-                        <TextBlock Text="NARX" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Grid.Column="1" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="8,6">
+                        <TextBlock Text="NARX" FontWeight="SemiBold" FontSize="11" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="2" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
-                        <TextBlock Text="MIQDOR" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Grid.Column="2" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="8,6">
+                        <TextBlock Text="MIQDOR" FontWeight="SemiBold" FontSize="11" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="3" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
-                        <TextBlock Text="SUMMA" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Grid.Column="3" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="8,6">
+                        <TextBlock Text="SUMMA" FontWeight="SemiBold" FontSize="11" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="4" BorderBrush="#D5DDE8" BorderThickness="0,0,0,1" Padding="8,6">
-                        <TextBlock Text="AMALLAR" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Grid.Column="4" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="8,6">
+                        <TextBlock Text="AMALLAR" FontWeight="SemiBold" FontSize="11" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                 </Grid>
 
@@ -191,23 +194,23 @@
                                     <ColumnDefinition Width="1.2*" />
                                     <ColumnDefinition Width="1.8*" />
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,4">
+                                <Border Grid.Column="0" Padding="8,4">
                                     <TextBlock Text="{Binding ProductName}" VerticalAlignment="Center"
                                                HorizontalAlignment="Center" TextAlignment="Center"
                                                TextTrimming="CharacterEllipsis" />
                                 </Border>
-                                <Border Grid.Column="1" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,4">
+                                <Border Grid.Column="1" Padding="8,4">
                                     <TextBlock Text="{Binding UnitPrice, StringFormat={}{0:N0}}"
                                                VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" />
                                 </Border>
-                                <Border Grid.Column="2" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="4,4">
+                                <Border Grid.Column="2" Padding="4,4">
                                     <TextBox Text="{Binding QuantityText}"
                                              FontSize="13" Padding="3,4"
                                              HorizontalAlignment="Stretch"
                                              VerticalAlignment="Center" TextAlignment="Center"
                                              BorderThickness="1" BorderBrush="#CBD5E1" />
                                 </Border>
-                                <Border Grid.Column="3" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,4">
+                                <Border Grid.Column="3" Padding="8,4">
                                     <TextBlock Text="{Binding LineTotal, StringFormat={}{0:N0}}"
                                                VerticalAlignment="Center" HorizontalAlignment="Center"
                                                TextAlignment="Center" FontWeight="SemiBold" />
@@ -236,7 +239,7 @@
         </Border>
 
         <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardStyle}"
-                Background="#E2E8F0" Margin="0,0,10,0">
+                Margin="0,0,10,0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -244,19 +247,23 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <StackPanel Margin="0,0,0,8">
-                    <TextBlock Text="Mahsulotlar" FontSize="19" FontWeight="Bold"
-                               Foreground="{StaticResource PrimaryText}" />
-                    <TextBlock Text="Ro'yxatdan mahsulot tanlab savatga qo'shing"
-                               FontSize="12" FontWeight="SemiBold"
-                               Foreground="{StaticResource SecondaryText}" Margin="0,2,0,0" />
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <Border Style="{StaticResource AppIconBadgeSmall}" Background="{StaticResource AppGreenSoft}">
+                        <ui:SymbolIcon Symbol="Box24" FontSize="18" Foreground="{StaticResource AppGreen}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Mahsulotlar" Style="{StaticResource AppCardTitle}" />
+                        <TextBlock Text="Ro'yxatdan mahsulot tanlab savatga qo'shing" Style="{StaticResource AppCardSubtitle}" />
+                    </StackPanel>
                 </StackPanel>
                 <ui:TextBox Grid.Row="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                            Icon="{ui:SymbolIcon Search24}"
                             PlaceholderText="Nomi yoki shtrix-kod bo'yicha qidirish"
                             FontSize="13" MinHeight="38" Margin="0,0,0,8" />
 
                 <!-- Mahsulotlar jadval header -->
-                <Grid Grid.Row="2" MinHeight="38" Background="#E9EEF5"
+                <Grid Grid.Row="2" MinHeight="38" Background="#F1F5F9"
                       Width="{Binding ActualWidth, ElementName=SaleProductsList}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2.5*" />
@@ -265,20 +272,20 @@
                         <ColumnDefinition Width="1*" />
                         <ColumnDefinition Width="1.5*" />
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
-                        <TextBlock Text="NOMI" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Grid.Column="0" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="8,6">
+                        <TextBlock Text="NOMI" FontWeight="SemiBold" FontSize="11" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="1" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
-                        <TextBlock Text="QOLDIQ" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Grid.Column="1" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="8,6">
+                        <TextBlock Text="QOLDIQ" FontWeight="SemiBold" FontSize="11" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="2" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
-                        <TextBlock Text="NARX" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Grid.Column="2" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="8,6">
+                        <TextBlock Text="NARX" FontWeight="SemiBold" FontSize="11" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="3" BorderBrush="#D5DDE8" BorderThickness="0,0,1,1" Padding="8,6">
-                        <TextBlock Text="BIRLIK" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Grid.Column="3" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="8,6">
+                        <TextBlock Text="BIRLIK" FontWeight="SemiBold" FontSize="11" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Grid.Column="4" BorderBrush="#D5DDE8" BorderThickness="0,0,0,1" Padding="8,6">
-                        <TextBlock Text="SHTRIX-KOD" FontWeight="SemiBold" FontSize="11" Foreground="#111827" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Grid.Column="4" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="8,6">
+                        <TextBlock Text="SHTRIX-KOD" FontWeight="SemiBold" FontSize="11" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                 </Grid>
 
@@ -300,12 +307,12 @@
                                     <ColumnDefinition Width="1*" />
                                     <ColumnDefinition Width="1.5*" />
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,4">
+                                <Border Grid.Column="0" Padding="8,4">
                                     <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
                                                HorizontalAlignment="Center" TextAlignment="Center"
                                                TextTrimming="CharacterEllipsis" />
                                 </Border>
-                                <Border Grid.Column="1" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,4">
+                                <Border Grid.Column="1" Padding="8,4">
                                     <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
@@ -320,11 +327,11 @@
                                         </TextBlock.Style>
                                     </TextBlock>
                                 </Border>
-                                <Border Grid.Column="2" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,4">
+                                <Border Grid.Column="2" Padding="8,4">
                                     <TextBlock Text="{Binding Price, StringFormat={}{0:N0}}"
                                                VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" />
                                 </Border>
-                                <Border Grid.Column="3" BorderBrush="#DCE3EC" BorderThickness="0,0,1,0" Padding="8,4">
+                                <Border Grid.Column="3" Padding="8,4">
                                     <TextBlock Text="{Binding Unit}"
                                                VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" />
                                 </Border>
@@ -341,7 +348,7 @@
         </Border>
 
         <Border Grid.RowSpan="2" Grid.Column="1" Style="{StaticResource CardStyle}"
-                Background="#E2E8F0" Padding="12">
+                Padding="12">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -355,11 +362,15 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <StackPanel>
-                        <TextBlock Text="Savdo amallari" FontSize="18" FontWeight="Bold"
-                                   Foreground="{StaticResource PrimaryText}" />
-                        <TextBlock Text="Klaviatura, to'lov va summa"
-                                   FontSize="11" Foreground="{StaticResource SecondaryText}" Margin="0,3,0,0" />
+                    <StackPanel Orientation="Horizontal">
+                        <Border Style="{StaticResource AppIconBadgeSmall}" Background="{StaticResource AppIndigoSoft}">
+                            <ui:SymbolIcon Symbol="Calculator24" FontSize="18" Foreground="{StaticResource AppIndigo}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Savdo amallari" Style="{StaticResource AppCardTitle}" />
+                            <TextBlock Text="Klaviatura, to'lov va summa" Style="{StaticResource AppCardSubtitle}" />
+                        </StackPanel>
                     </StackPanel>
                     <Button Grid.Column="1" Command="{Binding ToggleKeyboardLayoutCommand}"
                             MinWidth="48" MinHeight="32" Padding="6,2" VerticalAlignment="Center"
@@ -756,18 +767,21 @@
                         <TextBlock Text="{Binding ErrorMessage}" Foreground="#B91C1C"
                                    TextWrapping="Wrap" FontSize="11" />
                     </Border>
-                    <Border Background="{StaticResource LightBackground}" BorderBrush="{StaticResource BorderBrush}"
+                    <Border Background="{StaticResource AppBlueSoft}" BorderBrush="#BFDBFE"
                             BorderThickness="1" CornerRadius="10" Padding="10" Margin="0,0,0,8">
                         <Grid>
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="JAMI" FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{StaticResource SecondaryText}" VerticalAlignment="Center" />
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <ui:SymbolIcon Symbol="Money24" FontSize="18" Foreground="{StaticResource AppBlue}"
+                                           VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="JAMI" FontSize="11" FontWeight="Bold"
+                                       Foreground="#1D4ED8" VerticalAlignment="Center" Margin="8,0,0,0" />
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:N0}}"
-                                           FontSize="21" FontWeight="Bold" Foreground="{StaticResource PrimaryText}"
+                                           FontSize="22" FontWeight="Bold" Foreground="{StaticResource PrimaryText}"
                                            TextTrimming="CharacterEllipsis" />
                                 <TextBlock Text=" so'm" FontSize="11" Foreground="{StaticResource SecondaryText}"
                                            VerticalAlignment="Center" Margin="4,0,0,0" />
@@ -775,6 +789,7 @@
                         </Grid>
                     </Border>
                     <ui:Button Content="SOTUVNI YAKUNLASH"
+                           Icon="{ui:SymbolIcon CheckmarkCircle24}"
                            Command="{Binding CompleteSaleCommand}" Appearance="Primary"
                            MinHeight="42" FontSize="13" FontWeight="SemiBold"
                            HorizontalAlignment="Stretch" />
