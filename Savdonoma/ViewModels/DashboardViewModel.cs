@@ -91,7 +91,8 @@ namespace Savdonoma.ViewModels
         [ObservableProperty] private bool showStockWarnings;
         [ObservableProperty] private int lowStockCount;
         [ObservableProperty] private int outOfStockCount;
-        [ObservableProperty] private ObservableCollection<DashboardLowStockRow> lowStockItems = new();
+        private const int DashboardPageSize = 3;
+        public ClientPager<DashboardLowStockRow> LowStockPager { get; } = new(DashboardPageSize);
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(NoLowStock))]
         private bool hasLowStock;
@@ -100,7 +101,7 @@ namespace Savdonoma.ViewModels
         // Xodimlar kesimida savdo (faqat rahbar va menejer).
         // O'z sana filtri bor: Bugun/Hafta/Oy tanlanganda shu davrga moslashadi, keyin alohida o'zgartirish mumkin.
         [ObservableProperty] private bool showEmployeeSales;
-        [ObservableProperty] private ObservableCollection<DashboardEmployeeRow> employeeSales = new();
+        public ClientPager<DashboardEmployeeRow> EmployeePager { get; } = new(DashboardPageSize);
         [ObservableProperty] private DateTime? employeeFromDate = DateTime.Today;
         [ObservableProperty] private DateTime? employeeToDate = DateTime.Today;
         [ObservableProperty] private bool isEmployeeLoading;
@@ -195,7 +196,7 @@ namespace Savdonoma.ViewModels
                 ct.ThrowIfCancellationRequested();
 
                 var employeesTotal = employees.Sum(x => x.TotalAmount);
-                EmployeeSales = new ObservableCollection<DashboardEmployeeRow>(employees.Select(x => new DashboardEmployeeRow
+                EmployeePager.SetSource(employees.Select(x => new DashboardEmployeeRow
                 {
                     Name = x.FullName,
                     Initials = GetInitials(x.FullName),
@@ -210,7 +211,7 @@ namespace Savdonoma.ViewModels
                     CancelledCount = x.CancelledCount,
                     SharePercent = employeesTotal == 0 ? 0 : 100.0 * x.TotalAmount / employeesTotal
                 }));
-                HasEmployeeSales = EmployeeSales.Count > 0;
+                HasEmployeeSales = EmployeePager.TotalCount > 0;
                 ShowEmployeeSales = true;
                 EmployeeErrorMessage = "";
             }
@@ -276,7 +277,7 @@ namespace Savdonoma.ViewModels
                 var top = await _dashboard.GetTopProductsAsync(from, to, ct);
                 var inventoryEnabled = await _settings.GetInventoryEnabledAsync(ct) == true;
                 var warning = inventoryEnabled
-                    ? await _dashboard.GetTodayWarningAsync(ct)
+                    ? await _dashboard.GetTodayWarningAsync(ct, take: int.MaxValue)   // hammasi, sahifalash UI'da
                     : null;
                 ct.ThrowIfCancellationRequested();
 
@@ -305,7 +306,7 @@ namespace Savdonoma.ViewModels
                 ShowStockWarnings = warning is not null;
                 LowStockCount = warning?.LowStockCount ?? 0;
                 OutOfStockCount = warning?.OutOfStockCount ?? 0;
-                LowStockItems = new ObservableCollection<DashboardLowStockRow>(
+                LowStockPager.SetSource(
                     (warning?.LowStockItems ?? new()).Select(x => new DashboardLowStockRow
                     {
                         Name = x.Name,
@@ -313,7 +314,7 @@ namespace Savdonoma.ViewModels
                         MinQuantityText = NumberInput.Format(x.MinQuantity),
                         IsOut = x.Quantity <= 0
                     }));
-                HasLowStock = LowStockItems.Count > 0;
+                HasLowStock = LowStockPager.TotalCount > 0;
 
                 ErrorMessage = "";
             }

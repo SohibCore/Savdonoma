@@ -324,32 +324,13 @@
 
                     <Border Style="{StaticResource NavSeparatorStyle}" />
 
-                    <Button Click="ContactButton_Click" Style="{StaticResource NavButtonStyle}">
-                        <Button.ToolTip>
-                            <StackPanel>
-                                <TextBlock Text="Bog‘lanish" FontWeight="SemiBold" Margin="0,0,0,4" />
-                                <TextBlock Text="Telefon: +998771577730" />
-                                <TextBlock Text="Telegram: @bekmurodv_s" />
-                            </StackPanel>
-                        </Button.ToolTip>
+                    <Button Command="{Binding ShowContactCommand}" Tag="{Binding IsContactActive}"
+                            ToolTip="Bog‘lanish" Style="{StaticResource NavButtonStyle}">
                         <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Headset24" Style="{StaticResource NavIconStyle}"
-                                           Foreground="#5EEAD4" />
+                            <ui:SymbolIcon Symbol="Headset24" Style="{StaticResource NavIconStyle}" />
                             <TextBlock Text="Bog‘lanish" Style="{StaticResource NavLabelStyle}" />
                         </StackPanel>
                     </Button>
-                    <Border Style="{StaticResource ExpandedOnlyStyle}">
-                        <Border x:Name="ContactDetailsPanel" Visibility="Collapsed"
-                                Background="#14FFFFFF" CornerRadius="10"
-                                Padding="12,8" Margin="0,0,0,6">
-                            <StackPanel>
-                                <TextBlock Text="Telefon: +998771577730"
-                                           Foreground="#CBD5E1" FontSize="12" Margin="0,0,0,4" />
-                                <TextBlock Text="Telegram: @bekmurodv_s"
-                                           Foreground="#CBD5E1" FontSize="12" />
-                            </StackPanel>
-                        </Border>
-                    </Border>
                 </StackPanel>
 
                 <!-- Menyu pastida: Litsenziya va chiqish -->

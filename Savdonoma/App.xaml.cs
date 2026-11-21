@@ -111,6 +111,7 @@ namespace Savdonoma
             sc.AddSingleton<ProductsViewModel>();
             sc.AddTransient<EmployeesViewModel>();
             sc.AddTransient<OrganizationViewModel>();
+            sc.AddTransient<ContactViewModel>();
             sc.AddTransient<PasswordResetViewModel>();
             sc.AddTransient<WarehouseViewModel>();
             sc.AddTransient<SuppliersViewModel>();

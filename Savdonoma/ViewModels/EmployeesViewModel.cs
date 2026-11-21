@@ -4,8 +4,8 @@ using Savdonoma.Core.Licensing;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Savdonoma.Data.Services.UserService;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Savdonoma.ViewModels
 {

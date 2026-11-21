@@ -61,6 +61,9 @@ namespace Savdonoma.ViewModels
         private bool isWarehouseActive;
 
         [ObservableProperty]
+        private bool isContactActive;
+
+        [ObservableProperty]
         private bool isMainMenuExpanded = true;
 
         public bool IsOwner => _currentUser.IsOwner;
@@ -178,8 +181,9 @@ namespace Savdonoma.ViewModels
             };
         }
 
-        private void SetActiveSection(bool sale = false, bool products = false, bool reports = false, bool license = false, bool employees = false, bool warehouse = false, bool organization = false, bool dashboard = false)
+        private void SetActiveSection(bool sale = false, bool products = false, bool reports = false, bool license = false, bool employees = false, bool warehouse = false, bool organization = false, bool dashboard = false, bool contact = false)
         {
+            IsContactActive = contact;
             IsDashboardActive = dashboard;
             IsSaleActive = sale;
             IsProductsActive = products;
@@ -302,6 +306,15 @@ namespace Savdonoma.ViewModels
             PageTitle = "Litsenziya";
             PageSubtitle = "Dastur litsenziyasi va faollashtirish";
             SetActiveSection(license: true);
+        }
+
+        [RelayCommand]
+        private void ShowContact()
+        {
+            CurrentPage = _sp.GetRequiredService<ContactViewModel>();
+            PageTitle = "Bog‘lanish";
+            PageSubtitle = "Biz bilan bog‘laning, savollaringizga javob oling";
+            SetActiveSection(contact: true);
         }
 
         [RelayCommand]
